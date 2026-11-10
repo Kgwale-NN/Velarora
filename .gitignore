@@ -1,0 +1,65 @@
+# Private keys and certificates
+*.pem
+*.env
+
+# Common image formats
+*.jpg
+*.jpeg
+*.png
+
+# Keep README screenshots / docs assets
+!frontend/assets/*.png
+!frontend/assets/*.jpg
+!frontend/assets/*.jpeg
+
+# DB
+*.db
+
+# Python compiled files
+**/*.pyc
+**/__pycache__/
+
+# Build artifacts
+build/
+dist/
+veyon_ai_monitor.egg-info/
+VeyonAIMonitor.spec
+
+# Runtime data
+data/
+runs/
+
+# NiceGUI persistent storage
+.nicegui/
+
+# Virtual environment
+.venv/
+
+# Weight files
+*.pt
+*.onnx
+
+# Training datasets and archives
+datasets
+
+# Latency / profiling logs
+latency_log.csv
+# Local credentials and server logs
+LOCAL-LOGIN.txt
+server.stdout.log
+server.stderr.log
+
+# Velarora: keep local records, credentials and generated files off GitHub
+.env.*
+!.env.example
+*.key
+*.pfx
+*.db-*
+*.log
+*.zip
+*.egg-info/
+*.spec
+.pytest_cache/
+.ruff_cache/
+weights/
+Training-Datasets/

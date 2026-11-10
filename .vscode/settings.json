@@ -1,0 +1,39 @@
+{
+  "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
+  "python.terminal.activateEnvironment": true,
+  "files.exclude": {
+    "**/__pycache__": true,
+    ".git": true,
+    ".github": true,
+    ".nicegui": true,
+    ".pytest_cache": true,
+    ".ruff_cache": true,
+    ".venv": true,
+    ".vscode": true,
+    "*.egg-info": true,
+    "runs": true,
+    "weights": true,
+    "*.pt": true,
+    "*.onnx": true,
+    "*.log": true,
+    ".env": true,
+    ".env.example": true,
+    ".gitattributes": true,
+    ".gitignore": true,
+    "Start-Monitor.ps1": true,
+    "build": true,
+    "dist": true
+  },
+  "search.exclude": {
+    ".venv": true,
+    "data": true,
+    ".nicegui": true,
+    "runs": true,
+    "weights": true,
+    "*.egg-info": true,
+    ".pytest_cache": true,
+    ".ruff_cache": true,
+    "build": true,
+    "dist": true
+  }
+}
