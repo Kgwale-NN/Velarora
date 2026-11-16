@@ -13,12 +13,20 @@ account. The check runs server-side in do_login, so it cannot be bypassed
 by reloading the page.
 """
 from fastapi import Request
-from nicegui import ui
+from fastapi.responses import RedirectResponse
+from nicegui import app, ui
 
 from backend.core import rate_limit
 from backend.core.auth import get_session_user, home_path_for, set_session_user
 from backend.db.staff_email import authenticate_login
 from frontend.translate import t
+
+
+@app.get("/auth/continue", include_in_schema=False)
+def finish_sign_in(request: Request):
+    user = get_session_user()
+    request.session["remember"] = bool(user and app.storage.user.get("remember_until"))
+    return RedirectResponse(home_path_for(user) if user else "/login", headers={"Cache-Control": "no-store"})
 
 
 @ui.page("/login")
@@ -43,6 +51,7 @@ def page_login(request: Request) -> None:
             password = ui.input(
                 t("login_password"), password=True, password_toggle_button=True,
             ).props("outlined dense autocomplete=current-password").classes("w-full")
+            remember = ui.checkbox(t("login_remember"), value=False)
             error    = ui.label("").classes("text-red-400 text-sm")
 
             # Captured at page build; the websocket callback below reuses it.
@@ -63,8 +72,8 @@ def page_login(request: Request) -> None:
                     password.set_value("")
                     return
                 rate_limit.record_login_success(client_ip, uname)
-                set_session_user(u)
-                ui.navigate.to(home_path_for(u))
+                set_session_user(u, remember=bool(remember.value))
+                ui.navigate.to("/auth/continue")
 
             ui.button(t("login_btn"), on_click=do_login).props(
                 "color=primary"

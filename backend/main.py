@@ -122,6 +122,10 @@ _ssl = get_ssl_kwargs()
 if _ssl:
     log.info("TLS enabled — serving HTTPS with certificate %s", _ssl["ssl_certfile"])
 
+from backend.core.session_cookie import configure_login_cookie
+
+configure_login_cookie(nicegui_app, STORAGE_SECRET, bool(_ssl))
+
 ui.run(
     title          = "Velarora",
     # Explicit binding: 0.0.0.0 keeps the UI reachable from other machines on
@@ -130,7 +134,6 @@ ui.run(
     port           = BIND_PORT,
     dark           = True,
     storage_secret = STORAGE_SECRET,
-    session_middleware_kwargs = {"https_only": True} if _ssl else None,
     favicon        = "🎓",
     show           = True,
     reload         = False,

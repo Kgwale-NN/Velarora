@@ -44,6 +44,7 @@
   "staff_signin": "Teacher or admin",
   "staff_setup": "Set up staff email",
   "login_username": "Username",
+  "login_remember": "Remember me for 30 days",
   "login_password": "Password",
   "login_btn": "Sign in",
   "login_invalid": "Check your sign-in details and try again.",

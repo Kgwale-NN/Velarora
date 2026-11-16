@@ -44,6 +44,7 @@
   "staff_signin": "Mokytojas arba administratorius",
   "staff_setup": "Nustatyti darbuotojo el. paštą",
   "login_username": "Naudotojo vardas",
+  "login_remember": "Prisiminti mane 30 dienų",
   "login_password": "Slaptažodis",
   "login_btn": "Prisijungti",
   "login_invalid": "Patikrinkite prisijungimo duomenis.",

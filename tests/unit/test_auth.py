@@ -112,3 +112,15 @@ class TestRequireAuth:
             user = {"id": 1, "username": "x", "role": role}
             auth, _, _ = _import_auth({"auth": user})
             assert auth.require_auth() is not None
+def test_remembered_login_expires_and_logout_revokes_it():
+    from time import time
+    storage = {}
+    auth, _, _ = _import_auth(storage)
+    user = {"id": 1, "username": "Teacher", "role": "teacher"}
+    auth.set_session_user(user, remember=True)
+    assert storage["remember_until"] > time()
+    storage["remember_until"] = time() - 1
+    assert auth.get_session_user() is None
+    auth.set_session_user(user, remember=True)
+    auth.clear_session()
+    assert auth.get_session_user() is None and "remember_until" not in storage

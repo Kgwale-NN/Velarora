@@ -247,7 +247,7 @@ def _user_menu(current_user: dict, dark) -> None:
         ui.separator()
 
         with ui.menu_item(
-            on_click=lambda: (clear_session(), ui.navigate.to("/login"))
+            on_click=lambda: (clear_session(), ui.navigate.to("/auth/continue"))
         ):
             with ui.row().classes("items-center gap-3 text-red-400"):
                 ui.icon("logout").classes("text-base")

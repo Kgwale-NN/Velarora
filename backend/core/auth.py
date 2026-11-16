@@ -1,30 +1,21 @@
-"""
-backend/core/auth.py
-────────────────
-Session helpers using NiceGUI's per-browser app.storage.user.
-
-Role definitions
-────────────────
-  admin   — /users, /models, /audit, /settings
-  teacher — /  (dashboard), /history, /analytics, /reports, /alerts,
-            /groups, /schedules, /users, /models, /audit
-            + Start/Stop monitor and the notification bell
-  student — own /history + /analytics only
-
-Roles are DISTINCT — admin does NOT get teacher-only pages (dashboard,
-schedules, …) and teacher does NOT get /settings. The shared pages are
-/users, /models, and /audit (admin and teacher, with different capabilities).
-"""
+"""Session lifetime, roles and page access for Velarora."""
 from __future__ import annotations
 from typing import Optional
+import time
+from backend.core.session_cookie import REMEMBER_SECONDS
 from nicegui import app as nicegui_app, ui
 
 
 def get_session_user() -> Optional[dict]:
+    deadline = nicegui_app.storage.user.get("remember_until")
+    if deadline is not None and time.time() >= deadline:
+        clear_session()
+        return None
     return nicegui_app.storage.user.get("auth")
 
 
-def set_session_user(user: dict) -> None:
+def set_session_user(user: dict, remember: bool = False) -> None:
+    nicegui_app.storage.user["remember_until"] = time.time() + REMEMBER_SECONDS if remember else None
     nicegui_app.storage.user["auth"] = {
         "id":       user["id"],
         "username": user["username"],
@@ -34,6 +25,7 @@ def set_session_user(user: dict) -> None:
 
 def clear_session() -> None:
     nicegui_app.storage.user.pop("auth", None)
+    nicegui_app.storage.user.pop("remember_until", None)
 
 
 def is_admin(user: dict) -> bool:
