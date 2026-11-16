@@ -109,6 +109,7 @@
   "history_search": "🔍 Search",
   "history_col_time": "Time",
   "history_col_hit": "Hit",
+  "history_windows_app": "Windows app",
   "history_col_detections": "Detections",
   "history_col_computer": "Computer",
   "history_col_model": "Model",

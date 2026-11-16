@@ -37,6 +37,7 @@ from backend.core import veyon, yolo
 from backend.core.imaging import postprocess, encode_jpeg
 from backend.core.veyon import WEBAPI_BASE_TPL
 from backend.db._core import _conn
+from backend.core.foreground_app import foreground_app, local_windows_target
 from backend.services import alert_service
 from backend.db.database import (
     auto_create_student,
@@ -91,7 +92,7 @@ class MonitorController:
         self._proc: Optional[object] = None
         # raw_q carries (computer_name, raw_jpeg_bytes, capture_ts) where
         # capture_ts is time.perf_counter() at the moment the frame was enqueued.
-        self._raw_q: queue.Queue[tuple[str, bytes, float]] = queue.Queue(maxsize=128)
+        self._raw_q: queue.Queue[tuple[str, bytes, np.ndarray, float, Optional[str]]] = queue.Queue(maxsize=128)
 
     # ── Public ────────────────────────────────────────────────────────────────
 
@@ -236,6 +237,7 @@ class MonitorController:
         session.headers["Connection"] = "keep-alive"
         conn_uid: Optional[str] = None
         last_user_check = 0.0
+        read_app = local_windows_target(host)
 
         while not self._stop.is_set():
 
@@ -250,6 +252,7 @@ class MonitorController:
                 # Force a user refresh on the next iteration after re-auth
                 last_user_check = 0.0
 
+            app_name = foreground_app() if read_app else None
             raw = veyon.grab_framebuffer(
                 session, base_url, conn_uid,
                 cfg["img_fmt"], cfg["img_quality"], cfg["img_width"],
@@ -268,6 +271,8 @@ class MonitorController:
             # pipeline, excluding network round-trip and remote screen capture
             # (which we cannot instrument from the client side).
             ts_capture = time.perf_counter()
+            if app_name and foreground_app() != app_name:
+                app_name = None
 
             # Decode in this worker (parallel across IO threads) so the detect
             # worker doesn't burn time decoding N frames serially.
@@ -303,7 +308,7 @@ class MonitorController:
                 # NOT a fresh timestamp here — the goal is to measure the whole
                 # local pipeline, including the JPEG decode and any user-lookup
                 # work done in this worker before the frame is queued.
-                self._raw_q.put((name, raw, img, ts_capture), timeout=1.0)
+                self._raw_q.put((name, raw, img, ts_capture, app_name), timeout=1.0)
             except queue.Full:
                 pass  # back-pressure: drop frame (excluded from latency stats)
 
@@ -397,6 +402,7 @@ class MonitorController:
                 raw_batch:  list[bytes]      = []
                 imgs:       list[np.ndarray] = []
                 valid_names: list[str]       = []
+                apps: list[Optional[str]] = []
                 valid_ts:   list[float]      = []
 
                 # Block for the first frame; once we have one, drain whatever
@@ -406,21 +412,23 @@ class MonitorController:
                 # never came). This keeps natural batching when frames arrive
                 # close together but adds zero idle time when they don't.
                 try:
-                    n, raw, img, ts = self._raw_q.get(timeout=0.5)
+                    n, raw, img, ts, app_name = self._raw_q.get(timeout=0.5)
                 except queue.Empty:
                     continue
                 raw_batch.append(raw)
                 imgs.append(img)
                 valid_names.append(n)
                 valid_ts.append(ts)
+                apps.append(app_name)
 
                 try:
                     while len(imgs) < max_b:
-                        n, raw, img, ts = self._raw_q.get_nowait()
+                        n, raw, img, ts, app_name = self._raw_q.get_nowait()
                         raw_batch.append(raw)
                         imgs.append(img)
                         valid_names.append(n)
                         valid_ts.append(ts)
+                        apps.append(app_name)
                 except queue.Empty:
                     pass
 
@@ -447,8 +455,8 @@ class MonitorController:
                     batch_log: list[str] = []
                     wrote_anything = False
 
-                    for comp_name, raw_bytes, res, img_bgr in zip(
-                        valid_names, raw_batch, results, imgs
+                    for comp_name, raw_bytes, res, img_bgr, app_name in zip(
+                        valid_names, raw_batch, results, imgs, apps
                     ):
                         annotated, dets = postprocess(res, img_bgr, keep_top1)
 
@@ -467,6 +475,7 @@ class MonitorController:
                                 computer_id, dets,
                                 user_id=user_id,
                                 os_username=os_uname,
+                                foreground_app=app_name,
                                 frame_bytes=raw_bytes or None,
                                 model_id=active_model_id,
                                 run_id=self.run_id,

@@ -63,6 +63,7 @@ def query_events(
             c.name              AS computer,
             COALESCE(u.username, e.os_username, '—') AS student,
             e.had_detection,
+            COALESCE(e.foreground_app, '—') AS foreground_app,
             CASE WHEN e.frame_blob IS NOT NULL THEN 1 ELSE 0 END AS has_frame,
             GROUP_CONCAT(dc.name || ' (' || ROUND(d.confidence*100) || '%)', ', ')
                                 AS detections,

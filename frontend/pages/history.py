@@ -93,6 +93,8 @@ async def page_history() -> None:
              "field": "detected_at",   "sortable": True,  "align": "left"},
             {"name": "had_detection",  "label": t("history_col_hit"),
              "field": "had_detection", "sortable": True,  "align": "center"},
+            {"name": "foreground_app", "label": t("history_windows_app"),
+             "field": "foreground_app", "align": "left"},
             {"name": "detections",     "label": t("history_col_detections"),
              "field": "detections",    "sortable": False, "align": "left"},
             {"name": "snapshot",       "label": "📷",
