@@ -500,3 +500,18 @@ def test_new_password_rules(value, reason):
     from backend.db.user_passwords import validate_password
     with pytest.raises(ValueError, match=reason):
         validate_password(value)
+
+def test_google_account_requires_approved_identity(db):
+    from backend.db.google_account import google_account
+    uid = db.create_user("Principal", "Strong-password1", "admin", email="admin@gmail.com")
+    claims = {"email": "ADMIN@gmail.com", "sub": "subject1", "email_verified": True}
+    assert google_account(dict(claims, email_verified=False)) is None
+    assert google_account(dict(claims, email="unknown@gmail.com")) is None
+    assert google_account(claims) == {"id": uid, "username": "Principal", "role": "admin"}
+    assert google_account(dict(claims, sub="subject2")) is None
+    db.create_user("Tutor", "Strong-password1", "teacher", email="teacher@school.example")
+    school = dict(claims, email="teacher@school.example", sub="subject2")
+    assert google_account(school) is None
+    assert google_account(dict(school, hd="school.example"))["role"] == "teacher"
+    db.create_user("Student", "Strong-password1", "student", is_active=False, email="student@gmail.com")
+    assert google_account(dict(claims, email="student@gmail.com", sub="subject3")) is None

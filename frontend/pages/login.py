@@ -19,7 +19,10 @@ from nicegui import app, ui
 from backend.core import rate_limit
 from backend.core.auth import get_session_user, home_path_for, set_session_user
 from backend.db.staff_email import authenticate_login
+from backend.core import google_login
 from frontend.translate import t
+
+app.include_router(google_login.router)
 
 
 @app.get("/auth/continue", include_in_schema=False)
@@ -78,6 +81,16 @@ def page_login(request: Request) -> None:
             ui.button(t("login_btn"), on_click=do_login).props(
                 "color=primary"
             ).classes("w-full mt-2")
+
+            google_button = ui.button(t("google_continue"), on_click=lambda: ui.navigate.to(
+                "/auth/google?remember=" + ("true" if remember.value else "false")
+            )).props("outline").classes("w-full")
+            if google_login.google is None:
+                google_button.disable()
+                ui.label(t("google_unavailable")).classes("text-xs")
+            issue = request.query_params.get("google")
+            if issue in ("failed", "denied", "unavailable"):
+                error.set_text(t("google_" + issue))
 
             # Allow pressing Enter in the password field to submit
             password.on("keydown.enter", do_login)
