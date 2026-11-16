@@ -39,6 +39,8 @@ def ensure_default_admin(username: str, password: str, email: str | None = None)
     if c.execute("SELECT COUNT(*) FROM user").fetchone()[0] == 0:
         role_row = c.execute("SELECT id FROM role WHERE name='admin'").fetchone()
         if role_row:
+            from backend.db.user_passwords import validate_password
+            validate_password(password)
             c.execute(
                 "INSERT INTO user (username, hashed_password, role_id, created_at, email) "
                 "VALUES (?, ?, ?, ?, ?)",

@@ -18,6 +18,7 @@ from nicegui import app as nicegui_app, ui
 import backend.state as state
 from backend.core.auth import clear_session
 from frontend.pages._snapshot import make_snapshot_dialogs
+from frontend.pages.password_field import new_password_field
 from frontend.translate import t, get_lang, set_lang
 
 
@@ -173,9 +174,7 @@ def _user_menu(current_user: dict, dark) -> None:
         current_pw = ui.input(
             t("pwd_current"), password=True, password_toggle_button=True,
         ).props("dense outlined").classes("w-full")
-        new_pw = ui.input(
-            t("pwd_new"), password=True, password_toggle_button=True,
-        ).props("dense outlined").classes("w-full")
+        new_pw = new_password_field(t("pwd_new")).classes("w-full")
         confirm_pw = ui.input(
             t("pwd_confirm"), password=True, password_toggle_button=True,
         ).props("dense outlined").classes("w-full")
@@ -183,14 +182,15 @@ def _user_menu(current_user: dict, dark) -> None:
 
         def do_change() -> None:
             from backend.db.database import (
-                MIN_PASSWORD_LENGTH, update_password, verify_password,
+                validate_password, update_password, verify_password,
             )
             if not verify_password(current_user["username"], current_pw.value):
                 err_lbl.set_text(t("pwd_err_wrong"))
                 return
-            if len(new_pw.value) < MIN_PASSWORD_LENGTH:
-                err_lbl.set_text(
-                    t("pwd_err_short").format(n=MIN_PASSWORD_LENGTH))
+            try:
+                validate_password(new_pw.value)
+            except ValueError as exc:
+                err_lbl.set_text(str(exc))
                 return
             if new_pw.value != confirm_pw.value:
                 err_lbl.set_text(t("pwd_err_mismatch"))

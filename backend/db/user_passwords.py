@@ -4,22 +4,15 @@ import bcrypt
 
 
 def _min_password_length() -> int:
-    """
-    Minimum password length: PASSWORD_MIN_LENGTH in .env, default 8.
-    Read directly from os.environ (config.py has loaded .env by the time
-    this module is imported at runtime) so the db layer stays free of the
-    nicegui import that backend.config drags in. Floor of 1 — the policy can be
-    relaxed but never lets an empty password through. Invalid values fall
-    back to the default. Changes require an app restart.
-    """
+    """Allow installations to require more than twelve characters."""
     import os
     raw = os.environ.get("PASSWORD_MIN_LENGTH", "").strip()
     if not raw:
-        return 8
+        return 12
     try:
-        return max(1, int(raw))
+        return max(12, int(raw))
     except ValueError:
-        return 8
+        return 12
 
 
 MIN_PASSWORD_LENGTH = _min_password_length()
@@ -31,6 +24,14 @@ def validate_password(password: str) -> None:
         raise ValueError(
             f"Password must be at least {MIN_PASSWORD_LENGTH} characters"
         )
+    if not password[0].isupper():
+        raise ValueError("Start with a capital letter.")
+    if not any(char.isdecimal() for char in password):
+        raise ValueError("Include a number.")
+    if not any(not char.isalnum() and not char.isspace() and char.isprintable() for char in password):
+        raise ValueError("Include a symbol, such as ! or #.")
+    if len(password.encode()) > 72:
+        raise ValueError("Use at most 72 bytes for your password.")
 
 
 def _hash_pw(password: str) -> str:
@@ -38,6 +39,8 @@ def _hash_pw(password: str) -> str:
 
 
 def _verify_pw(password: str, hashed: str) -> bool:
+    if len(password.encode()) > 72:
+        return False
     return bcrypt.checkpw(password.encode(), hashed.encode())
 
 

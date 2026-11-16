@@ -22,6 +22,7 @@ from backend.db.database import (
 )
 from backend.db.staff_email import link_account_email
 from frontend.pages._nav import nav
+from frontend.pages.password_field import new_password_field
 from frontend.translate import t
 
 
@@ -53,11 +54,7 @@ def page_users() -> None:
             with ui.row().classes("gap-3 items-end flex-wrap"):
                 new_username = ui.input(t("users_username")).props(
                     "dense outlined").classes("w-52")
-                new_password = ui.input(
-                    t("users_temp_password"),
-                    password=True,
-                    password_toggle_button=True,
-                ).props("dense outlined").classes("w-52")
+                new_password = new_password_field(t("users_temp_password")).classes("w-52")
 
                 new_email = ui.input(t("staff_email")).props("type=email dense outlined")
                 if admin:
@@ -81,7 +78,7 @@ def page_users() -> None:
 
                 async def do_create() -> None:
                     uname = new_username.value.strip()
-                    pwd   = new_password.value.strip()
+                    pwd   = new_password.value
                     role  = new_role.value if admin else "student"
 
                     email = new_email.value.strip()
@@ -247,14 +244,11 @@ def page_users() -> None:
             activate_name_lbl = ui.label("").classes(
                 "font-mono text-sm text-yellow-600 dark:text-yellow-300 mb-1")
             act_email = ui.input(t("staff_email")).props("type=email outlined dense")
-            act_pwd  = ui.input(
-                t("users_temp_password"),
-                password=True, password_toggle_button=True,
-            ).props("dense outlined").classes("w-full")
+            act_pwd = new_password_field(t("users_temp_password")).classes("w-full")
             act_msg  = ui.label("").classes("text-sm")
             with ui.row().classes("gap-2 mt-2"):
                 async def do_activate() -> None:
-                    pwd = act_pwd.value.strip()
+                    pwd = act_pwd.value
                     if len(pwd) < MIN_PASSWORD_LENGTH:
                         act_msg.set_text(
                             t("pwd_err_short").format(n=MIN_PASSWORD_LENGTH))

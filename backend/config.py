@@ -49,12 +49,12 @@ if not _ENV_PATH.exists():
         "# Auto-generated on first run. Edit as needed.\n"
         f"STORAGE_SECRET={_generated_secret}\n"
         "INITIAL_ADMIN_USERNAME=admin\n"
-        "INITIAL_ADMIN_PASSWORD=admin\n",
+        "INITIAL_ADMIN_PASSWORD=\n",
         encoding="utf-8",
     )
     log.warning(
         ".env not found — created automatically at %s with a random "
-        "STORAGE_SECRET and default admin/admin credentials. "
+        "STORAGE_SECRET and an empty initial admin password. "
         "Change the admin password after first login.",
         _ENV_PATH,
     )
