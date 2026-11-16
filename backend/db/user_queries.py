@@ -7,7 +7,7 @@ from backend.db.user_passwords import _verify_pw
 
 
 _USER_SELECT = """
-    SELECT u.id, u.username, u.hashed_password,
+    SELECT u.id, u.username, u.email, u.hashed_password,
            u.role_id, r.name AS role,
            u.is_active, u.created_by, u.created_at
     FROM   user u
@@ -45,6 +45,10 @@ def verify_password(username: str, password: str) -> Optional[dict]:
     otherwise — so response time never reveals whether a username is valid.
     """
     user = get_user_by_username(username)
+    return check_credentials(user, password)
+
+
+def check_credentials(user: Optional[dict], password: str) -> Optional[dict]:
     hashed = user["hashed_password"] if user else _DUMMY_HASH
     ok = _verify_pw(password, hashed)
     if ok and user and user.get("is_active"):

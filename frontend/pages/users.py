@@ -59,6 +59,8 @@ def page_users() -> None:
                 ).props("dense outlined").classes("w-52")
 
                 if admin:
+                    new_email = ui.input(t("staff_email")).props("type=email dense outlined")
+                    new_email.set_visibility(False)
                     new_role = ui.select(
                         {"student": t("users_role_student"),
                          "teacher": t("users_role_teacher")},
@@ -68,6 +70,7 @@ def page_users() -> None:
                         "text-xs text-gray-500 dark:text-gray-500 self-end pb-1")
 
                     def _update_hint() -> None:
+                        new_email.set_visibility(new_role.value == "teacher")
                         role_hint.set_text(
                             t("users_hint_student") if new_role.value == "student"
                             else t("users_hint_any")
@@ -82,7 +85,8 @@ def page_users() -> None:
                     pwd   = new_password.value.strip()
                     role  = new_role.value if admin else "student"
 
-                    if not uname or not pwd:
+                    email = new_email.value.strip() if role == "teacher" else None
+                    if not uname or not pwd or email == "":
                         form_msg.set_text(t("users_fill_fields"))
                         form_msg.classes(replace="text-sm text-red-500")
                         return
@@ -104,7 +108,7 @@ def page_users() -> None:
                         new_uid = await loop.run_in_executor(
                             None, lambda: create_user(
                                 uname, pwd, role,
-                                created_by_id=current["id"],
+                                created_by_id=current["id"], email=email,
                             )
                         )
                         # Show success immediately — event assignment runs in background
@@ -117,6 +121,8 @@ def page_users() -> None:
                         form_msg.classes(replace="text-sm text-green-600")
                         new_username.set_value("")
                         new_password.set_value("")
+                        if admin:
+                            new_email.set_value("")
                         _refresh()
 
                         if role == "student":
@@ -268,7 +274,8 @@ def page_users() -> None:
         tbl.on("activate_user", handle_activate)
 
     def _refresh() -> None:
-        tbl.rows = list_users()
+        tbl.rows = [{k: v for k, v in user.items() if k in {"id", "username", "role", "is_active", "created_at"}}
+                    for user in list_users()]
         tbl.update()
 
     _refresh()

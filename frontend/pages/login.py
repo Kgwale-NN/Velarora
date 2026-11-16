@@ -17,7 +17,7 @@ from nicegui import ui
 
 from backend.core import rate_limit
 from backend.core.auth import get_session_user, set_session_user
-from backend.db.database import verify_password
+from backend.db.staff_email import authenticate_login, link_staff_email
 from frontend.translate import t
 
 
@@ -42,9 +42,22 @@ def page_login(request: Request) -> None:
         ui.label(t("login_subtitle")).classes("text-gray-400 text-sm mb-2")
 
         with ui.card().classes("w-full gap-3 p-6"):
-            username = ui.input(t("login_username")).props(
+            mode = ui.select({"staff": t("staff_signin"), "student": t("users_role_student"),
+                              "setup": t("staff_setup")}, value="staff").classes("w-full")
+            username = ui.input(t("staff_email")).props(
                 "outlined dense autofocus"
             ).classes("w-full")
+            setup_email = ui.input(t("staff_email")).props("outlined dense type=email").classes("w-full")
+            setup_email.set_visibility(False)
+
+            def change_mode() -> None:
+                username.set_label(t("staff_email") if mode.value == "staff" else t("login_username"))
+                username.set_value("")
+                setup_email.set_visibility(mode.value == "setup")
+                error.set_text("")
+                password.set_value("")
+
+            mode.on_value_change(lambda _: change_mode())
             password = ui.input(
                 t("login_password"), password=True, password_toggle_button=True,
             ).props("outlined dense").classes("w-full")
@@ -61,12 +74,18 @@ def page_login(request: Request) -> None:
                         t("login_rate_limited").format(s=int(wait) + 1))
                     password.set_value("")
                     return
-                u = verify_password(uname, password.value)
+                u = authenticate_login(uname, password.value, mode.value)
                 if u is None:
                     rate_limit.record_login_failure(client_ip, uname)
                     error.set_text(t("login_invalid"))
                     password.set_value("")
                     return
+                if mode.value == "setup":
+                    try:
+                        link_staff_email(u["id"], setup_email.value)
+                    except ValueError as exc:
+                        error.set_text(str(exc))
+                        return
                 rate_limit.record_login_success(client_ip, uname)
                 set_session_user(u)
                 if u["role"] == "admin":

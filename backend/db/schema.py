@@ -31,6 +31,9 @@ def _migrate(c) -> None:
 
     v1.2.0 — monitoring_run table + detection_event.run_id (reports feature).
     """
+    if "email" not in {r[1] for r in c.execute("PRAGMA table_info(user)")}:
+        c.execute("ALTER TABLE user ADD COLUMN email TEXT COLLATE NOCASE")
+    c.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_user_email ON user(email COLLATE NOCASE)")
     event_cols = {r[1] for r in c.execute("PRAGMA table_info(detection_event)")}
     if "foreground_app" not in event_cols:
         c.execute("ALTER TABLE detection_event ADD COLUMN foreground_app TEXT")
