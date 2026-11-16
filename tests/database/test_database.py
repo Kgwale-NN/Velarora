@@ -471,20 +471,20 @@ class TestAutoAssign:
         db.insert_event(cid, [])
         n = db.assign_anonymous_events(s["id"], cid)
         assert n == 2 and db.count_anonymous_events(cid) == 0
-def test_staff_email_sign_in_preserves_accounts(db):
-    from backend.db.staff_email import authenticate_login, link_staff_email
-    db.ensure_default_admin("Principal", "existing-password")
-    admin = authenticate_login("Principal", "existing-password", "setup")
-    link_staff_email(admin["id"], " Principal@school.example ")
-    assert authenticate_login("PRINCIPAL@school.example", "existing-password", "staff")["username"] == "Principal"
-    assert authenticate_login("Principal", "existing-password", "setup") is None
-    assert authenticate_login("Principal", "existing-password", "student") is None
-    teacher = db.create_user("Teacher", "teacher-password", "teacher", email="teacher@school.example")
-    assert authenticate_login("teacher@school.example", "teacher-password", "staff")["id"] == teacher
-    assert authenticate_login("teacher@school.example", "wrong", "staff") is None
-    old = db.create_user("Old teacher", "teacher-password", "teacher")
+
+
+def test_all_roles_sign_in_only_by_email(db):
+    from backend.db.staff_email import authenticate_login, link_account_email
+    for role in ("admin", "teacher", "student"):
+        uid = db.create_user(role, "existing-password", role)
+        email = role + "@school.example"
+        link_account_email(uid, email)
+        user = authenticate_login(email.upper(), "existing-password")
+        assert (user["id"], user["role"], user["username"]) == (uid, role, role)
+        assert authenticate_login(role, "existing-password") is None
+        assert authenticate_login(email, "wrong") is None
+    uid = db.create_user("New", "existing-password", "student", is_active=False)
     with pytest.raises(ValueError):
-        link_staff_email(old, "Principal@school.example")
-    student = db.create_user("Learner", "student-password", "student")
-    assert authenticate_login("Learner", "student-password", "student")["id"] == student
-    assert authenticate_login("Learner", "student-password", "setup") is None
+        link_account_email(uid, "Admin@school.example")
+    link_account_email(uid, "new@school.example")
+    assert authenticate_login("new@school.example", "existing-password") is None

@@ -25,7 +25,7 @@ def seed_classes() -> None:
         c.commit()
 
 
-def ensure_default_admin(username: str, password: str) -> None:
+def ensure_default_admin(username: str, password: str, email: str | None = None) -> None:
     """
     Create the initial admin account when no users exist yet. Both arguments
     are required — there is no fallback to a hard-coded credential. The
@@ -40,9 +40,9 @@ def ensure_default_admin(username: str, password: str) -> None:
         role_row = c.execute("SELECT id FROM role WHERE name='admin'").fetchone()
         if role_row:
             c.execute(
-                "INSERT INTO user (username, hashed_password, role_id, created_at) "
-                "VALUES (?, ?, ?, ?)",
-                (username, _hash_pw(password), role_row["id"], _now()),
+                "INSERT INTO user (username, hashed_password, role_id, created_at, email) "
+                "VALUES (?, ?, ?, ?, ?)",
+                (username, _hash_pw(password), role_row["id"], _now(), email),
             )
             c.commit()
 

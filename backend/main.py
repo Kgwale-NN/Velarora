@@ -4,6 +4,7 @@ backend/main.py
 Application entry point.
 Registers startup hooks and imports all pages (side-effect: @ui.page routes fire).
 """
+import os
 import logging
 import sys
 import threading
@@ -64,9 +65,18 @@ def _bootstrap_admin() -> None:
     through the UI after the first login.
     """
     c = _conn()
-    user_count = c.execute("SELECT COUNT(*) FROM user").fetchone()[0]
-    if user_count > 0:
-        return  # already initialised — env var is irrelevant from now on
+    from backend.db.staff_email import link_account_email, normalize_email
+    admin_email = os.environ.get("INITIAL_ADMIN_EMAIL", "").strip()
+    if c.execute("SELECT COUNT(*) FROM user").fetchone()[0]:
+        if admin_email:
+            legacy = c.execute(
+                "SELECT u.id FROM user u JOIN role r ON r.id=u.role_id "
+                "WHERE r.name='admin' AND u.username=? AND u.email IS NULL",
+                (INITIAL_ADMIN_USERNAME,),
+            ).fetchone()
+            if legacy:
+                link_account_email(legacy["id"], admin_email)
+        return
 
     if not INITIAL_ADMIN_PASSWORD:
         sys.stderr.write(
@@ -80,7 +90,9 @@ def _bootstrap_admin() -> None:
         )
         sys.exit(1)
 
-    ensure_default_admin(INITIAL_ADMIN_USERNAME, INITIAL_ADMIN_PASSWORD)
+    if not admin_email:
+        raise RuntimeError("Set INITIAL_ADMIN_EMAIL in .env before starting a new database.")
+    ensure_default_admin(INITIAL_ADMIN_USERNAME, INITIAL_ADMIN_PASSWORD, normalize_email(admin_email))
     log.info(
         "bootstrap: created initial admin %r from environment variable",
         INITIAL_ADMIN_USERNAME,

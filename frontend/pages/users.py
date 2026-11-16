@@ -20,6 +20,7 @@ from backend.db.database import (
     list_users,
     nullify_user_events,
 )
+from backend.db.staff_email import link_account_email
 from frontend.pages._nav import nav
 from frontend.translate import t
 
@@ -58,9 +59,8 @@ def page_users() -> None:
                     password_toggle_button=True,
                 ).props("dense outlined").classes("w-52")
 
+                new_email = ui.input(t("staff_email")).props("type=email dense outlined")
                 if admin:
-                    new_email = ui.input(t("staff_email")).props("type=email dense outlined")
-                    new_email.set_visibility(False)
                     new_role = ui.select(
                         {"student": t("users_role_student"),
                          "teacher": t("users_role_teacher")},
@@ -70,7 +70,6 @@ def page_users() -> None:
                         "text-xs text-gray-500 dark:text-gray-500 self-end pb-1")
 
                     def _update_hint() -> None:
-                        new_email.set_visibility(new_role.value == "teacher")
                         role_hint.set_text(
                             t("users_hint_student") if new_role.value == "student"
                             else t("users_hint_any")
@@ -85,7 +84,7 @@ def page_users() -> None:
                     pwd   = new_password.value.strip()
                     role  = new_role.value if admin else "student"
 
-                    email = new_email.value.strip() if role == "teacher" else None
+                    email = new_email.value.strip()
                     if not uname or not pwd or email == "":
                         form_msg.set_text(t("users_fill_fields"))
                         form_msg.classes(replace="text-sm text-red-500")
@@ -121,8 +120,7 @@ def page_users() -> None:
                         form_msg.classes(replace="text-sm text-green-600")
                         new_username.set_value("")
                         new_password.set_value("")
-                        if admin:
-                            new_email.set_value("")
+                        new_email.set_value("")
                         _refresh()
 
                         if role == "student":
@@ -136,6 +134,26 @@ def page_users() -> None:
                         create_btn.props(remove="loading")
 
                 create_btn.on_click(do_create)
+
+        if admin:
+            with ui.card().classes("w-full"):
+                ui.label("Add a sign-in email to an existing account")
+                missing = ui.select({}, label="Account").classes("w-64")
+                address = ui.input(t("staff_email")).props("type=email outlined dense")
+
+                def assign_email() -> None:
+                    if missing.value is None:
+                        return
+                    try:
+                        link_account_email(int(missing.value), address.value)
+                    except ValueError as exc:
+                        ui.notify(str(exc), type="negative")
+                        return
+                    address.set_value("")
+                    _refresh()
+                    ui.notify("Sign-in email saved.")
+
+                ui.button("Save email", on_click=assign_email)
 
         # ── User table ────────────────────────────────────────────────────────
         cols = [
@@ -228,6 +246,7 @@ def page_users() -> None:
             ui.label(t("users_activate_title")).classes("text-base font-semibold mb-2")
             activate_name_lbl = ui.label("").classes(
                 "font-mono text-sm text-yellow-600 dark:text-yellow-300 mb-1")
+            act_email = ui.input(t("staff_email")).props("type=email outlined dense")
             act_pwd  = ui.input(
                 t("users_temp_password"),
                 password=True, password_toggle_button=True,
@@ -247,7 +266,7 @@ def page_users() -> None:
                     loop = asyncio.get_event_loop()
                     try:
                         await loop.run_in_executor(
-                            None, lambda: activate_user(int(uid), pwd)
+                            None, lambda: activate_user(int(uid), pwd, email=act_email.value)
                         )
                         act_msg.set_text(t("users_activated").format(
                             uname=_activate_row[0].get("username", "")))
@@ -266,6 +285,7 @@ def page_users() -> None:
         def handle_activate(e) -> None:
             row = e.args
             _activate_row[0] = row
+            act_email.set_value(next((u["email"] for u in list_users() if u["id"] == row["id"]), "") or "")
             activate_name_lbl.set_text(row.get("username", ""))
             act_pwd.set_value("")
             act_msg.set_text("")
@@ -274,8 +294,11 @@ def page_users() -> None:
         tbl.on("activate_user", handle_activate)
 
     def _refresh() -> None:
+        users = list_users()
+        if admin:
+            missing.set_options({u["id"]: u["username"] for u in users if not u["email"]}, value=None)
         tbl.rows = [{k: v for k, v in user.items() if k in {"id", "username", "role", "is_active", "created_at"}}
-                    for user in list_users()]
+                    for user in users]
         tbl.update()
 
     _refresh()
