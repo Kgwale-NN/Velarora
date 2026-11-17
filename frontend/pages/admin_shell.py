@@ -45,11 +45,14 @@ def admin_nav(user):
         ui.button("Log out", icon="logout", on_click=logout.open).props(
             "flat no-caps align=left").classes("admin-signout w-full")
     with ui.header().classes("admin-header"):
-        ui.button(icon="menu", on_click=drawer.toggle).props(
-            'flat round aria-label="Open menu"').classes("admin-menu-button")
+        menu_button = ui.button(icon="menu", on_click=drawer.toggle).props(
+            'flat round aria-label="Open menu" aria-expanded="false"').classes("admin-menu-button")
         ui.link("Velarora", "/users").classes("admin-brand")
         ui.label(next((label for label, _, path in links if path == current), "Administration")).classes("admin-page-title")
         ui.space()
         with ui.link(target="/profile").classes("admin-account"):
             ui.icon("account_circle").classes("text-2xl")
             ui.label(user["username"]).classes("admin-account-name")
+
+    drawer.on_value_change(lambda e: menu_button.props(
+        "aria-expanded=true" if e.value else "aria-expanded=false"))
