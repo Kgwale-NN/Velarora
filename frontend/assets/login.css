@@ -7,19 +7,7 @@
 .login-scene {
     position: relative; isolation: isolate; display: grid; place-items: center;
     width: 100%; min-height: 100svh; padding: 56px 24px; overflow: hidden;
-    background: radial-gradient(ellipse at 22% 5%, #686868 0, transparent 48%),
-                radial-gradient(ellipse at 88% 32%, #343434 0, transparent 48%), #1c1c1c;
-}
-.login-scene::before {
-    content: ""; position: absolute; z-index: -2; inset: -90px;
-    background: radial-gradient(ellipse 240px 480px at 45% 44%, #101010 30%, transparent 75%),
-                radial-gradient(ellipse 330px 200px at 75% 3%, #dedede 4%, transparent 95%),
-                radial-gradient(ellipse 380px 240px at 15% 53%, #d5d5d5 5%, transparent 85%);
-    filter: blur(45px); transform: rotate(-13deg);
-}
-.login-scene::after {
-    content: ""; position: absolute; z-index: -1; inset: 0; pointer-events: none;
-    background: linear-gradient(180deg, #0b0b0b05, #0d0d0d70 58%, #0b0b0bed);
+    background: #060607;
 }
 .login-glass {
     width: min(100%, 440px); padding: 42px 36px 36px; gap: 0;
@@ -73,7 +61,6 @@
 .login-note { color: #eeeeee; font-size: 12px; margin-top: 12px; }
 .login-help-dialog { background: #252525; color: #ffffff; border: 1px solid #ffffff40; border-radius: 22px; padding: 26px; max-width: 380px; }
 .login-scene :focus-visible { outline: 2px solid #dadada; outline-offset: 4px; }
-@media (min-width: 1000px) { .login-scene { background-color: #1c1c1c; } }
 @media (max-width: 520px) {
     .login-scene { padding: 30px 18px; }
     .login-glass { padding: 35px 25px 30px; border-radius: 28px; }

@@ -8,7 +8,7 @@ app.add_static_files("/design-assets", str(ASSETS))
 
 def page_style(kind: str):
     ui.colors(primary="#efefef", secondary="#c9c9c9", accent="#a1a1a1",
-              dark="#181818", dark_page="#080808")
+              dark="#181818", dark_page="#060607")
     ui.add_css((ASSETS / "page-style.css").read_text())
     ui.add_body_html(f"""
         <div class="page-loading loading-{kind}" role="status" aria-label="Loading page">

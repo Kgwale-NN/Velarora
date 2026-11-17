@@ -1,7 +1,5 @@
 .admin-glass-page {
-    color: #f4f4f4; background: #171717; font-family: Inter, "Segoe UI", sans-serif;
-    background-image: radial-gradient(ellipse at 10% 0, #6f6f6f77, transparent 48%),
-                      radial-gradient(ellipse at 100% 0, #3a3a3a77, transparent 55%);
+    color: #f4f4f4; background: #060607; font-family: Inter, "Segoe UI", sans-serif;
     background-attachment: fixed;
 }
 .admin-glass-page .nicegui-content { max-width: 1560px; margin: auto; padding: 32px 24px; }

@@ -80,12 +80,10 @@ body.velarora-login-page, body.admin-glass-page { font-family: "Cormorant Garamo
 body.admin-glass-page, body.velarora-login-page {
     --q-primary: #efefef;
     --q-dark: #181818;
-    --q-dark-page: #080808;
+    --q-dark-page: #060607;
 }
 body.admin-glass-page {
-    background-color: #080808;
-    background-image: radial-gradient(ellipse at 8% -12%, #ffffff22, transparent 48%),
-                      radial-gradient(ellipse at 96% 10%, #ffffff0b, transparent 45%);
+    background: #060607;
 }
 .admin-glass-page .admin-header {
     background: #151515a6; border-bottom-color: #ffffff24;
@@ -114,3 +112,10 @@ body.admin-glass-page {
     background: linear-gradient(135deg, #ffffff21, #ffffff0a); border-color: #ffffff3b;
 }
 .admin-glass-page .velarora-toast { background: #242424ed; color: #fff; }
+
+body.velarora-login-page { background: #060607; }
+.velarora-login-page .login-scene { background: #060607; }
+.velarora-login-page .login-input input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px #202020 inset;
+    -webkit-text-fill-color: #fff;
+}
