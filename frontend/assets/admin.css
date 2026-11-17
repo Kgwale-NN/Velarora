@@ -88,3 +88,31 @@
     .user-role-hint { padding: 0 4px; }
     .user-create-button { width: 100%; }
 }
+/* Users dashboard and account creation dialog. */
+.users-dashboard-heading { margin-bottom: 12px; gap: 20px; }
+.users-add-button { padding: 0 23px; }
+.users-stat-grid { width: 100%; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
+.admin-glass-page .user-stat-card { padding: 25px 28px; gap: 22px; min-height: 155px; }
+.user-stat-title { color: #bdccdd; font-size: 19px; }
+.user-stat-icon { color: #a5bdd9; font-size: 23px; }
+.user-stat-number { font-size: 52px; font-weight: 500; line-height: 1; font-variant-numeric: lining-nums tabular-nums; }
+.users-count-note { grid-column: 1 / -1; color: #aebdd0; font-size: 16px; margin-top: -4px; }
+.users-table-heading { margin-top: 30px; margin-bottom: 2px; }
+.users-table-count { color: #aebdd0; font-size: 17px; }
+.admin-glass-page .user-create-dialog {
+    width: min(760px, 94vw); max-width: 94vw; max-height: 90svh; overflow-y: auto;
+    background: #1c2939f5; padding: 32px; gap: 28px;
+}
+.user-create-dialog .user-create-grid { max-width: none; }
+.user-create-dialog .user-role-hint { font-size: 16px; }
+.user-create-dialog .q-card { padding: 0; }
+@media (max-width: 1000px) { .users-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 540px) {
+    .users-stat-grid { gap: 12px; }
+    .admin-glass-page .user-stat-card { padding: 20px 16px; min-height: 140px; gap: 24px; }
+    .user-stat-title { font-size: 16px; }
+    .user-stat-icon { font-size: 19px; }
+    .user-stat-number { font-size: 42px; }
+    .users-dashboard-heading { align-items: flex-start; }
+    .admin-glass-page .user-create-dialog { padding: 22px; gap: 22px; }
+}

@@ -36,22 +36,32 @@ def page_users() -> None:
     admin = is_admin(current)
 
     with ui.column().classes("w-full p-4 gap-4"):
-        ui.label(t("users_title")).classes("text-xl font-bold")
+        with ui.row().classes("users-dashboard-heading w-full items-center justify-between"):
+            ui.label("User dashboard").classes("text-2xl")
+            add_user = ui.button("Add user", icon="person_add").props("no-caps").classes("users-add-button")
 
-        # ── Info banner ───────────────────────────────────────────────────────
-        with ui.card().classes(
-            "w-full "
-            "bg-blue-50 border border-blue-300 "
-            "dark:bg-blue-950 dark:border-blue-700"
-        ):
-            ui.markdown(
-                t("users_info_admin") if admin else t("users_info_teacher")
-            ).classes("text-sm text-blue-900 dark:text-blue-200")
+        totals = {}
+        with ui.element("section").classes("users-stat-grid").props('aria-label="User totals"'):
+            for key, title, icon in [
+                ("total", "Total users", "people_outline"),
+                ("active", "Active accounts", "verified_user"),
+                ("teachers", "Teachers", "school"),
+                ("students", "Students", "person_outline"),
+            ]:
+                with ui.card().classes("user-stat-card"):
+                    with ui.row().classes("w-full items-center justify-between"):
+                        ui.label(title).classes("user-stat-title")
+                        ui.icon(icon).classes("user-stat-icon").props("aria-hidden=true")
+                    totals[key] = ui.label("0").classes("user-stat-number").props(
+                        f'aria-label="{title} count"')
+            inactive_note = ui.label("").classes("users-count-note")
 
-        # ── Create user form ──────────────────────────────────────────────────
-        with ui.card().classes("w-full"):
-            ui.label(t("users_create_section")).classes(
-                "text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2")
+        # Account creation stays in a focused dialog above the dashboard.
+        with ui.dialog().props("persistent") as create_dialog, ui.card().classes("user-create-dialog"):
+            with ui.row().classes("w-full items-center justify-between"):
+                ui.label("Create account").classes("text-2xl")
+                cancel_create = ui.button(icon="close", on_click=create_dialog.close).props(
+                    'flat round dense aria-label="Close create account"')
             with ui.element("div").classes("user-create-grid"):
                 new_username = ui.input(t("users_username")).props(
                     "outlined").classes("w-full user-name-field")
@@ -96,7 +106,10 @@ def page_users() -> None:
                         form_msg.classes(replace="text-sm user-form-message text-red-500")
                         return
 
+                    if create_btn._props.get("loading"):
+                        return
                     create_btn.props("loading")
+                    cancel_create.disable()
                     form_msg.set_text(t("users_creating"))
                     form_msg.classes(replace="text-sm user-form-message text-gray-500 dark:text-gray-400")
 
@@ -120,6 +133,8 @@ def page_users() -> None:
                         new_password.set_value("")
                         new_email.set_value("")
                         _refresh()
+                        create_dialog.close()
+                        toast("Account created.", type="positive")
 
                         if role == "student":
                             asyncio.create_task(
@@ -130,8 +145,27 @@ def page_users() -> None:
                         form_msg.classes(replace="text-sm user-form-message text-red-500")
                     finally:
                         create_btn.props(remove="loading")
+                        cancel_create.enable()
 
                 create_btn.on_click(do_create)
+
+        def reset_create() -> None:
+            new_username.set_value("")
+            new_password.set_value("")
+            new_email.set_value("")
+            for field in (new_username, new_password, new_email):
+                field.update()
+            form_msg.set_text("")
+            new_password.error = None
+            if admin:
+                new_role.set_value("student")
+
+        def show_create() -> None:
+            reset_create()
+            create_dialog.open()
+
+        add_user.on_click(show_create)
+        create_dialog.on("hide", reset_create)
 
         if admin:
             email_target = [None]
@@ -168,6 +202,10 @@ def page_users() -> None:
                 address.set_value("")
                 address_error.set_text("")
                 email_dialog.open()
+
+        with ui.row().classes("w-full items-center justify-between users-table-heading"):
+            ui.label("All users").classes("text-xl")
+            table_count = ui.label("").classes("users-table-count")
 
         # ── User table ────────────────────────────────────────────────────────
         cols = [
@@ -212,12 +250,12 @@ def page_users() -> None:
                     </q-btn>
                     <q-btn
                         v-if="props.row.role === 'student' && !props.row.is_active"
-                        flat dense round icon="lock_open" color="primary"
+                        flat dense round icon="lock_open" color="primary" aria-label="Activate account"
                         @click="$parent.$emit('activate_user', props.row)"
                     />
                     <q-btn
                         v-if="props.row.role !== 'admin'"
-                        flat dense round icon="delete" color="red"
+                        flat dense round icon="delete" color="red" aria-label="Delete user"
                         @click="$parent.$emit('delete_user', props.row)"
                     />
                 </q-td>
@@ -227,12 +265,12 @@ def page_users() -> None:
                 <q-td :props="props">
                     <q-btn
                         v-if="props.row.role === 'student' && !props.row.is_active"
-                        flat dense round icon="lock_open" color="primary"
+                        flat dense round icon="lock_open" color="primary" aria-label="Activate account"
                         @click="$parent.$emit('activate_user', props.row)"
                     />
                     <q-btn
                         v-if="props.row.role === 'student'"
-                        flat dense round icon="delete" color="red"
+                        flat dense round icon="delete" color="red" aria-label="Delete user"
                         @click="$parent.$emit('delete_user', props.row)"
                     />
                 </q-td>
@@ -313,6 +351,14 @@ def page_users() -> None:
 
     def _refresh() -> None:
         users = list_users()
+        active_count = sum(bool(user["is_active"]) for user in users)
+        totals["total"].set_text(str(len(users)))
+        totals["active"].set_text(str(active_count))
+        totals["teachers"].set_text(str(sum(user["role"] == "teacher" for user in users)))
+        totals["students"].set_text(str(sum(user["role"] == "student" for user in users)))
+        inactive_count = len(users) - active_count
+        inactive_note.set_text(f"{inactive_count} inactive account" + ("" if inactive_count == 1 else "s"))
+        table_count.set_text(f"{len(users)} account" + ("" if len(users) == 1 else "s"))
         tbl.rows = [{k: v for k, v in user.items() if k in {"id", "username", "email", "role", "is_active", "created_at"}}
                     for user in users]
         tbl.update()
