@@ -10,6 +10,7 @@ from backend.config import get_settings, save_settings
 from backend.core.auth import require_auth
 from backend.db.database import log_action
 from frontend.pages._file_browser import browse_file
+from frontend.pages.admin_shell import toast
 from frontend.pages._nav import nav
 from frontend.translate import t
 
@@ -179,7 +180,7 @@ def page_settings() -> None:
             log_action("settings.save", user_id=_settings_user_id,
                        detail=f"auth_method={s.get('auth_method')}, "
                               f"veyon_cli={s.get('veyon_cli')}")
-            ui.notify(t("settings_saved"), type="positive")
+            toast(t("settings_saved"), type="positive")
 
         ui.button(t("settings_save_btn"), on_click=_save_all).props(
             "color=primary size=md")

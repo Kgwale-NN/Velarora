@@ -48,6 +48,7 @@ from backend.db.database import (
     update_schedule,
 )
 
+from frontend.pages.admin_shell import toast
 from frontend.pages._nav import nav
 from frontend.translate import t
 from backend.services.training_service import (
@@ -404,7 +405,7 @@ def _model_library() -> None:
                 if embedded:
                     names = embedded
                     if [n.strip() for n in typed_names] != embedded:
-                        ui.notify(
+                        toast(
                             t("models_used_embedded_classes").format(
                                 names=", ".join(embedded)),
                             type="info", timeout=6000)
@@ -443,7 +444,7 @@ def _model_library() -> None:
                            detail=f"name={imp_name.value.strip()}, "
                                   f"nc={len(names)}, imgsz={imp_imgsz.value}")
                 import_dlg.close()
-                ui.notify(
+                toast(
                     t("models_imported").format(
                         name=imp_name.value.strip(), nc=len(names)),
                     type="positive")
@@ -497,10 +498,10 @@ def _model_library() -> None:
                     return
                 names = _parse_class_names(edit_classes.value)
                 if not names:
-                    ui.notify(t("models_edit_err_class"), type="negative")
+                    toast(t("models_edit_err_class"), type="negative")
                     return
                 if not edit_name.value.strip():
-                    ui.notify(t("models_edit_err_name"), type="negative")
+                    toast(t("models_edit_err_name"), type="negative")
                     return
                 # Use the proper DB layer — no raw sqlite3 here
                 update_ml_model(
@@ -524,7 +525,7 @@ def _model_library() -> None:
                            entity="ml_model", entity_id=mid,
                            detail=f"name={edit_name.value.strip()}")
                 edit_dlg.close()
-                ui.notify(t("models_edit_saved"), type="positive")
+                toast(t("models_edit_saved"), type="positive")
                 _model_library.refresh()
 
             async def do_sync_from_file() -> None:
@@ -536,7 +537,7 @@ def _model_library() -> None:
                     return
                 res = await run.io_bound(sync_classes_from_file, mid)
                 if not res["ok"]:
-                    ui.notify(t("models_sync_failed"), type="warning")
+                    toast(t("models_sync_failed"), type="warning")
                     return
                 edit_classes.set_value(", ".join(res["names"]))
                 from backend.core.auth import get_session_user
@@ -544,7 +545,7 @@ def _model_library() -> None:
                 log_action("model.update", user_id=_u["id"] if _u else None,
                            entity="ml_model", entity_id=mid,
                            detail="classes synced from model file")
-                ui.notify(t("models_sync_done"), type="positive")
+                toast(t("models_sync_done"), type="positive")
                 _model_library.refresh()
 
             ui.button(t("schedules_save"), icon="save", on_click=do_save).props("color=primary")
@@ -596,7 +597,7 @@ def _model_library() -> None:
             if action == "reassign":
                 target_mid = del_target_select.value
                 if not target_mid:
-                    ui.notify("Select a target model.", type="negative")
+                    toast("Select a target model.", type="negative")
                     return
                 target_mid = int(target_mid)
                 target = get_model_by_id(target_mid)
@@ -628,12 +629,12 @@ def _model_library() -> None:
 
             if action == "reassign":
                 target = get_model_by_id(int(del_target_select.value))
-                ui.notify(t("models_del_reassigned").format(
+                toast(t("models_del_reassigned").format(
                     name=target["name"] if target else "?"), type="positive")
             elif action == "null":
-                ui.notify(t("models_del_nulled"), type="info")
+                toast(t("models_del_nulled"), type="info")
             else:
-                ui.notify(t("models_del_cascaded"), type="warning")
+                toast(t("models_del_cascaded"), type="warning")
 
             if was_active:
                 remaining = [
@@ -645,12 +646,12 @@ def _model_library() -> None:
                     set_active_model(next_m["id"])
                     from backend.config import apply_active_model
                     apply_active_model(next_m["id"])
-                    ui.notify(
+                    toast(
                         t("models_promoted").format(name=next_m["name"]),
                         type="info",
                     )
                 else:
-                    ui.notify(t("models_no_ready"), type="warning")
+                    toast(t("models_no_ready"), type="warning")
 
             del_conflict_dlg.close()
             _model_library.refresh()
@@ -979,7 +980,7 @@ def _model_library() -> None:
                                 )
                             )
                         except Exception as exc:
-                            ui.notify(f"Dataset remapping failed: {exc}",
+                            toast(f"Dataset remapping failed: {exc}",
                                       type="negative")
                             return
 
@@ -1044,7 +1045,7 @@ def _model_library() -> None:
         # the page shows the progress — no need to open the dialog.
         w = state.training_worker
         if w and (w.is_running or w.is_done):
-            ui.notify(t("models_train_already_running"), type="info")
+            toast(t("models_train_already_running"), type="info")
             return
         # Reset to fresh upload step for a new run
         train_ws.update({"step": "upload", "dataset_dir": None,
@@ -1154,7 +1155,7 @@ def _model_library() -> None:
             set_active_model(int(mid))
             apply_active_model(int(mid))
             m = get_model_by_id(int(mid))
-            ui.notify(
+            toast(
                 t("models_activated").format(name=m["name"] if m else mid),
                 type="positive")
             _model_library.refresh()
@@ -1220,7 +1221,7 @@ def _model_library() -> None:
                 return
             mid = int(mid)
             if mid == state.running_model_id:
-                ui.notify(t("models_cannot_delete_running"), type="warning")
+                toast(t("models_cannot_delete_running"), type="warning")
                 return
             m = get_model_by_id(mid)
             if not m:
@@ -1261,7 +1262,7 @@ def _model_library() -> None:
                 log_action("model.delete", user_id=_u["id"] if _u else None,
                            entity="ml_model", entity_id=mid,
                            detail=f"name={m['name']}")
-                ui.notify(t("models_deleted"), type="warning")
+                toast(t("models_deleted"), type="warning")
                 if was_active:
                     remaining = [
                         r for r in list_models()
@@ -1271,12 +1272,12 @@ def _model_library() -> None:
                         next_m = remaining[0]
                         set_active_model(next_m["id"])
                         apply_active_model(next_m["id"])
-                        ui.notify(
+                        toast(
                             t("models_promoted").format(name=next_m["name"]),
                             type="info",
                         )
                     else:
-                        ui.notify(t("models_no_ready"), type="warning")
+                        toast(t("models_no_ready"), type="warning")
                 _model_library.refresh()
 
         def on_finetune(e) -> None:
@@ -1286,11 +1287,11 @@ def _model_library() -> None:
             # Block while a training/fine-tune run is active
             _w = state.training_worker
             if _w and _w.is_running:
-                ui.notify(t("models_train_already_running"), type="info")
+                toast(t("models_train_already_running"), type="info")
                 return
             m = get_model_by_id(int(mid))
             if not m or not m.get("pt_path"):
-                ui.notify(t("models_ft_no_pt"), type="negative")
+                toast(t("models_ft_no_pt"), type="negative")
                 return
             ft_dlg_source[0] = m
             ft_ws.update({
@@ -1775,7 +1776,7 @@ def _step_done(ws: dict, refresh, reset_step: str = "upload") -> None:
                 def activate() -> None:
                     set_active_model(model["id"])
                     apply_active_model(model["id"])
-                    ui.notify(t("models_step4_activated"), type="positive")
+                    toast(t("models_step4_activated"), type="positive")
                     _model_library.refresh()
                 ui.button(t("models_step4_activate"),
                           on_click=activate).props("color=green")

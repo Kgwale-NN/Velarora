@@ -21,6 +21,7 @@ from backend.db.database import (
     nullify_user_events,
 )
 from backend.db.staff_email import link_account_email
+from frontend.pages.admin_shell import toast
 from frontend.pages._nav import nav
 from frontend.pages.password_field import new_password_field
 from frontend.translate import t
@@ -144,11 +145,11 @@ def page_users() -> None:
                     try:
                         link_account_email(int(missing.value), address.value)
                     except ValueError as exc:
-                        ui.notify(str(exc), type="negative")
+                        toast(str(exc), type="negative")
                         return
                     address.set_value("")
                     _refresh()
-                    ui.notify("Sign-in email saved.")
+                    toast("Sign-in email saved.")
 
                 ui.button("Save email", on_click=assign_email)
 
@@ -322,7 +323,7 @@ def page_users() -> None:
         """Nullify events in batches then delete the user row."""
         loop = asyncio.get_event_loop()
         with client:
-            notif = ui.notify(
+            notif = toast(
                 t("users_deleting_bg").format(uname=username),
                 type="ongoing", spinner=True, timeout=5000,
             )
@@ -336,11 +337,11 @@ def page_users() -> None:
             with client:
                 if notif is not None:
                     notif.dismiss()
-                ui.notify(t("users_deleted"), type="warning", timeout=5000)
+                toast(t("users_deleted"), type="warning", timeout=5000)
                 _refresh()
         except Exception as ex:
             with client:
                 if notif is not None:
                     notif.dismiss()
-                ui.notify(t("users_delete_failed").format(e=ex), type="negative", timeout=5000)
+                toast(t("users_delete_failed").format(e=ex), type="negative", timeout=5000)
                 _refresh()  # re-add the row if delete failed

@@ -25,6 +25,11 @@ from frontend.translate import t, get_lang, set_lang
 def nav(current_user: dict) -> None:
     role = current_user["role"]
 
+    if role == "admin":
+        from frontend.pages.admin_shell import admin_nav
+        admin_nav(current_user)
+        return
+
     dark = ui.dark_mode()
     saved = nicegui_app.storage.user.get("dark_mode", True)
     dark.enable() if saved else dark.disable()
@@ -169,41 +174,7 @@ def nav(current_user: dict) -> None:
 def _user_menu(current_user: dict, dark) -> None:
     role = current_user["role"]
 
-    with ui.dialog() as pwd_dlg, ui.card().classes("p-5 gap-3 w-80"):
-        ui.label(t("pwd_title")).classes("text-base font-bold")
-        current_pw = ui.input(
-            t("pwd_current"), password=True, password_toggle_button=True,
-        ).props("dense outlined").classes("w-full")
-        new_pw = new_password_field(t("pwd_new")).classes("w-full")
-        confirm_pw = ui.input(
-            t("pwd_confirm"), password=True, password_toggle_button=True,
-        ).props("dense outlined").classes("w-full")
-        err_lbl = ui.label("").classes("text-red-400 text-sm")
-
-        def do_change() -> None:
-            from backend.db.database import (
-                validate_password, update_password, verify_password,
-            )
-            if not verify_password(current_user["username"], current_pw.value):
-                err_lbl.set_text(t("pwd_err_wrong"))
-                return
-            try:
-                validate_password(new_pw.value)
-            except ValueError as exc:
-                err_lbl.set_text(str(exc))
-                return
-            if new_pw.value != confirm_pw.value:
-                err_lbl.set_text(t("pwd_err_mismatch"))
-                return
-            update_password(current_user["id"], new_pw.value)
-            pwd_dlg.close()
-            current_pw.set_value(""); new_pw.set_value("")
-            confirm_pw.set_value(""); err_lbl.set_text("")
-            ui.notify(t("pwd_success"), type="positive")
-
-        with ui.row().classes("gap-2"):
-            ui.button(t("pwd_save"),   on_click=do_change).props("color=primary dense")
-            ui.button(t("pwd_cancel"), on_click=pwd_dlg.close).props("flat dense")
+    pwd_dlg = password_dialog(current_user)
 
     role_label = t(f"users_role_{role}")
     label_text = f"{current_user['username']}  ({role_label})"
@@ -252,6 +223,47 @@ def _user_menu(current_user: dict, dark) -> None:
             with ui.row().classes("items-center gap-3 text-red-400"):
                 ui.icon("logout").classes("text-base")
                 ui.label(t("nav_sign_out")).classes("text-sm")
+
+
+def password_dialog(current_user: dict):
+    with ui.dialog() as pwd_dlg, ui.card().classes("p-5 gap-3 w-80"):
+        ui.label(t("pwd_title")).classes("text-base font-bold")
+        current_pw = ui.input(
+            t("pwd_current"), password=True, password_toggle_button=True,
+        ).props("dense outlined").classes("w-full")
+        new_pw = new_password_field(t("pwd_new")).classes("w-full")
+        confirm_pw = ui.input(
+            t("pwd_confirm"), password=True, password_toggle_button=True,
+        ).props("dense outlined").classes("w-full")
+        err_lbl = ui.label("").classes("text-red-400 text-sm")
+
+        def do_change() -> None:
+            from backend.db.database import (
+                validate_password, update_password, verify_password,
+            )
+            if not verify_password(current_user["username"], current_pw.value):
+                err_lbl.set_text(t("pwd_err_wrong"))
+                return
+            try:
+                validate_password(new_pw.value)
+            except ValueError as exc:
+                err_lbl.set_text(str(exc))
+                return
+            if new_pw.value != confirm_pw.value:
+                err_lbl.set_text(t("pwd_err_mismatch"))
+                return
+            update_password(current_user["id"], new_pw.value)
+            pwd_dlg.close()
+            current_pw.set_value(""); new_pw.set_value("")
+            confirm_pw.set_value(""); err_lbl.set_text("")
+            from frontend.pages.admin_shell import toast
+            toast(t("pwd_success"), type="positive")
+
+        with ui.row().classes("gap-2"):
+            ui.button(t("pwd_save"),   on_click=do_change).props("color=primary dense")
+            ui.button(t("pwd_cancel"), on_click=pwd_dlg.close).props("flat dense")
+
+    return pwd_dlg
 
 
 # ── Notification bell ─────────────────────────────────────────────────────────

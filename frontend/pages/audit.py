@@ -10,6 +10,7 @@ from nicegui import ui
 
 from backend.core.auth import require_auth
 from backend.db.database import list_audit_log, list_users
+from frontend.pages.admin_shell import toast
 from frontend.pages._nav import nav
 from frontend.translate import t
 
