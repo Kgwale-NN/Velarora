@@ -515,3 +515,17 @@ def test_google_account_requires_approved_identity(db):
     assert google_account(dict(school, hd="school.example"))["role"] == "teacher"
     db.create_user("Student", "Strong-password1", "student", is_active=False, email="student@gmail.com")
     assert google_account(dict(claims, email="student@gmail.com", sub="subject3")) is None
+
+def test_admin_can_rename_without_changing_identity(db):
+    from backend.db.admin_profile import update_admin_name
+    uid = db.create_user("Old name", "Strong-password1", "admin", email="admin@example.test")
+    assert update_admin_name(uid, " New name ") == "New name"
+    user = db.get_user_by_id(uid)
+    assert user["username"] == "New name" and user["email"] == "admin@example.test"
+    assert db.verify_password("New name", "Strong-password1")
+    student = db.create_user("Student", "Strong-password1", "student")
+    with pytest.raises(ValueError):
+        update_admin_name(student, "Other name")
+    with pytest.raises(ValueError):
+        update_admin_name(uid, "Student")
+    assert db.get_user_by_id(uid)["username"] == "New name"

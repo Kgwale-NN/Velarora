@@ -18,7 +18,6 @@ def admin_nav(user):
     ui.add_css((Path(__file__).parents[1] / "assets" / "admin.css").read_text())
     page_style("admin")
     with ui.dialog() as logout, ui.card().classes("admin-confirm"):
-        ui.icon("logout").classes("text-3xl")
         ui.label("Log out of Velarora?").classes("text-xl font-semibold")
         ui.label("You will return to the sign-in page.").classes("text-sm text-gray-300")
         with ui.row().classes("w-full justify-end gap-3 mt-3"):
@@ -45,7 +44,15 @@ def admin_nav(user):
         ui.button("Log out", icon="logout", on_click=logout.open).props(
             "flat no-caps align=left").classes("admin-signout w-full")
     with ui.header().classes("admin-header"):
-        menu_button = ui.button(icon="menu", on_click=drawer.toggle).props(
+        def toggle_menu():
+            drawer.toggle()
+            ui.run_javascript(f"""
+                const button = document.getElementById('{menu_button.html_id}');
+                button.classList.remove('menu-turn');
+                void button.offsetWidth;
+                button.classList.add('menu-turn');
+            """)
+        menu_button = ui.button(icon="menu", on_click=toggle_menu).props(
             'flat round aria-label="Open menu" aria-expanded="false"').classes("admin-menu-button")
         ui.link("Velarora", "/users").classes("admin-brand")
         ui.label(next((label for label, _, path in links if path == current), "Administration")).classes("admin-page-title")

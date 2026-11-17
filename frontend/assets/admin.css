@@ -121,3 +121,16 @@
     .users-dashboard-heading { align-items: flex-start; }
     .admin-glass-page .user-create-dialog { padding: 22px; gap: 22px; }
 }
+/* Larger audit controls and a calmer, wider logout confirmation. */
+.audit-filter-row { width: 100%; }
+.audit-filter-input { flex: 1 1 220px; min-width: 180px; }
+.audit-row-limit { width: 180px; min-width: 150px; }
+.audit-filter-button, .settings-save-button { min-height: 48px !important; padding: 0 26px; font-size: 18px; }
+.settings-save-button { min-width: 210px; margin-top: 8px; }
+.admin-glass-page .admin-confirm { width: min(560px, 94vw); max-width: 94vw; padding: 32px; gap: 16px; }
+.admin-glass-page .admin-confirm .q-btn { min-width: 110px; }
+@media (max-width: 600px) {
+    .audit-filter-input, .audit-row-limit { width: 100%; min-width: 0; flex-basis: 100%; }
+    .audit-filter-button { width: 100%; }
+    .admin-glass-page .admin-confirm { padding: 24px; }
+}

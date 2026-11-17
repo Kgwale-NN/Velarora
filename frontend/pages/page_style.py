@@ -22,6 +22,7 @@ def page_style(kind: str):
             </div>
         </div>
     """)
+    ui.add_head_html("<script>" + (ASSETS / "dialog-events.js").read_text() + "</script>")
     ui.add_head_html("""
         <script>
         document.documentElement.classList.remove('velarora-ready');

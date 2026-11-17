@@ -182,7 +182,7 @@ def page_settings() -> None:
                               f"veyon_cli={s.get('veyon_cli')}")
             toast(t("settings_saved"), type="positive")
 
-        ui.button(t("settings_save_btn"), on_click=_save_all).props(
-            "color=primary size=md")
+        ui.button(t("settings_save_btn"), icon="save", on_click=_save_all).props(
+            "no-caps").classes("settings-save-button")
         ui.label(t("settings_save_note")).classes(
             "text-xs text-gray-500 dark:text-gray-500 mt-2")

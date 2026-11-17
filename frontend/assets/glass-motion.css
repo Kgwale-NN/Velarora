@@ -8,10 +8,10 @@
     70% { opacity: 1; transform: perspective(1400px) translateY(-2px) translateZ(3px); }
     100% { opacity: 1; transform: perspective(1400px) translateY(0) translateZ(0); }
 }
-.velarora-ready .login-glass { animation: glass-panel-arrive 1100ms cubic-bezier(.16,.7,.24,1) backwards; }
+.velarora-ready .login-glass { animation: glass-panel-arrive 2400ms cubic-bezier(.16,.7,.24,1) backwards; }
 @keyframes glass-panel-arrive {
-    0% { opacity: 0; transform: perspective(1200px) translateY(18px) scale(.95); }
-    72% { opacity: 1; transform: perspective(1200px) translateY(-2px) scale(1.008); }
+    0% { opacity: 0; transform: perspective(1200px) translateY(18px) scale(.93); }
+    72% { opacity: 1; transform: perspective(1200px) translateY(-2px) scale(1.014); }
     100% { opacity: 1; transform: perspective(1200px) translateY(0) scale(1); }
 }
 .velarora-ready .login-glass > *, .velarora-ready .users-dashboard-heading {
@@ -55,7 +55,11 @@
     transition: transform 220ms ease, background-color 280ms ease, border-color 280ms ease, box-shadow 350ms ease;
 }
 .admin-glass-page .q-btn:active, .velarora-login-page .q-btn:active { transform: scale(.97); }
-.admin-glass-page .admin-menu-button[aria-expanded="true"] .q-icon { transform: rotate(90deg); }
+.admin-glass-page .admin-menu-button.menu-turn .q-icon { animation: menu-turn-return 650ms ease-in-out; }
+@keyframes menu-turn-return {
+    0%, 100% { transform: rotate(0); }
+    45% { transform: rotate(90deg); }
+}
 .admin-glass-page .q-field__control, .login-input .q-field__control {
     transition: background-color 320ms ease, box-shadow 350ms ease;
 }
@@ -92,5 +96,5 @@
     .admin-glass-page .user-stat-card:hover, .admin-glass-page .admin-nav-link:hover,
     .admin-glass-page .admin-nav-link:hover .q-icon, .admin-glass-page .admin-account:hover,
     .admin-glass-page .q-btn:active, .velarora-login-page .q-btn:active,
-    .admin-glass-page .admin-menu-button[aria-expanded="true"] .q-icon { transform: none !important; }
+    .admin-glass-page .admin-menu-button .q-icon { transform: none !important; animation: none !important; }
 }

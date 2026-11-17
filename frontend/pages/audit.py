@@ -58,7 +58,7 @@ def page_audit() -> None:
 
         # ── Filters ───────────────────────────────────────────────────────────
         with ui.card().classes("w-full"):
-            with ui.row().classes("gap-4 flex-wrap items-end"):
+            with ui.row().classes("audit-filter-row gap-4 flex-wrap items-end"):
                 users = [{"label": t("audit_all_users"), "value": ""}] + [
                     {"label": u["username"], "value": str(u["id"])}
                     for u in list_users()
@@ -66,19 +66,19 @@ def page_audit() -> None:
                 f_user = ui.select(
                     {u["value"]: u["label"] for u in users},
                     value="", label=t("audit_user"),
-                ).props("dense outlined").classes("w-44")
+                ).props("outlined").classes("audit-filter-input")
 
                 f_action = ui.input(
                     label=t("audit_action_filter"),
                     placeholder=t("audit_action_ph"),
-                ).props("dense outlined").classes("w-44")
+                ).props("outlined").classes("audit-filter-input")
 
                 f_limit = ui.number(
                     t("audit_max_rows"), value=200, min=10, max=2000,
-                ).props("dense outlined").classes("w-24")
+                ).props("outlined").classes("audit-row-limit")
 
-                ui.button(t("audit_filter_btn"), on_click=lambda: _load()).props(
-                    "color=primary dense")
+                ui.button(t("audit_filter_btn"), icon="filter_list", on_click=lambda: _load()).props(
+                    "no-caps").classes("audit-filter-button")
 
         # ── Table ─────────────────────────────────────────────────────────────
         cols = [

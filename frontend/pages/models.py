@@ -450,7 +450,7 @@ def _model_library() -> None:
                     type="positive")
                 _model_library.refresh()
 
-            ui.button(t("models_import_do"), icon="upload",
+            ui.button(t("models_import_do"), icon="file_upload",
                       on_click=do_import).props("color=primary")
             ui.button(t("models_cancel"), on_click=import_dlg.close).props("flat")
 
@@ -657,7 +657,7 @@ def _model_library() -> None:
             _model_library.refresh()
 
         with ui.row().classes("gap-2 mt-2"):
-            ui.button(t("models_del_confirm"), icon="delete",
+            ui.button(t("models_del_confirm"), icon="delete_outline",
                       on_click=_do_confirm_delete).props("color=red")
             ui.button(t("models_cancel"),
                       on_click=del_conflict_dlg.close).props("flat")
@@ -1058,9 +1058,9 @@ def _model_library() -> None:
         with ui.row().classes("items-center justify-between mb-2"):
             ui.label(t("models_library_title")).classes("text-lg font-bold")
             with ui.row().classes("gap-2"):
-                ui.button(t("models_train_btn"), icon="model_training",
+                ui.button(t("models_train_btn"), icon="psychology",
                           on_click=_open_train_dlg).props("flat color=green dense")
-                ui.button(t("models_import_btn"), icon="upload",
+                ui.button(t("models_import_btn"), icon="file_upload",
                           on_click=import_dlg.open).props("flat color=primary dense")
                 ui.button(icon="refresh",
                           on_click=_model_library.refresh).props("flat round dense")
@@ -1125,26 +1125,26 @@ def _model_library() -> None:
         tbl.add_slot("body-cell-classes", """
             <q-td :props="props">
                 <q-badge color="blue" class="q-mr-xs">{{ props.row.nc }}</q-badge>
-                <q-btn flat dense round icon="list" size="xs" color="gray"
+                <q-btn flat dense round icon="format_list_bulleted" size="xs" color="gray"
                        @click="$parent.$emit('show_classes', props.row)"/>
             </q-td>""")
         tbl.add_slot("body-cell-actions", """
             <q-td :props="props">
-                <q-btn flat dense round icon="play_arrow" color="green"
-                       title="Set as active"
+                <q-btn flat dense round icon="check_circle_outline" color="green"
+                       title="Set as active" aria-label="Set model active"
                        @click="$parent.$emit('set_active', props.row)"/>
-                <q-btn flat dense round icon="edit" color="blue"
-                       title="Edit"
+                <q-btn flat dense round icon="edit_note" color="blue"
+                       title="Edit" aria-label="Edit model"
                        @click="$parent.$emit('edit_model', props.row)"/>
-                <q-btn flat dense round icon="auto_fix_high" color="purple"
-                       title="Fine-tune from this model"
+                <q-btn flat dense round icon="tune" color="purple"
+                       title="Fine-tune from this model" aria-label="Fine-tune model"
                        :disable="!props.row.has_pt"
                        @click="$parent.$emit('finetune', props.row)"/>
                 <q-btn flat dense round icon="history" color="teal"
-                       title="Training history"
+                       title="Training history" aria-label="Training history"
                        @click="$parent.$emit('show_history', props.row)"/>
-                <q-btn flat dense round icon="delete" color="red"
-                       title="Delete"
+                <q-btn flat dense round icon="delete_outline" color="red"
+                       title="Delete" aria-label="Delete model"
                        @click="$parent.$emit('del_model', props.row)"/>
             </q-td>""")
 

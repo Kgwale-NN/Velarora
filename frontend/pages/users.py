@@ -57,7 +57,7 @@ def page_users() -> None:
             inactive_note = ui.label("").classes("users-count-note")
 
         # Account creation stays in a focused dialog above the dashboard.
-        with ui.dialog().props("persistent") as create_dialog, ui.card().classes(
+        with ui.dialog() as create_dialog, ui.card().classes(
             "user-create-dialog"
         ).on("click.stop", js_handler="() => {}").on("pointerdown.stop", js_handler="() => {}"):
             with ui.row().classes("w-full items-center justify-between"):
@@ -112,6 +112,7 @@ def page_users() -> None:
                         return
                     create_btn.props("loading")
                     cancel_create.disable()
+                    create_dialog.props("persistent")
                     form_msg.set_text(t("users_creating"))
                     form_msg.classes(replace="text-sm user-form-message text-gray-500 dark:text-gray-400")
 
@@ -148,6 +149,7 @@ def page_users() -> None:
                     finally:
                         create_btn.props(remove="loading")
                         cancel_create.enable()
+                        create_dialog.props(remove="persistent")
 
                 create_btn.on_click(do_create)
 
@@ -228,7 +230,7 @@ def page_users() -> None:
 
         tbl.add_slot("body-cell-role", """
             <q-td :props="props">
-                <q-badge :color="props.row.role === 'admin'    ? 'red'    :
+                <q-badge :color="props.row.role === 'admin'    ? 'grey-8'    :
                                  props.row.role === 'teacher'  ? 'orange' : 'blue'">
                     {{ props.row.role }}
                 </q-badge>
