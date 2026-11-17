@@ -1,0 +1,55 @@
+/* The same control geometry and glass material on login and admin pages. */
+body.velarora-login-page, body.admin-glass-page {
+    --glass-input-radius: 50px;
+    --glass-input-height: 50px;
+    --glass-field-fill: linear-gradient(110deg, #ffffff19, #ffffff07);
+    --glass-field-border: #ffffff35;
+    --glass-button-fill: linear-gradient(175deg, #ffffff24 -20%, #ffffff0b 34%, #0d0d0db3 100%);
+    --glass-button-shadow: inset 0 1px 1px #ffffff6e, 0 7px 23px #0004, 0 -2px 20px #ffffff0d;
+}
+.glass-field { width: 100%; min-width: 0; gap: 0; }
+.glass-field-label { color: #eee; font-size: 18px; margin: 0 0 8px 2px; line-height: 1.3; }
+.admin-glass-page .q-field__control, .velarora-login-page .login-input .q-field__control {
+    border-radius: var(--glass-input-radius) !important;
+    background: var(--glass-field-fill);
+    box-shadow: inset 0 1px 2px #ffffff1a;
+}
+.admin-glass-page .glass-input .q-field__control, .login-input .q-field__control {
+    height: var(--glass-input-height); min-height: var(--glass-input-height); padding: 0 17px;
+}
+.admin-glass-page .q-field__control::before, .admin-glass-page .q-field__control::after {
+    border-radius: var(--glass-input-radius) !important;
+}
+.admin-glass-page .q-field--outlined .q-field__control::before { border: 1px solid var(--glass-field-border) !important; }
+.admin-glass-page .glass-input .q-field__native { font-size: 18px; color: #fff; }
+.admin-glass-page .glass-input .q-field__prepend { padding-right: 11px; }
+.admin-glass-page .glass-input .q-icon { font-size: 19px; color: #ffffffdf; }
+.admin-glass-page .glass-input .q-field__bottom { padding: 10px 12px 0; line-height: 1.5; }
+.admin-glass-page .q-btn:not(.q-btn--round), .login-submit, .login-google {
+    border-radius: 40px; min-height: 49px; font-size: 18px; font-weight: 600;
+    letter-spacing: 0; text-transform: none;
+}
+.admin-glass-page .q-btn.bg-primary {
+    background-color: transparent !important;
+    border: 1px solid #ffffff5c;
+    box-shadow: var(--glass-button-shadow);
+}
+.admin-glass-page .q-btn.bg-primary::before {
+    background: var(--glass-button-fill); border-radius: inherit; pointer-events: none;
+}
+.velarora-login-page .login-submit {
+    background: var(--glass-button-fill) !important; box-shadow: var(--glass-button-shadow);
+}
+.admin-glass-page .q-btn.bg-primary:hover { border-color: #ffffffa8; }
+.admin-glass-page .user-create-button { padding: 0 24px; }
+.admin-glass-page .user-create-dialog {
+    border-radius: 32px; background: linear-gradient(145deg, #ffffff17, #ffffff05 60%, #0c0c0c50);
+    border: 1px solid #ffffff3b; box-shadow: 0 24px 90px #0005, inset 0 1px #ffffff47, inset 0 -1px #fff1;
+    backdrop-filter: blur(26px); -webkit-backdrop-filter: blur(26px);
+}
+.user-create-dialog .user-create-grid { gap: 22px; }
+.user-create-dialog .user-role-hint { margin-top: -12px; padding-left: 2px; }
+.admin-glass-page .q-table .q-btn--dense { min-height: 32px; }
+@media (prefers-reduced-transparency: reduce) {
+    .admin-glass-page .user-create-dialog { background: #181818; }
+}

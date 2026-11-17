@@ -5,6 +5,7 @@ from backend.db.user_queries import get_user_by_id
 from backend.db.admin_profile import update_admin_name
 from frontend.pages._nav import nav, password_dialog
 from frontend.pages.admin_shell import toast
+from frontend.pages.glass_fields import text_field
 
 
 @ui.page("/profile")
@@ -19,7 +20,7 @@ def admin_profile():
         ui.label("Admin Profile").classes("text-2xl font-semibold")
         with ui.card().classes("w-full p-6 gap-5"):
             ui.icon("person_outline").classes("text-5xl")
-            name = ui.input("Username", value=user["username"]).props("outlined stack-label").classes("w-full")
+            name = text_field("Username", icon="person_outline", value=user["username"])
             error = ui.label("").classes("text-sm text-red-300")
 
             def save_name():
@@ -32,8 +33,8 @@ def admin_profile():
                 toast("Profile saved.", type="positive")
                 ui.navigate.reload()
 
-            ui.input("Email address", value=user["email"] or "").props("readonly outlined").classes("w-full")
-            ui.input("Role", value="Administrator").props("readonly outlined").classes("w-full")
+            text_field("Email address", icon="mail_outline", value=user["email"] or "", props="readonly")
+            text_field("Role", icon="badge", value="Administrator", props="readonly")
             with ui.row().classes("gap-3"):
                 ui.button("Save profile", icon="check", on_click=save_name).props("no-caps")
                 ui.button("Change password", icon="lock_outline", on_click=dialog.open).props("outline no-caps")

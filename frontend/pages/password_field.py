@@ -4,7 +4,7 @@ from nicegui import ui
 from backend.db.user_passwords import MIN_PASSWORD_LENGTH, validate_password
 
 
-def new_password_field(label: str):
+def new_password_field(label: str | None):
     def feedback(value: str):
         if value:
             try:

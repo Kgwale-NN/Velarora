@@ -11,6 +11,7 @@ def page_style(kind: str):
               dark="#181818", dark_page="#060607")
     ui.add_css((ASSETS / "page-style.css").read_text())
     ui.add_css((ASSETS / "glass-motion.css").read_text())
+    ui.add_css((ASSETS / "glass-controls.css").read_text())
     ui.add_body_html(f"""
         <div class="page-loading loading-{kind}" role="status" aria-label="Loading page">
             <span class="loading-sr-only">Loading page</span>

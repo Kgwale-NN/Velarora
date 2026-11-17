@@ -18,7 +18,7 @@ from nicegui import app as nicegui_app, ui
 import backend.state as state
 from backend.core.auth import clear_session
 from frontend.pages._snapshot import make_snapshot_dialogs
-from frontend.pages.password_field import new_password_field
+from frontend.pages.glass_fields import text_field
 from frontend.translate import t, get_lang, set_lang
 
 
@@ -228,13 +228,11 @@ def _user_menu(current_user: dict, dark) -> None:
 def password_dialog(current_user: dict):
     with ui.dialog() as pwd_dlg, ui.card().classes("p-5 gap-3 w-80"):
         ui.label(t("pwd_title")).classes("text-base font-bold")
-        current_pw = ui.input(
-            t("pwd_current"), password=True, password_toggle_button=True,
-        ).props("dense outlined").classes("w-full")
-        new_pw = new_password_field(t("pwd_new")).classes("w-full")
-        confirm_pw = ui.input(
-            t("pwd_confirm"), password=True, password_toggle_button=True,
-        ).props("dense outlined").classes("w-full")
+        current_pw = text_field(t("pwd_current"), icon="lock_outline", password=True,
+                                props="autocomplete=current-password")
+        new_pw = text_field(t("pwd_new"), icon="lock_outline", new_password=True)
+        confirm_pw = text_field(t("pwd_confirm"), icon="lock_outline", password=True,
+                                props="autocomplete=new-password")
         err_lbl = ui.label("").classes("text-red-400 text-sm")
 
         def do_change() -> None:

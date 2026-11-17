@@ -24,6 +24,7 @@ from backend.db.staff_email import link_account_email
 from frontend.pages.admin_shell import toast
 from frontend.pages._nav import nav
 from frontend.pages.password_field import new_password_field
+from frontend.pages.glass_fields import text_field, select_field
 from frontend.translate import t
 
 
@@ -65,17 +66,23 @@ def page_users() -> None:
                 cancel_create = ui.button(icon="close", on_click=create_dialog.close).props(
                     'flat round dense aria-label="Close create account"')
             with ui.element("div").classes("user-create-grid"):
-                new_username = ui.input(t("users_username")).props(
-                    "outlined stack-label").classes("w-full user-name-field")
-                new_password = new_password_field(t("users_temp_password")).props("stack-label").classes("w-full user-create-password")
-
-                new_email = ui.input(t("staff_email")).props("type=email outlined stack-label").classes("w-full user-email-field")
+                new_username = text_field(
+                    t("users_username"), icon="person_outline", classes="user-name-field",
+                    props='autocomplete=off', value="",
+                )
+                new_password = text_field(
+                    t("users_temp_password"), icon="lock_outline", new_password=True,
+                    classes="user-create-password",
+                )
+                new_email = text_field(
+                    t("staff_email"), icon="mail_outline", classes="user-email-field",
+                    props="type=email autocomplete=off",
+                )
                 if admin:
-                    new_role = ui.select(
-                        {"student": t("users_role_student"),
-                         "teacher": t("users_role_teacher")},
-                        value="student", label=t("users_role"),
-                    ).props("outlined").classes("w-full user-role-field")
+                    new_role = select_field(
+                        t("users_role"), {"student": t("users_role_student"), "teacher": t("users_role_teacher")},
+                        value="student", classes="user-role-field",
+                    )
                     role_hint = ui.label(t("users_hint_windows")).classes(
                         "text-sm text-gray-400 user-role-hint")
 
@@ -176,7 +183,7 @@ def page_users() -> None:
             with ui.dialog() as email_dialog, ui.card().classes("user-email-dialog"):
                 ui.label("Add sign-in email").classes("text-lg font-semibold")
                 email_name = ui.label("").classes("text-sm text-gray-300")
-                address = ui.input(t("staff_email")).props("type=email outlined").classes("w-full")
+                address = text_field(t("staff_email"), icon="mail_outline", props="type=email")
                 address_error = ui.label("").classes("text-sm text-red-300")
 
                 def assign_email() -> None:
