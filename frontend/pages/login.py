@@ -89,7 +89,7 @@ def page_login(request: Request) -> None:
                 google_button.disable()
                 ui.label(t("google_unavailable")).classes("text-xs")
             issue = request.query_params.get("google")
-            if issue in ("failed", "denied", "unavailable"):
+            if issue in ("failed", "denied", "unavailable", "credentials", "cancelled", "expired", "session", "network"):
                 error.set_text(t("google_" + issue))
 
             # Allow pressing Enter in the password field to submit

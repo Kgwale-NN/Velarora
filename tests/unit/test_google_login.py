@@ -13,7 +13,7 @@ def test_google_callback_checks_state_and_consumes_attempt(monkeypatch):
     monkeypatch.setattr(google_login, "google", google)
     req = Request({"type": "http", "query_string": b"state=wrong"})
     asyncio.run(google_login.start_google(req, True))
-    assert asyncio.run(google_login.finish_google(req)).headers["location"] == "/login?google=failed"
+    assert asyncio.run(google_login.finish_google(req)).headers["location"] == "/login?google=session"
     google.authorize_access_token.assert_not_awaited()
     asyncio.run(google_login.start_google(req, True))
     state = store["google_attempt"]["state"]
@@ -25,4 +25,13 @@ def test_google_callback_checks_state_and_consumes_attempt(monkeypatch):
     monkeypatch.setattr(google_login, "set_session_user", login)
     assert asyncio.run(google_login.finish_google(req)).headers["location"] == "/auth/continue"
     login.assert_called_once_with(user, remember=True)
-    assert asyncio.run(google_login.finish_google(req)).headers["location"] == "/login?google=failed"
+    assert asyncio.run(google_login.finish_google(req)).headers["location"] == "/login?google=session"
+
+
+def test_google_error_messages_do_not_include_secrets():
+    from authlib.integrations.base_client.errors import OAuthError
+    from httpx import ConnectError
+    response = google_login.failure(OAuthError(error="invalid_client", description="private-secret"))
+    assert response.headers["location"] == "/login?google=credentials"
+    assert b"private-secret" not in response.body
+    assert google_login.failure(ConnectError("private-url")).headers["location"] == "/login?google=network"
