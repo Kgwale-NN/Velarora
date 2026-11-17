@@ -1,0 +1,82 @@
+/* Login page only. The warm grey glass follows the supplied reference. */
+.velarora-login-page {
+    margin: 0; min-height: 100svh; color: #fff; background: #121619;
+    font-family: "Inter", "Segoe UI", sans-serif;
+}
+.velarora-login-page .nicegui-content { padding: 0; gap: 0; }
+.login-scene {
+    position: relative; isolation: isolate; display: grid; place-items: center;
+    width: 100%; min-height: 100svh; padding: 56px 24px; overflow: hidden;
+    background: radial-gradient(ellipse at 22% 5%, #c4c2ba 0, transparent 48%),
+                radial-gradient(ellipse at 88% 32%, #73818b 0, transparent 48%), #181d22;
+}
+.login-scene::before {
+    content: ""; position: absolute; z-index: -2; inset: -90px;
+    background: radial-gradient(ellipse 240px 480px at 45% 44%, #0d1013 30%, transparent 75%),
+                radial-gradient(ellipse 330px 200px at 75% 3%, #e3ded4 4%, transparent 95%),
+                radial-gradient(ellipse 380px 240px at 15% 53%, #d9d5cb 5%, transparent 85%);
+    filter: blur(45px); transform: rotate(-13deg);
+}
+.login-scene::after {
+    content: ""; position: absolute; z-index: -1; inset: 0; pointer-events: none;
+    background: linear-gradient(180deg, #080c1005, #0a0d1370 58%, #080b11ed);
+}
+.login-glass {
+    width: min(100%, 440px); padding: 42px 36px 36px; gap: 0;
+    border: 1px solid #ffffff3b; border-radius: 32px;
+    background: linear-gradient(145deg, #ffffff17, #ffffff05 60%, #080c111f);
+    box-shadow: 0 24px 90px #0005, inset 0 1px #ffffff47, inset 0 -1px #fff1;
+    backdrop-filter: blur(26px); -webkit-backdrop-filter: blur(26px);
+}
+.login-brand { font-size: 21px; font-weight: 600; font-style: italic; letter-spacing: -.8px; text-align: center; width: 100%; }
+.login-heading { font-size: 30px; line-height: 1.25; font-weight: 650; letter-spacing: -1.1px; text-align: center; margin: 15px 0 36px; }
+.login-fields { width: 100%; gap: 0; }
+.login-field-label { font-size: 12px; color: #eee; margin: 0 0 8px 2px; }
+.login-input { width: 100%; margin-bottom: 22px; }
+.login-input .q-field__control {
+    border-radius: 50px !important; height: 50px; min-height: 50px;
+    padding: 0 17px; background: linear-gradient(110deg, #ffffff19, #ffffff07);
+    box-shadow: inset 0 1px 2px #ffffff1a;
+}
+.login-input .q-field__control::before { border: 1px solid #ffffff50 !important; border-radius: 50px; }
+.login-input .q-field__control::after { border-color: #dcecff !important; border-radius: 50px; }
+.login-input .q-field__native { color: white !important; font-size: 13px; }
+.login-input input::placeholder { opacity: 1; color: #ffffffbd; }
+.login-input input:-webkit-autofill { transition: background-color 99999s; -webkit-text-fill-color: white; }
+.login-input .q-icon { color: #ffffffdf; font-size: 19px; }
+.login-input .q-field__prepend { padding-right: 11px; }
+.login-options { width: 100%; align-items: center; justify-content: space-between; gap: 8px; margin: -8px 0 24px; }
+.login-remember { font-size: 11px; }
+.login-remember .q-checkbox__inner { font-size: 29px; color: #e4e4e4; }
+.login-remember .q-checkbox__bg { border-radius: 4px; border-width: 1px; }
+.login-help { color: #fff; font-size: 11px; text-decoration: none; padding: 5px 0; cursor: pointer; }
+.login-help:hover { text-decoration: underline; }
+.login-scene .login-submit, .login-scene .login-google {
+    width: 100%; min-height: 49px; border-radius: 40px; text-transform: none;
+    font-weight: 600; font-size: 13px; letter-spacing: 0;
+    border: 1px solid #ffffff5c;
+}
+.login-scene .login-submit {
+    color: #fff !important;
+    background: linear-gradient(175deg, #ffffff4a -20%, #ffffff19 34%, #0a0d13b3 100%) !important;
+    box-shadow: inset 0 1px 1px #ffffff6e, 0 7px 23px #0004, 0 -2px 20px #ffffff0d;
+}
+.login-submit:hover { border-color: #ffffffa8; box-shadow: inset 0 1px 1px #ffffff90, 0 8px 26px #0005; }
+.login-divider { display: flex; align-items: center; gap: 14px; width: 100%; margin: 25px 0; font-size: 11px; color: #e5e5e5; }
+.login-divider::before, .login-divider::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, transparent, #ffffff57); }
+.login-divider::after { transform: rotate(180deg); }
+.login-scene .login-google { background: #ffffff10 !important; color: #fff !important; border-color: #ffffff30; gap: 10px; }
+.login-google:hover { background: #ffffff20 !important; border-color: #ffffff65; }
+.login-google-mark { font-family: Arial, sans-serif; font-size: 21px; font-weight: 750; color: #fff; margin-right: 10px; }
+.login-error { width: 100%; color: #ffd0cc; font-size: 12px; line-height: 1.5; }
+.login-error:not(:empty) { padding: 12px 0 16px; }
+.login-note { color: #eee; font-size: 12px; margin-top: 12px; }
+.login-help-dialog { background: #20262e; color: #fff; border: 1px solid #ffffff40; border-radius: 22px; padding: 26px; max-width: 380px; }
+.login-scene :focus-visible { outline: 2px solid #c1ddff; outline-offset: 4px; }
+@media (min-width: 1000px) { .login-scene { background-color: #161d24; } }
+@media (max-width: 520px) {
+    .login-scene { padding: 30px 18px; }
+    .login-glass { padding: 35px 25px 30px; border-radius: 28px; }
+    .login-heading { font-size: 28px; }
+}
+@media (prefers-reduced-transparency: reduce) { .login-glass { background: #222a31; } }

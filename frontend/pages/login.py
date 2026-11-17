@@ -12,6 +12,8 @@ locked out wholesale and a distributed guesser is still throttled per
 account. The check runs server-side in do_login, so it cannot be bypassed
 by reloading the page.
 """
+from pathlib import Path
+
 from fastapi import Request
 from fastapi.responses import RedirectResponse
 from nicegui import app, ui
@@ -40,22 +42,36 @@ def page_login(request: Request) -> None:
         ui.navigate.to(home_path_for(user))
         return
 
-    with ui.column().classes(
-        "absolute-center items-center gap-4 w-full"
-    ).style("max-width: 360px; margin: auto;"):
+    ui.add_css((Path(__file__).parents[1] / "assets" / "login.css").read_text())
+    ui.query("body").classes(add="velarora-login-page")
+    with ui.dialog() as help_dialog, ui.card().classes("login-help-dialog"):
+        ui.label("Need help signing in?").classes("text-lg font-semibold")
+        ui.label("Ask your Velarora administrator to help you reset your password.")
+        ui.button("Back to sign in", on_click=help_dialog.close).props("flat no-caps")
 
-        ui.label(t("login_title")).classes("text-2xl font-bold text-center")
-        ui.label(t("login_subtitle")).classes("text-gray-400 text-sm mb-2")
-
-        with ui.card().classes("w-full gap-3 p-6"):
-            email = ui.input(t("staff_email")).props(
-                "type=email autocomplete=username outlined dense autofocus"
-            ).classes("w-full")
-            password = ui.input(
-                t("login_password"), password=True, password_toggle_button=True,
-            ).props("outlined dense autocomplete=current-password").classes("w-full")
-            remember = ui.checkbox(t("login_remember"), value=False)
-            error    = ui.label("").classes("text-red-400 text-sm")
+    with ui.element("main").classes("login-scene"):
+        with ui.column().classes("login-glass"):
+            ui.label("Velarora").classes("login-brand")
+            ui.label("Log in to your exam workspace.").classes("login-heading")
+            with ui.column().classes("login-fields"):
+                ui.label(t("staff_email")).classes("login-field-label")
+                email = ui.input(placeholder="Enter your email address").props(
+                    'type=email autocomplete=username outlined dense hide-bottom-space aria-label="Email address"'
+                ).classes("login-input")
+                with email.add_slot("prepend"):
+                    ui.icon("mail_outline")
+                ui.label(t("login_password")).classes("login-field-label")
+                password = ui.input(
+                    placeholder="Enter your password", password=True, password_toggle_button=True,
+                ).props('outlined dense hide-bottom-space autocomplete=current-password aria-label="Password"').classes("login-input")
+                with password.add_slot("prepend"):
+                    ui.icon("lock_outline")
+            with ui.row().classes("login-options"):
+                remember = ui.checkbox("Remember me", value=False).classes("login-remember")
+                remember.tooltip("Keep me signed in for up to 30 days on this computer.")
+                ui.link("Forgot password?", "#").classes("login-help").on(
+                    "click.prevent", help_dialog.open)
+            error = ui.label("").classes("login-error").props('role=alert aria-live=polite')
 
             # Captured at page build; the websocket callback below reuses it.
             client_ip = request.client.host if request.client else "unknown"
@@ -78,16 +94,19 @@ def page_login(request: Request) -> None:
                 set_session_user(u, remember=bool(remember.value))
                 ui.navigate.to("/auth/continue")
 
-            ui.button(t("login_btn"), on_click=do_login).props(
-                "color=primary"
-            ).classes("w-full mt-2")
-
-            google_button = ui.button(t("google_continue"), on_click=lambda: ui.navigate.to(
+            ui.button("Sign in", on_click=do_login).props(
+                "unelevated no-caps"
+            ).props(remove="color").classes("login-submit")
+            ui.label("or continue with").classes("login-divider")
+            google_button = ui.button(on_click=lambda: ui.navigate.to(
                 "/auth/google?remember=" + ("true" if remember.value else "false")
-            )).props("outline").classes("w-full")
+            )).props('unelevated no-caps aria-label="Continue with Google"').props(remove="color").classes("login-google")
+            with google_button:
+                ui.image(str(Path(__file__).parents[1] / "assets" / "google-mark.png")).classes("w-5 h-5 mr-3").props('alt="" aria-hidden=true')
+                ui.label("Google")
             if google_login.google is None:
                 google_button.disable()
-                ui.label(t("google_unavailable")).classes("text-xs")
+                ui.label(t("google_unavailable")).classes("login-note")
             issue = request.query_params.get("google")
             if issue in ("failed", "denied", "unavailable", "credentials", "cancelled", "expired", "session", "network"):
                 error.set_text(t("google_" + issue))
