@@ -35,3 +35,30 @@ def test_google_error_messages_do_not_include_secrets():
     assert response.headers["location"] == "/login?google=credentials"
     assert b"private-secret" not in response.body
     assert google_login.failure(ConnectError("private-url")).headers["location"] == "/login?google=network"
+
+def test_google_issuer_variants_still_check_audience_and_nonce():
+    import time
+    import pytest
+    from authlib.integrations.starlette_client import OAuth
+    from joserfc import jwt
+    from joserfc.jwk import RSAKey
+    from joserfc.errors import InvalidClaimError
+    key = RSAKey.generate_key(2048, parameters={"kid": "test-key"})
+    client = OAuth().register("test", client_id="velarora-test")
+    client.load_server_metadata = AsyncMock(return_value={"issuer": "https://accounts.google.com"})
+    client.fetch_jwk_set = AsyncMock(return_value={"keys": [key.as_dict(private=False)]})
+    options = {"iss": {"essential": True, "values": ["https://accounts.google.com", "accounts.google.com"]},
+               "aud": {"essential": True, "value": "velarora-test"}}
+    claims = {"iss": "https://accounts.google.com", "aud": "velarora-test", "sub": "test-user",
+              "iat": int(time.time()), "exp": int(time.time()) + 300, "nonce": "expected-nonce"}
+
+    def check(values):
+        encoded = jwt.encode({"alg": "RS256", "kid": "test-key"}, values, key)
+        return asyncio.run(client.parse_id_token({"id_token": encoded, "access_token": "test-access"},
+                          nonce="expected-nonce", claims_options=options))
+
+    for issuer in ("https://accounts.google.com", "accounts.google.com"):
+        assert check(dict(claims, iss=issuer))["sub"] == "test-user"
+    for changed in ({"iss": "https://untrusted.example"}, {"aud": "another-app"}, {"nonce": "wrong"}):
+        with pytest.raises(InvalidClaimError):
+            check(dict(claims, **changed))

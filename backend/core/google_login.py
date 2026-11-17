@@ -39,7 +39,10 @@ def failure(exc):
               "invalid_grant": "expired", "mismatching_state": "session"}.get(code, "failed")
     if isinstance(exc, HTTPError):
         reason = "network"
-    log.warning("Google sign-in failed: category=%s exception=%s", reason, type(exc).__name__)
+    claim = getattr(exc, "claim", "")
+    claim = claim if claim in {"iss", "aud", "azp", "nonce", "iat", "exp", "at_hash"} else "unknown"
+    log.warning("Google sign-in failed: category=%s exception=%s claim=%s",
+                reason, type(exc).__name__, claim)
     return redirect("/login?google=" + reason)
 
 
@@ -62,7 +65,10 @@ async def finish_google(request: Request):
         log.warning("Google callback lost or expired its browser session.")
         return redirect("/login?google=session")
     try:
-        token = await google.authorize_access_token(request)
+        token = await google.authorize_access_token(request, claims_options={
+            "iss": {"essential": True, "values": ["https://accounts.google.com", "accounts.google.com"]},
+            "aud": {"essential": True, "value": google.client_id},
+        })
         user = google_account(token.get("userinfo") or {}) if token.get("id_token") else None
     except (OAuthError, HTTPError, JoseError, ValueError) as exc:
         return failure(exc)
