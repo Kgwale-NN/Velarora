@@ -7,7 +7,7 @@ app.add_static_files("/design-assets", str(ASSETS))
 
 
 def page_style(kind: str):
-    ui.colors(primary="#efefef", secondary="#c9c9c9", accent="#a1a1a1",
+    ui.colors(primary="#ffffff0d", secondary="#c9c9c9", accent="#a1a1a1",
               dark="#181818", dark_page="#060607")
     ui.add_css((ASSETS / "page-style.css").read_text())
     ui.add_css((ASSETS / "glass-motion.css").read_text())
