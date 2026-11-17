@@ -23,6 +23,7 @@ from backend.core.auth import get_session_user, home_path_for, set_session_user
 from backend.db.staff_email import authenticate_login
 from backend.core import google_login
 from frontend.translate import t
+from frontend.pages.page_style import page_style
 
 app.include_router(google_login.router)
 
@@ -44,6 +45,7 @@ def page_login(request: Request) -> None:
 
     ui.add_css((Path(__file__).parents[1] / "assets" / "login.css").read_text())
     ui.query("body").classes(add="velarora-login-page")
+    page_style("login")
     with ui.dialog() as help_dialog, ui.card().classes("login-help-dialog"):
         ui.label("Need help signing in?").classes("text-lg font-semibold")
         ui.label("Ask your Velarora administrator to help you reset your password.")

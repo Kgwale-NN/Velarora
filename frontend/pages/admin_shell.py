@@ -2,6 +2,7 @@
 from pathlib import Path
 from nicegui import ui
 from backend.core.auth import clear_session
+from frontend.pages.page_style import page_style
 
 
 def toast(message, **options):
@@ -15,6 +16,7 @@ def admin_nav(user):
     ui.dark_mode().enable()
     ui.query("body").classes(add="admin-glass-page")
     ui.add_css((Path(__file__).parents[1] / "assets" / "admin.css").read_text())
+    page_style("admin")
     with ui.dialog() as logout, ui.card().classes("admin-confirm"):
         ui.icon("logout").classes("text-3xl")
         ui.label("Log out of Velarora?").classes("text-xl font-semibold")

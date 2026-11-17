@@ -54,7 +54,7 @@ Upstream = "https://github.com/vainmari/Veyon-detection"
 include = ["backend*", "frontend*"]
 
 [tool.setuptools.package-data]
-frontend = ["locales/*.json", "assets/*", "icon.ico"]
+frontend = ["locales/*.json", "assets/*", "assets/fonts/*", "icon.ico"]
 
 [project.optional-dependencies]
 dev = [
