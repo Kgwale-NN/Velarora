@@ -28,7 +28,7 @@ body.velarora-login-page, body.admin-glass-page { font-family: "Cormorant Garamo
     transition: background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
 }
 .page-loading {
-    position: fixed; inset: 0; z-index: 10000; background: #131c28f7; backdrop-filter: blur(22px);
+    position: fixed; inset: 0; z-index: 10000; background: #1b1b1bf7; backdrop-filter: blur(22px);
     display: flex; flex-direction: column; padding: 24px 36px; gap: 48px;
     opacity: 1; visibility: visible; transition: opacity 220ms ease, visibility 220ms ease;
 }
@@ -45,7 +45,7 @@ body.velarora-login-page, body.admin-glass-page { font-family: "Cormorant Garamo
 .loading-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
 .loading-fields i { height: 54px; }
 .loading-panel .loading-button { width: 130px; height: 44px; margin-top: 30px; border-radius: 30px; }
-.loading-login { justify-content: center; background: #1a2029f0; }
+.loading-login { justify-content: center; background: #1f1f1ff0; }
 .loading-login .loading-top { display: none; }
 .loading-login .loading-panel { width: min(100%, 440px); padding: 40px 30px; }
 .loading-login .loading-heading { margin: 0 auto 24px; width: 48%; }
@@ -76,3 +76,41 @@ body.velarora-login-page, body.admin-glass-page { font-family: "Cormorant Garamo
     .admin-glass-page .q-btn, .admin-nav-link, .login-submit, .login-google { animation: none !important; transition: none !important; }
     ::view-transition-old(root), ::view-transition-new(root) { animation: none !important; }
 }
+/* A neutral palette lets the translucent surfaces and highlights stand out. */
+body.admin-glass-page, body.velarora-login-page {
+    --q-primary: #efefef;
+    --q-dark: #181818;
+    --q-dark-page: #080808;
+}
+body.admin-glass-page {
+    background-color: #080808;
+    background-image: radial-gradient(ellipse at 8% -12%, #ffffff22, transparent 48%),
+                      radial-gradient(ellipse at 96% 10%, #ffffff0b, transparent 45%);
+}
+.admin-glass-page .admin-header {
+    background: #151515a6; border-bottom-color: #ffffff24;
+    box-shadow: inset 0 -1px #ffffff06;
+}
+.admin-glass-page .admin-drawer { background: #141414b8; }
+.admin-glass-page .q-card, .admin-glass-page .q-table__container {
+    background: linear-gradient(130deg, #ffffff0e, #ffffff04);
+    border-color: #ffffff29; box-shadow: inset 0 1px #ffffff12, 0 14px 40px #0003;
+}
+.admin-glass-page .user-create-dialog, .admin-glass-page .user-email-dialog,
+.admin-glass-page .admin-confirm {
+    background: linear-gradient(140deg, #44444470, #151515b8);
+    backdrop-filter: blur(34px); -webkit-backdrop-filter: blur(34px);
+    border-color: #ffffff40; box-shadow: inset 0 1px #ffffff29, 0 28px 80px #0008;
+}
+.admin-glass-page .q-btn.bg-primary .q-btn__content { color: #111; }
+.admin-glass-page .q-btn.bg-primary { border-color: #ffffff80; }
+.admin-glass-page .q-btn--flat .q-btn__content, .admin-glass-page .q-btn--outline .q-btn__content { color: #e9e9e9; }
+.admin-glass-page .q-field--outlined .q-field__control::before { border-color: #ffffff35 !important; }
+.admin-glass-page .q-field--outlined .q-field__control::after { border-color: #ffffffa6 !important; }
+.velarora-login-page .q-checkbox__inner--truthy { color: #fff; }
+.velarora-login-page .q-checkbox__inner--truthy .q-checkbox__svg { color: #111; }
+.admin-glass-page .q-checkbox__inner--truthy .q-checkbox__svg { color: #111; }
+.admin-glass-page .admin-nav-link.active {
+    background: linear-gradient(135deg, #ffffff21, #ffffff0a); border-color: #ffffff3b;
+}
+.admin-glass-page .velarora-toast { background: #242424ed; color: #fff; }
