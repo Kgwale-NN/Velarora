@@ -52,20 +52,20 @@ def page_users() -> None:
         with ui.card().classes("w-full"):
             ui.label(t("users_create_section")).classes(
                 "text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2")
-            with ui.row().classes("gap-3 items-end flex-wrap"):
+            with ui.element("div").classes("user-create-grid"):
                 new_username = ui.input(t("users_username")).props(
-                    "dense outlined").classes("w-52")
-                new_password = new_password_field(t("users_temp_password")).classes("w-52")
+                    "outlined").classes("w-full user-name-field")
+                new_password = new_password_field(t("users_temp_password")).classes("w-full user-create-password")
 
-                new_email = ui.input(t("staff_email")).props("type=email dense outlined")
+                new_email = ui.input(t("staff_email")).props("type=email outlined").classes("w-full user-email-field")
                 if admin:
                     new_role = ui.select(
                         {"student": t("users_role_student"),
                          "teacher": t("users_role_teacher")},
                         value="student", label=t("users_role"),
-                    ).props("dense outlined").classes("w-32")
+                    ).props("outlined").classes("w-full user-role-field")
                     role_hint = ui.label(t("users_hint_windows")).classes(
-                        "text-xs text-gray-500 dark:text-gray-500 self-end pb-1")
+                        "text-sm text-gray-400 user-role-hint")
 
                     def _update_hint() -> None:
                         role_hint.set_text(
@@ -74,8 +74,8 @@ def page_users() -> None:
                         )
                     new_role.on_value_change(lambda _: _update_hint())
 
-                form_msg   = ui.label("").classes("text-sm")
-                create_btn = ui.button(t("users_create_btn")).props("color=primary dense")
+                form_msg = ui.label("").classes("text-sm user-form-message")
+                create_btn = ui.button(t("users_create_btn")).props("no-caps").classes("user-create-button")
 
                 async def do_create() -> None:
                     uname = new_username.value.strip()
@@ -85,7 +85,7 @@ def page_users() -> None:
                     email = new_email.value.strip()
                     if not uname or not pwd or email == "":
                         form_msg.set_text(t("users_fill_fields"))
-                        form_msg.classes(replace="text-sm text-red-500")
+                        form_msg.classes(replace="text-sm user-form-message text-red-500")
                         return
 
                     # Same policy as the DB layer (validate_password) —
@@ -93,12 +93,12 @@ def page_users() -> None:
                     if len(pwd) < MIN_PASSWORD_LENGTH:
                         form_msg.set_text(
                             t("pwd_err_short").format(n=MIN_PASSWORD_LENGTH))
-                        form_msg.classes(replace="text-sm text-red-500")
+                        form_msg.classes(replace="text-sm user-form-message text-red-500")
                         return
 
                     create_btn.props("loading")
                     form_msg.set_text(t("users_creating"))
-                    form_msg.classes(replace="text-sm text-gray-500 dark:text-gray-400")
+                    form_msg.classes(replace="text-sm user-form-message text-gray-500 dark:text-gray-400")
 
                     loop = asyncio.get_event_loop()
                     try:
@@ -115,7 +115,7 @@ def page_users() -> None:
                         else:
                             form_msg.set_text(
                                 t("users_created_teacher").format(uname=uname))
-                        form_msg.classes(replace="text-sm text-green-600")
+                        form_msg.classes(replace="text-sm user-form-message text-green-600")
                         new_username.set_value("")
                         new_password.set_value("")
                         new_email.set_value("")
@@ -127,36 +127,53 @@ def page_users() -> None:
 
                     except Exception as e:
                         form_msg.set_text(t("users_error").format(e=e))
-                        form_msg.classes(replace="text-sm text-red-500")
+                        form_msg.classes(replace="text-sm user-form-message text-red-500")
                     finally:
                         create_btn.props(remove="loading")
 
                 create_btn.on_click(do_create)
 
         if admin:
-            with ui.card().classes("w-full"):
-                ui.label("Add a sign-in email to an existing account")
-                missing = ui.select({}, label="Account").classes("w-64")
-                address = ui.input(t("staff_email")).props("type=email outlined dense")
+            email_target = [None]
+            with ui.dialog() as email_dialog, ui.card().classes("user-email-dialog"):
+                ui.label("Add sign-in email").classes("text-lg font-semibold")
+                email_name = ui.label("").classes("text-sm text-gray-300")
+                address = ui.input(t("staff_email")).props("type=email outlined").classes("w-full")
+                address_error = ui.label("").classes("text-sm text-red-300")
 
                 def assign_email() -> None:
-                    if missing.value is None:
+                    if email_target[0] is None:
                         return
                     try:
-                        link_account_email(int(missing.value), address.value)
+                        link_account_email(email_target[0], address.value)
                     except ValueError as exc:
-                        toast(str(exc), type="negative")
+                        address_error.set_text(str(exc))
                         return
-                    address.set_value("")
                     _refresh()
-                    toast("Sign-in email saved.")
+                    email_dialog.close()
+                    toast("Sign-in email saved.", type="positive")
 
-                ui.button("Save email", on_click=assign_email)
+                with ui.row().classes("w-full justify-end gap-3"):
+                    ui.button("Cancel", on_click=email_dialog.close).props("flat no-caps")
+                    ui.button("Save email", on_click=assign_email).props("no-caps")
+
+            def open_email(e) -> None:
+                if not admin:
+                    return
+                user = next((u for u in list_users() if u["id"] == e.args.get("id")), None)
+                if user is None or user["email"]:
+                    return
+                email_target[0] = user["id"]
+                email_name.set_text(user["username"])
+                address.set_value("")
+                address_error.set_text("")
+                email_dialog.open()
 
         # ── User table ────────────────────────────────────────────────────────
         cols = [
             {"name": "username",   "label": t("users_col_username"),
              "field": "username",   "sortable": True, "align": "left"},
+            {"name": "email", "label": "Email address", "field": "email", "align": "left"},
             {"name": "role",       "label": t("users_col_role"),
              "field": "role",       "sortable": True, "align": "left"},
             {"name": "is_active",  "label": t("users_col_status"),
@@ -189,6 +206,10 @@ def page_users() -> None:
         if admin:
             tbl.add_slot("body-cell-actions", """
                 <q-td :props="props">
+                    <q-btn v-if="!props.row.email" flat dense round icon="alternate_email"
+                        aria-label="Add email" @click="$parent.$emit('add_email', props.row)">
+                        <q-tooltip>Add sign-in email</q-tooltip>
+                    </q-btn>
                     <q-btn
                         v-if="props.row.role === 'student' && !props.row.is_active"
                         flat dense round icon="lock_open" color="primary"
@@ -237,6 +258,8 @@ def page_users() -> None:
             asyncio.create_task(_delete_user_bg(int(uid), uname, client))
 
         tbl.on("delete_user", handle_delete)
+        if admin:
+            tbl.on("add_email", open_email)
 
         # ── Set password / activate dialog ────────────────────────────────────
         _activate_row: list[dict] = [{}]
@@ -290,9 +313,7 @@ def page_users() -> None:
 
     def _refresh() -> None:
         users = list_users()
-        if admin:
-            missing.set_options({u["id"]: u["username"] for u in users if not u["email"]}, value=None)
-        tbl.rows = [{k: v for k, v in user.items() if k in {"id", "username", "role", "is_active", "created_at"}}
+        tbl.rows = [{k: v for k, v in user.items() if k in {"id", "username", "email", "role", "is_active", "created_at"}}
                     for user in users]
         tbl.update()
 

@@ -14,6 +14,7 @@ def new_password_field(label: str):
         return None
 
     field = ui.input(label, password=True, password_toggle_button=True, validation=feedback)
-    field.props("dense outlined autocomplete=new-password")
+    field.props("outlined autocomplete=new-password")
+    field.classes("new-password-field")
     field.props(f'hint="At least {MIN_PASSWORD_LENGTH} characters. Start with a capital letter. Include a number and a symbol." persistent-hint')
     return field
