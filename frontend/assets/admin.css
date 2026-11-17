@@ -100,10 +100,17 @@
 .users-table-heading { margin-top: 30px; margin-bottom: 2px; }
 .users-table-count { color: #aebdd0; font-size: 17px; }
 .admin-glass-page .user-create-dialog {
-    width: min(760px, 94vw); max-width: 94vw; max-height: 90svh; overflow-y: auto;
-    background: #1c2939f5; padding: 32px; gap: 28px;
+    width: min(520px, 94vw); max-width: 94vw; max-height: 90svh; overflow-y: auto;
+    background: linear-gradient(145deg, #53667c55, #182535b8);
+    backdrop-filter: blur(32px) saturate(115%); -webkit-backdrop-filter: blur(32px) saturate(115%);
+    border: 1px solid #dceaff42; box-shadow: 0 24px 80px #0006, inset 0 1px #ffffff29;
+    padding: 30px; gap: 24px; overscroll-behavior: contain;
 }
-.user-create-dialog .user-create-grid { max-width: none; }
+.user-create-dialog .user-create-grid { max-width: none; grid-template-columns: minmax(0, 1fr); gap: 18px; }
+.user-create-dialog .user-role-hint { padding: 0 10px; margin-top: -8px; }
+.user-create-dialog .user-create-button { width: 100%; margin-top: 4px; }
+.user-create-dialog .q-field__control { background: #ffffff06; }
+.user-create-dialog .user-form-message { font-size: 16px; }
 .user-create-dialog .user-role-hint { font-size: 16px; }
 .user-create-dialog .q-card { padding: 0; }
 @media (max-width: 1000px) { .users-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

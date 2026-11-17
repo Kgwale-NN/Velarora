@@ -57,7 +57,9 @@ def page_users() -> None:
             inactive_note = ui.label("").classes("users-count-note")
 
         # Account creation stays in a focused dialog above the dashboard.
-        with ui.dialog().props("persistent") as create_dialog, ui.card().classes("user-create-dialog"):
+        with ui.dialog().props("persistent") as create_dialog, ui.card().classes(
+            "user-create-dialog"
+        ).on("click.stop", js_handler="() => {}").on("pointerdown.stop", js_handler="() => {}"):
             with ui.row().classes("w-full items-center justify-between"):
                 ui.label("Create account").classes("text-2xl")
                 cancel_create = ui.button(icon="close", on_click=create_dialog.close).props(
