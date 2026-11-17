@@ -66,10 +66,10 @@ def page_users() -> None:
                     'flat round dense aria-label="Close create account"')
             with ui.element("div").classes("user-create-grid"):
                 new_username = ui.input(t("users_username")).props(
-                    "outlined").classes("w-full user-name-field")
-                new_password = new_password_field(t("users_temp_password")).classes("w-full user-create-password")
+                    "outlined stack-label").classes("w-full user-name-field")
+                new_password = new_password_field(t("users_temp_password")).props("stack-label").classes("w-full user-create-password")
 
-                new_email = ui.input(t("staff_email")).props("type=email outlined").classes("w-full user-email-field")
+                new_email = ui.input(t("staff_email")).props("type=email outlined stack-label").classes("w-full user-email-field")
                 if admin:
                     new_role = ui.select(
                         {"student": t("users_role_student"),
