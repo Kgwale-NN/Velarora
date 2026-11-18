@@ -44,7 +44,7 @@ def workspace_nav(user):
             ("Dashboard", "dashboard", "/"), ("History", "history", "/history"),
             ("Analytics", "insights", "/analytics"), ("Reports", "description", "/reports"),
             ("Alert Rules", "notifications_active", "/alerts"), ("Groups", "groups", "/groups"),
-            ("Schedules", "event", "/schedules"),
+            ("Schedules", "event", "/schedules"), ("My Profile", "person_outline", "/teacher-profile"),
         ]
     else:
         links = [("Users", "people_outline", "/users"), ("Models", "view_in_ar", "/models"),

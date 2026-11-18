@@ -7,7 +7,7 @@ Roles
 ─────
   admin   — Users, Models, Audit Log, Admin Profile, Settings
   teacher — Dashboard, History, Analytics, Reports, Alert Rules, Groups,
-            Schedules
+            Schedules, My Profile
             + Start/Stop monitor + notification bell
   student — My History, My Analytics
 """
@@ -80,6 +80,13 @@ def _user_menu(current_user: dict, dark, on_logout=None):
 
         ui.separator()
 
+        if role == 'teacher':
+            with ui.menu_item(on_click=lambda: ui.navigate.to('/teacher-profile')):
+                with ui.row().classes('items-center gap-3'):
+                    ui.icon('person_outline').classes('text-base')
+                    ui.label('My Profile').classes('text-sm')
+            ui.separator()
+
         with ui.menu_item(on_click=pwd_dlg.open):
             with ui.row().classes("items-center gap-3"):
                 ui.icon("lock").classes("text-base")
@@ -94,27 +101,34 @@ def _user_menu(current_user: dict, dark, on_logout=None):
                 ui.icon("logout").classes("text-base")
                 ui.label(t("nav_sign_out")).classes("text-sm")
 
+    account_menu.bind_text_from(nicegui_app.storage.user, 'auth', backward=lambda account:
+        f"{(account or current_user)['username']}  ({role_label})")
     return account_menu
 
 
 def password_dialog(current_user: dict):
-    with ui.dialog() as pwd_dlg, ui.card().classes("p-5 gap-3 w-80"):
-        ui.label(t("pwd_title")).classes("text-base font-bold")
+    from frontend.pages.design_assets import stylesheet
+    stylesheet('teacher-profile.css')
+    with ui.dialog() as pwd_dlg, ui.card().classes('account-password-dialog'):
+        with ui.row().classes('account-dialog-heading w-full items-start justify-between'):
+            ui.label(t('pwd_title')).classes('account-dialog-title')
+            ui.button(icon='close',on_click=pwd_dlg.close).props('flat round aria-label="Close password dialog"')
         current_pw = text_field(t("pwd_current"), icon="lock_outline", password=True,
-                                props="autocomplete=current-password")
-        new_pw = text_field(t("pwd_new"), icon="lock_outline", new_password=True)
+                                props="autocomplete=current-password", placeholder="Enter your current password")
+        new_pw = text_field(t("pwd_new"), icon="lock_outline", new_password=True, placeholder="Create a strong password")
         confirm_pw = text_field(t("pwd_confirm"), icon="lock_outline", password=True,
-                                props="autocomplete=new-password")
-        err_lbl = ui.label("").classes("text-red-400 text-sm")
+                                props="autocomplete=new-password", placeholder="Re-enter your new password")
+        err_lbl = ui.label("").classes("account-form-error").props("role=alert")
 
         async def do_change() -> None:
-            from backend.db.database import validate_password, update_password, verify_password
+            from backend.db.database import validate_password, update_password
+            from backend.db.user_queries import verify_password_by_id
             if save_password._props.get("loading"):
                 return
             old_value, new_value, confirmation = current_pw.value, new_pw.value, confirm_pw.value
             save_password.props("loading")
             try:
-                if not await run.io_bound(verify_password, current_user["username"], old_value):
+                if not await run.io_bound(verify_password_by_id, current_user["id"], old_value):
                     err_lbl.set_text(t("pwd_err_wrong"))
                     return
                 try:
@@ -133,12 +147,16 @@ def password_dialog(current_user: dict):
                 err_lbl.set_text("")
                 from frontend.pages.admin_shell import toast
                 toast(t("pwd_success"), type="positive")
+            except Exception:
+                import logging
+                logging.getLogger(__name__).exception('Password change failed')
+                err_lbl.set_text('The password could not be changed. Please try again.')
             finally:
                 save_password.props(remove="loading")
 
-        with ui.row().classes("gap-2"):
-            save_password = ui.button(t("pwd_save"), on_click=do_change).props("color=primary dense")
-            ui.button(t("pwd_cancel"), on_click=pwd_dlg.close).props("flat dense")
+        with ui.row().classes('account-dialog-footer w-full justify-end gap-3'):
+            ui.button(t('pwd_cancel'),on_click=pwd_dlg.close).props('flat no-caps')
+            save_password = ui.button(t('pwd_save'),icon='check',on_click=do_change).props('no-caps')
 
     return pwd_dlg
 

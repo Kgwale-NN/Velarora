@@ -61,3 +61,8 @@ def list_users() -> list[dict]:
     return [dict(r) for r in c.execute(
         _USER_SELECT + "ORDER BY r.name, u.username"
     ).fetchall()]
+
+
+def verify_password_by_id(user_id: int, password: str) -> Optional[dict]:
+    """Verify the same account even after its display username changes."""
+    return check_credentials(get_user_by_id(user_id), password)

@@ -34,6 +34,7 @@ log = logging.getLogger(__name__)
 
 # Register pages
 import frontend.pages.admin_profile  # noqa: F401
+import frontend.pages.teacher_profile  # noqa: F401
 import frontend.pages.login      # noqa: F401
 import frontend.pages.dashboard  # noqa: F401
 import frontend.pages.history    # noqa: F401
