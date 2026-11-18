@@ -18,6 +18,7 @@ from backend.db.database import (
     create_user,
     delete_user,
     list_users,
+    get_user_by_id,
     nullify_user_events,
 )
 from backend.db.staff_email import link_account_email
@@ -287,24 +288,51 @@ def page_users() -> None:
                 </q-td>
             """)
 
-        async def handle_delete(e) -> None:
-            row  = e.args
-            uid  = row.get("id")
-            role = row.get("role", "")
-            uname = row.get("username", str(uid))
-            if not uid or int(uid) == current["id"]:
+        pending_delete = [None]
+        with ui.dialog() as delete_dialog, ui.card().classes("user-delete-dialog").on(
+            "click.stop", js_handler="() => {}"
+        ):
+            ui.label("Delete this user?").classes("text-2xl")
+            delete_name = ui.label("").classes("delete-user-name")
+            ui.label("The account will be removed. Saved exam records will be kept without this user link.").classes(
+                "text-sm text-gray-300")
+            with ui.row().classes("w-full justify-end gap-3 mt-2"):
+                ui.button("Cancel", on_click=delete_dialog.close).props("flat no-caps")
+
+                def confirm_delete():
+                    uid = pending_delete[0]
+                    actor = get_user_by_id(current["id"])
+                    target = get_user_by_id(uid) if uid else None
+                    if not actor or not actor["is_active"] or not target or uid == actor["id"]:
+                        delete_dialog.close()
+                        return
+                    allowed = (actor["role"] == "admin" and target["role"] in ("teacher", "student")) or (
+                        actor["role"] == "teacher" and target["role"] == "student")
+                    if not allowed:
+                        delete_dialog.close()
+                        return
+                    pending_delete[0] = None
+                    delete_dialog.close()
+                    tbl.rows = [row for row in tbl.rows if row["id"] != uid]
+                    tbl.update()
+                    asyncio.create_task(_delete_user_bg(uid, target["username"], _ctx.client))
+
+                ui.button("Delete user", icon="delete_outline", on_click=confirm_delete).props(
+                    "no-caps").classes("confirm-user-delete")
+
+        def handle_delete(e):
+            row = get_user_by_id(e.args.get("id"))
+            if not row or row["id"] == current["id"]:
                 return
-            can_delete = (
-                (admin and role in ("teacher", "student")) or
-                (not admin and role == "student")
-            )
-            if not can_delete:
+            allowed = (admin and row["role"] in ("teacher", "student")) or (
+                not admin and row["role"] == "student")
+            if not allowed:
                 return
-            # Remove from table immediately so the user can't double-click
-            tbl.rows = [r for r in tbl.rows if r.get("id") != uid]
-            tbl.update()
-            client = _ctx.client
-            asyncio.create_task(_delete_user_bg(int(uid), uname, client))
+            pending_delete[0] = row["id"]
+            delete_name.set_text(row["username"])
+            delete_dialog.open()
+
+        delete_dialog.on("hide", lambda: pending_delete.__setitem__(0, None))
 
         tbl.on("delete_user", handle_delete)
         if admin:
@@ -403,7 +431,7 @@ def page_users() -> None:
         with client:
             notif = toast(
                 t("users_deleting_bg").format(uname=username),
-                type="ongoing", spinner=True, timeout=5000,
+                type="ongoing", spinner=True, timeout=0,
             )
         try:
             await loop.run_in_executor(

@@ -6,10 +6,21 @@ from frontend.pages.page_style import page_style
 
 
 def toast(message, **options):
-    options.setdefault("position", "top-right")
-    options.setdefault("close_button", True)
-    options.setdefault("classes", "velarora-toast")
-    ui.notify(message, **options)
+    kind = options.pop("type", None) or "info"
+    icons = {"positive": "check_circle_outline", "negative": "error_outline",
+             "warning": "info_outline", "info": "info_outline"}
+    classes = options.pop("classes", "")
+    settings = {
+        "message": str(message), "position": options.pop("position", "top-right"),
+        "closeBtn": options.pop("close_button", True), "group": False,
+        "timeout": options.pop("timeout", 0 if kind == "ongoing" else 4500),
+        "classes": f"velarora-toast velarora-toast--{kind} {classes}",
+        "attrs": {"role": "alert" if kind == "negative" else "status"},
+    }
+    if kind != "ongoing":
+        settings["icon"] = icons.get(kind, "info_outline")
+    settings.update(options)
+    return ui.notification(options=settings)
 
 
 def admin_nav(user):
