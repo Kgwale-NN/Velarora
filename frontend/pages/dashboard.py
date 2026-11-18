@@ -13,6 +13,9 @@ from backend.core.auth import require_auth
 from backend.core.yolo import reset_model
 from backend.db.database import get_active_model, list_groups, list_computers_in_group, log_action
 from frontend.pages._nav import nav
+from frontend.pages.admin_shell import toast
+from frontend.pages.design_assets import stylesheet
+from frontend.pages.glass_fields import select_field
 from backend.services.monitor_service import MonitorController
 from frontend.translate import t
 
@@ -24,111 +27,81 @@ def page_dashboard() -> None:
         return
     nav(current)
 
-    with ui.row().classes("w-full gap-4 p-4 items-stretch flex-nowrap"):
+    stylesheet("teacher-dashboard.css")
+    with ui.column().classes("teacher-dashboard w-full"):
+        with ui.column().classes("dashboard-heading"):
+            ui.label("Your classroom, at a glance.").classes("dashboard-title")
+            ui.label("Choose a group, start monitoring, and view a computer below.").classes("dashboard-subtitle")
 
-        # ── Left column ───────────────────────────────────────────────────────
-        with ui.column().classes("flex-1 gap-3 min-w-0"):
+        with ui.card().classes("dashboard-controls w-full"):
+            with ui.row().classes("dashboard-section-heading w-full items-center justify-between"):
+                with ui.row().classes("items-center gap-3"):
+                    ui.icon("desktop_windows").classes("dashboard-section-icon")
+                    ui.label("Monitoring").classes("dashboard-section-title")
+                running = state.monitor is not None
+                def _status_text():
+                    if state.monitor is None:
+                        return t("status_stopped")
+                    group = state.monitored_group_name
+                    return t("status_running_group").format(g=group) if group else t("status_running_all")
+                status_lbl = ui.label(_status_text()).classes(
+                    "dashboard-status " + ("is-running" if running else "is-stopped"))
+            with ui.element("div").classes("dashboard-controls-grid w-full"):
+                groups = list_groups()
+                group_opts = {0: t("dash_all_computers")}
+                group_opts.update({g["id"]: g["name"] for g in groups})
+                group_sel = select_field("Group", group_opts, value=0, icon="groups")
+                group_sel.tooltip(t("dash_group_tooltip"))
+                pc_sel = select_field("Computer", list(state.latest_frames),
+                                      value=next(iter(state.latest_frames), None), icon="computer")
+                with ui.row().classes("dashboard-control-actions"):
+                    btn_start = ui.button("Start", icon="play_arrow").props('no-caps aria-label="Start monitoring"')
+                    btn_stop = ui.button("Stop", icon="stop").props("no-caps outline")
+                if running:
+                    btn_start.props("disable")
+                    group_sel.props("disable")
+                else:
+                    btn_stop.props("disable")
 
-            with ui.card().classes("w-full"):
-                with ui.row().classes("items-center gap-3 flex-wrap"):
-                    running = state.monitor is not None
-                    # Build status text — include group name when running
-                    def _status_text() -> str:
-                        if state.monitor is None:
-                            return t("status_stopped")
-                        g = state.monitored_group_name
-                        return (
-                            t("status_running_group").format(g=g)
-                            if g else t("status_running_all")
-                        )
-                    status_lbl = ui.label(_status_text()).classes(
-                        "font-mono text-sm " +
-                        ("text-green-500 dark:text-green-400"
-                         if running else
-                         "text-red-500 dark:text-red-400")
-                    )
-                    btn_start = ui.button(t("dash_btn_start"), color="green")
-                    btn_stop  = ui.button(t("dash_btn_stop"),  color="red")
-                    if running:
-                        btn_start.props("disable")
-                    else:
-                        btn_stop.props("disable")
-
-                    # Group selector — 0 = "All computers", >0 = specific group id
-                    groups = list_groups()
-                    group_opts: dict[int, str] = {0: t("dash_all_computers")}
-                    group_opts.update({g["id"]: g["name"] for g in groups})
-                    with ui.row().classes("items-center gap-1"):
-                        ui.label(t("dash_group_label")).classes(
-                            "text-sm text-gray-500 dark:text-gray-400")
-                        group_sel = ui.select(
-                            options=group_opts,
-                            value=0,
-                        ).props("dense outlined").classes("w-44")
-                        group_sel.tooltip(t("dash_group_tooltip"))
-
-                    with ui.row().classes("items-center gap-2 ml-auto"):
-                        ui.label(t("dash_computer_label")).classes(
-                            "text-sm text-gray-500 dark:text-gray-400")
-                        pc_sel = ui.select(
-                            options=list(state.latest_frames.keys()),
-                            value=next(iter(state.latest_frames), None),
-                        ).props("dense outlined").classes("w-48")
-
-            with ui.card().classes("w-full"):
-                with ui.row().classes("items-center justify-between mb-1"):
-                    ui.label(t("dash_live_preview")).classes(
-                        "text-xs text-gray-500 dark:text-gray-400")
-                    ann_switch = ui.switch(t("dash_annotations"), value=True).props("dense")
-                    ann_switch.tooltip(t("dash_ann_tooltip"))
-
-                # OFFLINE badge — shown when the selected computer has stopped
-                # delivering frames. Hidden by default; tick() toggles visibility.
-                offline_badge = ui.label(t("dash_offline_badge")).classes(
-                    "text-xs font-bold text-white bg-red-600 "
-                    "px-2 py-1 rounded mb-1 self-start"
-                )
-                offline_badge.set_visibility(False)
-
-                live_img = ui.image("").props("no-spinner").classes(
-                    "w-full rounded"
-                ).style("display:block;")
-
-            with ui.card().classes("w-full"):
-                with ui.row().classes("items-center gap-4"):
-                    with ui.column().classes("gap-0"):
-                        ui.label(t("dash_active_student")).classes(
-                            "text-xs text-gray-500 dark:text-gray-400")
-                        student_lbl = ui.label("—").classes(
-                            "font-mono text-sm "
-                            "text-yellow-600 dark:text-yellow-300")
-                    ui.separator().props("vertical")
-                    with ui.column().classes("gap-0"):
-                        ui.label(t("dash_last_detections")).classes(
-                            "text-xs text-gray-500 dark:text-gray-400")
-                        det_info = ui.label(t("dash_no_detections")).classes(
-                            "font-mono text-sm "
-                            "text-blue-600 dark:text-blue-300")
-
-        # ── Right column: console ─────────────────────────────────────────────
-        with ui.card().classes("w-80 flex-shrink-0 flex flex-col"):
-            with ui.row().classes("items-center justify-between mb-1 flex-shrink-0"):
-                ui.label(t("dash_console_title")).classes(
-                    "text-xs text-gray-500 dark:text-gray-400")
-                ui.button(
-                    t("dash_clear"),
-                    on_click=lambda: (
-                        log_view.set_value(""),
-                        log_seq.__setitem__(0, state.log_total),
-                    ),
-                ).props("flat dense size=xs")
-            log_view = ui.textarea(value="").props(
-                "readonly outlined dense rows=53"
-            ).classes(
-                "w-full font-mono text-xs rounded "
-                "bg-gray-100 text-green-700 "
-                "dark:bg-gray-950 dark:text-green-300"
-            ).style("flex: 1; min-height: 200px; resize: none;")
+        with ui.element("div").classes("dashboard-workspace w-full"):
+            with ui.column().classes("dashboard-preview-column"):
+                with ui.card().classes("dashboard-preview-card w-full"):
+                    with ui.row().classes("dashboard-section-heading w-full items-center justify-between"):
+                        with ui.row().classes("items-center gap-3"):
+                            ui.icon("visibility").classes("dashboard-section-icon")
+                            ui.label(t("dash_live_preview")).classes("dashboard-section-title")
+                        ann_switch = ui.switch(t("dash_annotations"), value=True).props("dense")
+                        ann_switch.tooltip(t("dash_ann_tooltip"))
+                    offline_badge = ui.label(t("dash_offline_badge")).classes("dashboard-offline")
+                    offline_badge.set_visibility(False)
+                    with ui.element("div").classes("dashboard-preview-stage"):
+                        with ui.column().classes("dashboard-preview-empty items-center justify-center") as empty_preview:
+                            ui.icon("desktop_windows").classes("dashboard-empty-icon")
+                            empty_title = ui.label("Ready when you are").classes("dashboard-empty-title")
+                            empty_hint = ui.label("Start monitoring to see a computer screen here.").classes("dashboard-empty-hint")
+                        live_img = ui.image("").props('no-spinner fit=contain alt="Selected computer screen"').classes("dashboard-live-image w-full")
+                        live_img.set_visibility(False)
+                with ui.element("div").classes("dashboard-details w-full"):
+                    with ui.card().classes("dashboard-detail-card"):
+                        ui.icon("person_outline").classes("dashboard-section-icon")
+                        ui.label(t("dash_active_student")).classes("dashboard-detail-label")
+                        student_lbl = ui.label("—").classes("dashboard-detail-value")
+                    with ui.card().classes("dashboard-detail-card"):
+                        ui.icon("find_in_page").classes("dashboard-section-icon")
+                        ui.label(t("dash_last_detections")).classes("dashboard-detail-label")
+                        det_info = ui.label(t("dash_no_detections")).classes("dashboard-detail-value")
+            with ui.card().classes("dashboard-console"):
+                with ui.row().classes("dashboard-section-heading w-full items-center justify-between"):
+                    with ui.row().classes("items-center gap-2"):
+                        ui.icon("terminal").classes("dashboard-section-icon")
+                        ui.label("Activity log").classes("dashboard-section-title")
+                    ui.button("Clear", icon="delete_sweep", on_click=lambda: (
+                        log_view.set_value(""), log_seq.__setitem__(0, state.log_total),
+                    )).props('flat no-caps aria-label="Clear activity log"')
+                ui.label("Newest activity appears first.").classes("dashboard-console-hint")
+                log_view = ui.textarea(value="").props(
+                    'readonly outlined rows=14 aria-label="Monitoring activity log"'
+                ).classes("dashboard-log w-full")
 
     log_seq = [0]          # how many total log messages we have already displayed
     _last_src:    list[str]       = [""]   # deduplicate set_source calls → no flicker
@@ -144,12 +117,12 @@ def page_dashboard() -> None:
             if state.monitor:
                 return
             if not get_active_model():
-                ui.notify(t("dash_no_active_model"), type="warning")
+                toast(t("dash_no_active_model"), type="warning")
                 return
             try:
                 cfg = collect_cfg()
             except (ValueError, KeyError) as e:
-                ui.notify(t("dash_cfg_error").format(e=e), type="negative"); return
+                toast(t("dash_cfg_error").format(e=e), type="negative"); return
 
             # Resolve computers for the selected group (0 = all)
             gid   = group_sel.value   # 0 = all computers, >0 = group id
@@ -159,7 +132,7 @@ def page_dashboard() -> None:
             if gid:
                 rows = list_computers_in_group(gid)
                 if not rows:
-                    ui.notify(
+                    toast(
                         t("dash_no_computers").format(gname=gname), type="warning"
                     )
                     return
@@ -185,7 +158,7 @@ def page_dashboard() -> None:
             )
             status_lbl.set_text(label)
             status_lbl.classes(
-                replace="font-mono text-sm text-green-500 dark:text-green-400")
+                replace="dashboard-status is-running")
 
     def do_stop() -> None:
         with state.monitor_lock:
@@ -202,7 +175,7 @@ def page_dashboard() -> None:
             group_sel.props(remove="disable")
             status_lbl.set_text(t("status_stopped"))
         status_lbl.classes(
-            replace="font-mono text-sm text-red-500 dark:text-red-400")
+            replace="dashboard-status is-stopped")
 
     btn_start.on_click(do_start)
     btn_stop.on_click(do_stop)
@@ -240,7 +213,7 @@ def page_dashboard() -> None:
             if status_lbl.text != lbl:
                 status_lbl.set_text(lbl)
                 status_lbl.classes(
-                    replace="font-mono text-sm text-green-500 dark:text-green-400")
+                    replace="dashboard-status is-running")
                 btn_start.props("disable")
                 btn_stop.props(remove="disable")
                 group_sel.props("disable")
@@ -249,7 +222,7 @@ def page_dashboard() -> None:
             if status_lbl.text != stopped:
                 status_lbl.set_text(stopped)
                 status_lbl.classes(
-                    replace="font-mono text-sm text-red-500 dark:text-red-400")
+                    replace="dashboard-status is-stopped")
                 btn_start.props(remove="disable")
                 btn_stop.props("disable")
                 group_sel.props(remove="disable")
@@ -279,6 +252,9 @@ def page_dashboard() -> None:
         if sel and sel in state.latest_frames:
             ann_b64, raw_b64, dets = state.latest_frames[sel]
 
+            has_frame = bool(ann_b64 if ann_switch.value else raw_b64)
+            live_img.set_visibility(has_frame)
+            empty_preview.set_visibility(not has_frame)
             # Only push to the DOM when the frame actually changed — eliminates flicker
             src = ann_b64 if ann_switch.value else raw_b64
             if src != _last_src[0]:
@@ -302,7 +278,20 @@ def page_dashboard() -> None:
                 if dets else t("dash_no_detections")
             )
         else:
-            # No selection / no frames yet — hide the badge.
+            # Clear stale data when a selection disappears; never leave another PC's screen visible.
             offline_badge.set_visibility(False)
+            live_img.set_visibility(False)
+            empty_preview.set_visibility(True)
+            if _last_src[0]:
+                _last_src[0] = ""
+                live_img.set_source("")
+            student_lbl.set_text("—")
+            det_info.set_text(t("dash_no_detections"))
+        if state.monitor is not None:
+            empty_title.set_text("Waiting for a screen")
+            empty_hint.set_text("Choose a computer once its first screen arrives.")
+        else:
+            empty_title.set_text("Ready when you are")
+            empty_hint.set_text("Start monitoring to see a computer screen here.")
 
     ui.timer(0.1, tick)
