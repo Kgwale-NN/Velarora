@@ -31,8 +31,10 @@ def get_student_activity(
     computer_id: Optional[int] = None,
     from_date:   str           = "",
     to_date:     str           = "",
+    user_id: Optional[int] = None,
 ) -> list[dict]:
-    w, p = _analytics_where(computer_id, None, from_date, to_date)
+    """Apply all filters before selecting the top twenty students by detection events."""
+    w, p = _analytics_where(computer_id, user_id, from_date, to_date)
     and_or = "AND" if w else "WHERE"
     c = _conn()
     rows = c.execute(f"""
