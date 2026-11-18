@@ -15,7 +15,7 @@ def insert_notification(event_id: int, class_id: int, _commit: bool = True) -> i
     return cur.lastrowid
 
 
-def list_notifications(limit: int = 60) -> list[dict]:
+def list_notifications(limit: int = 60, after_id: int = 0) -> list[dict]:
     """
     Returns rows with class_name, class_color, computer, and student resolved
     via JOINs so callers get a complete picture without stored duplicates.
@@ -35,9 +35,10 @@ def list_notifications(limit: int = 60) -> list[dict]:
         LEFT JOIN detection_event e  ON e.id  = n.event_id
         LEFT JOIN computer comp      ON comp.id = e.computer_id
         LEFT JOIN user u             ON u.id    = e.user_id
-        ORDER BY n.created_at DESC
+        WHERE n.id > ?
+        ORDER BY n.created_at DESC, n.id DESC
         LIMIT ?
-    """, (limit,)).fetchall()
+    """, (after_id, limit)).fetchall()
     return [dict(r) for r in rows]
 
 
@@ -58,3 +59,11 @@ def mark_all_read() -> None:
     c = _conn()
     c.execute("UPDATE notification SET is_read = 1")
     c.commit()
+
+
+def notification_status() -> dict:
+    """Read the unread count and arrival cursor together, independently of read changes."""
+    row = _conn().execute(
+        "SELECT COALESCE(SUM(is_read=0),0) AS unread, COALESCE(MAX(id),0) AS latest "
+        "FROM notification").fetchone()
+    return dict(row)
