@@ -1,4 +1,4 @@
-"""Teacher monitoring and training controls, shared across teacher pages."""
+"""Monitoring controls shared across teacher pages."""
 from nicegui import ui
 import backend.state as state
 from frontend.translate import t
@@ -62,32 +62,3 @@ def monitoring_controls(current_user):
 
     _sync_buttons()
     ui.timer(1.0, _sync_buttons)
-
-
-def training_progress():
-    with ui.row().classes("items-center gap-1") as train_chip_row:
-        ui.icon("psychology", size="xs").classes(
-            "text-gray-300")
-        train_chip_lbl = ui.label("").classes(
-            "teacher-monitor-status text-xs text-gray-300")
-        ui.link(t("nav_models"), "/models").classes(
-            "text-xs text-gray-300 no-underline hover:text-white")
-    train_chip_row.set_visibility(False)
-
-    def _sync_training() -> None:
-        w = state.training_worker
-        if w and w.is_running:
-            train_chip_row.set_visibility(True)
-            bp = w.batch_progress
-            ep    = bp.get("epoch", 0)
-            total = bp.get("total_epochs", 0)
-            if total:
-                train_chip_lbl.set_text(f"ep {ep}/{total}")
-            else:
-                raw = w.current_status or t("nav_training_running")
-                train_chip_lbl.set_text(raw[:30])
-        else:
-            train_chip_row.set_visibility(False)
-
-    _sync_training()
-    ui.timer(2.0, _sync_training)

@@ -45,7 +45,7 @@ def workspace_nav(user):
             ("Analytics", "insights", "/analytics"), ("Reports", "description", "/reports"),
             ("Alert Rules", "notifications_active", "/alerts"), ("Groups", "groups", "/groups"),
             ("Schedules", "event", "/schedules"),
-            ("Models", "view_in_ar", "/models"), ("Audit Log", "history", "/audit"),
+            ("Audit Log", "history", "/audit"),
         ]
     else:
         links = [("Users", "people_outline", "/users"), ("Models", "view_in_ar", "/models"),
@@ -89,11 +89,10 @@ def workspace_nav(user):
                 ui.icon("account_circle").classes("text-2xl")
                 ui.label(user["username"]).classes("admin-account-name")
         if teacher:
-            from frontend.pages.teacher_toolbar import monitoring_controls, training_progress
+            from frontend.pages.teacher_toolbar import monitoring_controls
             with ui.row().classes("teacher-monitor-toolbar w-full items-center gap-3"):
                 monitoring_controls(user)
                 ui.space()
-                training_progress()
 
     drawer.on_value_change(lambda e: menu_button.props(
         "aria-expanded=true" if e.value else "aria-expanded=false"))

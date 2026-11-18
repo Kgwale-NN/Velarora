@@ -1,7 +1,7 @@
 """
 frontend/pages/models.py
 ────────────────────
-Models page  /models  (teacher + admin)
+Models page  /models  (admin only)
 
 Layout
 ──────
@@ -68,7 +68,7 @@ from frontend.pages._file_browser import browse_file
 
 @ui.page("/models")
 def page_models() -> None:
-    current = require_auth(required_role="teacher_or_admin")
+    current = require_auth(required_role="admin")
     if current is None:
         return
     nav(current)
@@ -76,7 +76,7 @@ def page_models() -> None:
     # ── Page-level inline training state ──────────────────────────────────────
     # Shared across dialog (setup) and inline section (progress/done).
     # The dialog handles upload→analysis→config; once training starts the dialog
-    # closes and this inline section takes over for all users navigating here.
+    # closes and this inline section takes over for administrators navigating here.
     inline_ws: dict = {"step": "idle", "model_id": None}
 
     _w = state.training_worker
