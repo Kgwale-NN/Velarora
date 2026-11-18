@@ -124,3 +124,18 @@ def test_remembered_login_expires_and_logout_revokes_it():
     auth.set_session_user(user, remember=True)
     auth.clear_session()
     assert auth.get_session_user() is None and "remember_until" not in storage
+
+
+def test_admin_only_access_rejects_teacher_and_student():
+    for role, home in [('teacher', '/'), ('student', '/history')]:
+        user = {'id': 1, 'username': 'Preview', 'role': role}
+        auth, _, mock_ui = _import_auth({'auth': user})
+        assert auth.require_auth(required_role='admin') is None
+        mock_ui.navigate.to.assert_called_once_with(home)
+
+
+def test_admin_only_access_accepts_admin():
+    user = {'id': 1, 'username': 'Admin', 'role': 'admin'}
+    auth, _, mock_ui = _import_auth({'auth': user})
+    assert auth.require_auth(required_role='admin') == user
+    mock_ui.navigate.to.assert_not_called()

@@ -7,7 +7,7 @@ Roles
 ─────
   admin   — Users, Models, Audit Log, Settings
   teacher — Dashboard, History, Analytics, Reports, Alert Rules, Groups,
-            Schedules, Users, Models, Audit Log
+            Schedules, Models, Audit Log
             + Start/Stop monitor + notification bell
   student — My History, My Analytics
 """

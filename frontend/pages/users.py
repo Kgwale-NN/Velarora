@@ -1,7 +1,7 @@
 """
 frontend/pages/users.py
 ──────────────────
-User management page  /users  (teacher + admin)
+User management page  /users  (admin only)
 
 Heavy DB work (auto-assigning historical events on create, nullifying events
 on delete) runs in background asyncio tasks so the UI returns immediately.
@@ -31,7 +31,7 @@ from frontend.translate import t
 
 @ui.page("/users")
 def page_users() -> None:
-    current = require_auth(required_role="teacher_or_admin")
+    current = require_auth(required_role="admin")
     if current is None:
         return
     nav(current)
@@ -272,22 +272,6 @@ def page_users() -> None:
                     />
                 </q-td>
             """)
-        else:
-            tbl.add_slot("body-cell-actions", """
-                <q-td :props="props">
-                    <q-btn
-                        v-if="props.row.role === 'student' && !props.row.is_active"
-                        flat dense round icon="lock_open" color="primary" aria-label="Activate account"
-                        @click="$parent.$emit('activate_user', props.row)"
-                    />
-                    <q-btn
-                        v-if="props.row.role === 'student'"
-                        flat dense round icon="delete" color="red" aria-label="Delete user"
-                        @click="$parent.$emit('delete_user', props.row)"
-                    />
-                </q-td>
-            """)
-
         pending_delete = [None]
         with ui.dialog() as delete_dialog, ui.card().classes("user-delete-dialog").on(
             "click.stop", js_handler="() => {}"
@@ -306,8 +290,7 @@ def page_users() -> None:
                     if not actor or not actor["is_active"] or not target or uid == actor["id"]:
                         delete_dialog.close()
                         return
-                    allowed = (actor["role"] == "admin" and target["role"] in ("teacher", "student")) or (
-                        actor["role"] == "teacher" and target["role"] == "student")
+                    allowed = actor["role"] == "admin" and target["role"] in ("teacher", "student")
                     if not allowed:
                         delete_dialog.close()
                         return
@@ -324,8 +307,7 @@ def page_users() -> None:
             row = get_user_by_id(e.args.get("id"))
             if not row or row["id"] == current["id"]:
                 return
-            allowed = (admin and row["role"] in ("teacher", "student")) or (
-                not admin and row["role"] == "student")
+            allowed = admin and row["role"] in ("teacher", "student")
             if not allowed:
                 return
             pending_delete[0] = row["id"]
