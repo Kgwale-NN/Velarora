@@ -15,7 +15,6 @@ from __future__ import annotations
 
 from nicegui import app as nicegui_app, run, ui
 
-import backend.state as state
 from backend.core.auth import clear_session
 from frontend.pages._snapshot import make_snapshot_dialogs
 from frontend.pages.glass_fields import text_field
@@ -25,153 +24,24 @@ from frontend.translate import t, get_lang, set_lang
 def nav(current_user: dict) -> None:
     role = current_user["role"]
 
-    if role == "admin":
-        from frontend.pages.admin_shell import admin_nav
-        admin_nav(current_user)
+    if role in ("admin", "teacher"):
+        from frontend.pages.admin_shell import workspace_nav
+        workspace_nav(current_user)
         return
 
     dark = ui.dark_mode()
-    saved = nicegui_app.storage.user.get("dark_mode", True)
-    dark.enable() if saved else dark.disable()
-
-    with ui.header().classes(
-        "bg-gray-900 text-white px-4 py-2 flex items-center gap-4 shadow-md"
-    ):
+    dark.enable() if nicegui_app.storage.user.get("dark_mode", True) else dark.disable()
+    with ui.header().classes("bg-gray-900 text-white px-4 py-2 flex items-center gap-4 shadow-md"):
         ui.label("🎓 Velarora").classes("font-bold text-base mr-2")
-
-        if role == "admin":
-            for key, path in [
-                ("nav_users",       "/users"),
-                ("nav_models",      "/models"),
-                ("nav_audit_log",   "/audit"),
-                ("nav_settings",    "/settings"),
-            ]:
-                ui.link(t(key), path).classes(
-                    "text-gray-300 hover:text-white text-sm no-underline")
-
-        elif role == "teacher":
-            for key, path in [
-                ("nav_dashboard",   "/"),
-                ("nav_history",     "/history"),
-                ("nav_analytics",   "/analytics"),
-                ("nav_reports",     "/reports"),
-                ("nav_alert_rules", "/alerts"),
-                ("nav_groups",      "/groups"),
-                ("nav_schedules",   "/schedules"),
-                ("nav_users",       "/users"),
-                ("nav_models",      "/models"),
-                ("nav_audit_log",   "/audit"),
-            ]:
-                ui.link(t(key), path).classes(
-                    "text-gray-300 hover:text-white text-sm no-underline")
-
-        else:  # student
-            for key, path in [
-                ("nav_my_history",   "/history"),
-                ("nav_my_analytics", "/analytics"),
-            ]:
-                ui.link(t(key), path).classes(
-                    "text-gray-300 hover:text-white text-sm no-underline")
-
-        if role == "teacher":
-            ui.separator().props("vertical").classes("mx-1 opacity-30")
-            status_dot = ui.label("").classes("text-xs font-mono")
-            btn_start  = ui.button(t("btn_start"), color="green").props(
-                "dense unelevated size=sm")
-            btn_stop   = ui.button(t("btn_stop"),  color="red").props(
-                "dense unelevated size=sm")
-
-            def do_start() -> None:
-                if state.monitor:
-                    return
-                from backend.db.database import get_active_model
-                if not get_active_model():
-                    ui.notify(t("dash_no_active_model"), type="warning")
-                    return
-                from backend.config import collect_cfg
-                from backend.core.yolo import reset_model
-                from backend.services.monitor_service import MonitorController
-                try:
-                    cfg = collect_cfg()
-                except (ValueError, KeyError) as e:
-                    ui.notify(t("dash_cfg_error").format(e=e), type="negative")
-                    return
-                reset_model()
-                state.monitor = MonitorController(
-                    cfg, started_by=current_user["id"], group_name="")
-                state.monitor.start()
-
-            def do_stop() -> None:
-                if state.monitor:
-                    state.monitor.stop()
-                    state.monitor = None
-                state.schedule_triggered   = False   # manual stop overrides scheduler
-                state.monitored_group_name = None
-
-            btn_start.on_click(do_start)
-            btn_stop.on_click(do_stop)
-
-            def _sync_buttons() -> None:
-                running = state.monitor is not None
-                if running:
-                    g = state.monitored_group_name
-                    if g:
-                        label = t("status_running_group").format(g=g)
-                    else:
-                        label = t("status_running_all")
-                    status_dot.set_text(label)
-                    status_dot.classes(replace="text-xs font-mono text-green-400")
-                    btn_start.props("disable")
-                    btn_stop.props(remove="disable")
-                else:
-                    status_dot.set_text(t("status_stopped"))
-                    status_dot.classes(replace="text-xs font-mono text-red-400")
-                    btn_start.props(remove="disable")
-                    btn_stop.props("disable")
-
-            _sync_buttons()
-            ui.timer(1.0, _sync_buttons)
-
-        with ui.row().classes("ml-auto items-center gap-2"):
-            # ── Training / fine-tuning progress chip (teacher + admin) ─────────
-            if role in ("teacher", "admin"):
-                with ui.row().classes("items-center gap-1") as train_chip_row:
-                    ui.icon("model_training", size="xs").classes(
-                        "text-purple-400")
-                    train_chip_lbl = ui.label("").classes(
-                        "text-xs font-mono text-purple-300")
-                    ui.link(t("nav_models"), "/models").classes(
-                        "text-xs text-purple-400 no-underline hover:text-purple-200")
-                train_chip_row.set_visibility(False)
-
-                def _sync_training() -> None:
-                    w = state.training_worker
-                    if w and w.is_running:
-                        train_chip_row.set_visibility(True)
-                        bp = w.batch_progress
-                        ep    = bp.get("epoch", 0)
-                        total = bp.get("total_epochs", 0)
-                        if total:
-                            train_chip_lbl.set_text(f"ep {ep}/{total}")
-                        else:
-                            raw = w.current_status or t("nav_training_running")
-                            train_chip_lbl.set_text(raw[:30])
-                    else:
-                        train_chip_row.set_visibility(False)
-
-                _sync_training()
-                ui.timer(2.0, _sync_training)
-                ui.separator().props("vertical").classes("opacity-30 mx-1")
-
-            if role == "teacher":
-                _notification_bell()
-                ui.separator().props("vertical").classes("opacity-30")
+        for key, path in [("nav_my_history", "/history"), ("nav_my_analytics", "/analytics")]:
+            ui.link(t(key), path).classes("text-gray-300 hover:text-white text-sm no-underline")
+        with ui.row().classes("ml-auto items-center"):
             _user_menu(current_user, dark)
 
 
 # ── User menu ─────────────────────────────────────────────────────────────────
 
-def _user_menu(current_user: dict, dark) -> None:
+def _user_menu(current_user: dict, dark, on_logout=None):
     role = current_user["role"]
 
     pwd_dlg = password_dialog(current_user)
@@ -180,7 +50,7 @@ def _user_menu(current_user: dict, dark) -> None:
     label_text = f"{current_user['username']}  ({role_label})"
     with ui.dropdown_button(
         label_text, icon="account_circle",
-    ).props("flat no-caps dense color=white"):
+    ).props("flat no-caps dense color=white") as account_menu:
 
         with ui.menu_item():
             with ui.row().classes("items-center gap-3 w-full"):
@@ -218,11 +88,13 @@ def _user_menu(current_user: dict, dark) -> None:
         ui.separator()
 
         with ui.menu_item(
-            on_click=lambda: (clear_session(), ui.navigate.to("/auth/continue"))
+            on_click=on_logout or (lambda: (clear_session(), ui.navigate.to("/auth/continue")))
         ):
             with ui.row().classes("items-center gap-3 text-red-400"):
                 ui.icon("logout").classes("text-base")
                 ui.label(t("nav_sign_out")).classes("text-sm")
+
+    return account_menu
 
 
 def password_dialog(current_user: dict):
@@ -274,6 +146,7 @@ def password_dialog(current_user: dict):
 # ── Notification bell ─────────────────────────────────────────────────────────
 
 def _notification_bell() -> None:
+    from frontend.pages.admin_shell import toast
     from backend.db.database import (
         count_unread_notifications,
         get_event_frame_b64,
@@ -348,7 +221,7 @@ def _notification_bell() -> None:
                             ann_b64 = get_event_frame_annotated_b64(eid)
                             show_snapshot(raw_b64, meta, ann_b64)
                         else:
-                            ui.notify(t("notif_no_snapshot"), type="warning")
+                            toast(t("notif_no_snapshot"), type="warning")
 
                     ui.button(icon="image", on_click=_view).props(
                         "flat round dense color=blue"
@@ -359,7 +232,7 @@ def _notification_bell() -> None:
         notif_dlg.open()
 
     with ui.button(icon="notifications", on_click=_open_notifs).props(
-        "flat round color=white"
+        'flat round color=white aria-label="Notifications"'
     ):
         badge = ui.badge("").props("floating color=red transparent")
 
@@ -382,7 +255,7 @@ def _notification_bell() -> None:
                 if now - _computer_last_notif.get(computer, 0) < _NOTIF_COOLDOWN:
                     continue
                 _computer_last_notif[computer] = now
-                ui.notify(
+                toast(
                     f"🚨 {n['class_name']} detected\n"
                     f"🖥  {computer}   👤 {n['student']}\n"
                     f"🕐 {n['created_at']}",

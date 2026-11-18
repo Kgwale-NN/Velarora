@@ -134,3 +134,24 @@
     .audit-filter-button { width: 100%; }
     .admin-glass-page .admin-confirm { padding: 24px; }
 }
+/* Teacher workspace uses the same shell with its operational toolbar. */
+.teacher-header { flex-wrap: wrap; }
+.teacher-monitor-toolbar {
+    border-top: 1px solid #ffffff19; padding-top: 10px; margin-top: 2px;
+    min-height: 55px; flex-wrap: wrap;
+}
+.admin-glass-page .teacher-monitor-toolbar .q-btn { min-height: 40px; padding: 0 18px; font-size: 17px; }
+.teacher-monitor-status { color: #d2d2d2; font-size: 16px !important; min-width: 90px; }
+.teacher-account-menu { max-width: 320px; }
+.teacher-account-menu .q-btn__content { flex-wrap: nowrap; }
+.teacher-account-menu .q-btn__content > .block { overflow: hidden; text-overflow: ellipsis; }
+.teacher-workspace .admin-drawer .admin-nav-link { padding: 10px 16px; margin: 2px 0; }
+.teacher-workspace .admin-drawer .q-drawer__content { overscroll-behavior: contain; }
+@media (max-width: 650px) {
+    .teacher-account-menu { width: 44px; min-width: 44px; padding: 0; }
+    .teacher-account-menu .q-btn__content > .block,
+    .teacher-account-menu .q-btn-dropdown__arrow { visibility: hidden; width: 0; height: 0; overflow: hidden; }
+    .teacher-account-menu .q-btn__content > .q-icon { margin: 0; }
+    .teacher-monitor-toolbar { gap: 8px; }
+    .admin-glass-page .teacher-monitor-toolbar .q-btn { padding: 0 12px; }
+}

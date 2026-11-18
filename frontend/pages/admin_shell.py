@@ -1,4 +1,4 @@
-"""Shared glass admin frame and navigation."""
+"""Shared role-aware glass frame for administrators and teachers."""
 from nicegui import ui
 from backend.core.auth import clear_session
 from frontend.pages.page_style import page_style
@@ -23,9 +23,11 @@ def toast(message, **options):
     return ui.notification(options=settings)
 
 
-def admin_nav(user):
-    ui.dark_mode().enable()
-    ui.query("body").classes(add="admin-glass-page")
+def workspace_nav(user):
+    teacher = user["role"] == "teacher"
+    dark = ui.dark_mode()
+    dark.enable()
+    ui.query("body").classes(add="admin-glass-page" + (" teacher-workspace" if teacher else ""))
     stylesheet("admin.css")
     page_style("admin")
     with ui.dialog() as logout, ui.card().classes("admin-confirm"):
@@ -37,15 +39,25 @@ def admin_nav(user):
                 clear_session(), ui.navigate.to("/auth/continue")
             )).props("no-caps").classes("admin-logout-confirm")
     current = ui.context.client.page.path
-    links = [("Users", "people_outline", "/users"), ("Models", "view_in_ar", "/models"),
-             ("Audit Log", "history", "/audit"), ("Admin Profile", "person_outline", "/profile"),
-             ("Settings", "settings", "/settings")]
+    if teacher:
+        links = [
+            ("Dashboard", "dashboard", "/"), ("History", "history", "/history"),
+            ("Analytics", "insights", "/analytics"), ("Reports", "description", "/reports"),
+            ("Alert Rules", "notifications_active", "/alerts"), ("Groups", "groups", "/groups"),
+            ("Schedules", "event", "/schedules"), ("Users", "people_outline", "/users"),
+            ("Models", "view_in_ar", "/models"), ("Audit Log", "history", "/audit"),
+        ]
+    else:
+        links = [("Users", "people_outline", "/users"), ("Models", "view_in_ar", "/models"),
+                 ("Audit Log", "history", "/audit"), ("Admin Profile", "person_outline", "/profile"),
+                 ("Settings", "settings", "/settings")]
+    home = "/" if teacher else "/users"
     with ui.left_drawer(value=False).props("overlay bordered width=270").classes("admin-drawer") as drawer:
         with ui.row().classes("items-center justify-between w-full px-3 py-5"):
             ui.label("Velarora").classes("text-xl font-semibold italic")
             ui.button(icon="close", on_click=lambda: drawer.hide()).props(
                 'flat round dense aria-label="Close menu"')
-        ui.label("ADMINISTRATION").classes("admin-menu-caption")
+        ui.label("TEACHER WORKSPACE" if teacher else "ADMINISTRATION").classes("admin-menu-caption")
         for label, icon, path in links:
             with ui.link(target=path).classes("admin-nav-link" + (" active" if current == path else "")):
                 ui.icon(icon).classes("text-xl")
@@ -54,7 +66,7 @@ def admin_nav(user):
         ui.separator()
         ui.button("Log out", icon="logout", on_click=logout.open).props(
             "flat no-caps align=left").classes("admin-signout w-full")
-    with ui.header().classes("admin-header"):
+    with ui.header().classes("admin-header" + (" teacher-header" if teacher else "")):
         def toggle_menu():
             drawer.toggle()
             ui.run_javascript(f"""
@@ -65,12 +77,23 @@ def admin_nav(user):
             """)
         menu_button = ui.button(icon="menu", on_click=toggle_menu).props(
             'flat round aria-label="Open menu" aria-expanded="false"').classes("admin-menu-button")
-        ui.link("Velarora", "/users").classes("admin-brand")
+        ui.link("Velarora", home).classes("admin-brand")
         ui.label(next((label for label, _, path in links if path == current), "Administration")).classes("admin-page-title")
         ui.space()
-        with ui.link(target="/profile").classes("admin-account"):
-            ui.icon("account_circle").classes("text-2xl")
-            ui.label(user["username"]).classes("admin-account-name")
+        if teacher:
+            from frontend.pages._nav import _notification_bell, _user_menu
+            _notification_bell()
+            _user_menu(user, dark, on_logout=logout.open).classes("teacher-account-menu")
+        else:
+            with ui.link(target="/profile").classes("admin-account"):
+                ui.icon("account_circle").classes("text-2xl")
+                ui.label(user["username"]).classes("admin-account-name")
+        if teacher:
+            from frontend.pages.teacher_toolbar import monitoring_controls, training_progress
+            with ui.row().classes("teacher-monitor-toolbar w-full items-center gap-3"):
+                monitoring_controls(user)
+                ui.space()
+                training_progress()
 
     drawer.on_value_change(lambda e: menu_button.props(
         "aria-expanded=true" if e.value else "aria-expanded=false"))

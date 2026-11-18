@@ -32,7 +32,7 @@ def page_style(kind: str):
                 link.hasAttribute('download') || (link.target && link.target !== '_self')) return;
             const next = new URL(link.href, location.href);
             if (next.origin !== location.origin || next.pathname === location.pathname ||
-                !['/users','/models','/audit','/profile','/settings','/login'].includes(next.pathname)) return;
+                !['/','/history','/analytics','/reports','/alerts','/groups','/schedules','/users','/models','/audit','/profile','/settings','/login'].includes(next.pathname)) return;
             document.documentElement.classList.remove('velarora-ready');
         });
         window.addEventListener('pageshow', (event) => {
