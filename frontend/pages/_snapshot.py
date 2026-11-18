@@ -11,9 +11,11 @@ from __future__ import annotations
 from typing import Optional
 from nicegui import ui
 from frontend.translate import t
+from frontend.pages.design_assets import stylesheet
 
 
 def make_snapshot_dialogs():
+    stylesheet("snapshot.css")
     _src_raw:  list[str]  = [""]   # clean / raw frame  (always set)
     _src_ann:  list[str]  = [""]   # annotated frame     (empty = not available)
     _zoom:     list[bool] = [False]
@@ -21,11 +23,11 @@ def make_snapshot_dialogs():
 
     # ── Fullscreen Dialog ─────────────────────────────────────────────────────
     with ui.dialog().props(
-        "maximized persistent transition-show=fade transition-hide=fade"
+        "maximized transition-show=fade transition-hide=fade"
     ) as fs_dlg:
         with ui.card().classes(
             "absolute-full bg-black p-0 m-0 shadow-none fs-card-wrap"
-        ).style("overflow:hidden;"):
+        ).style("overflow:hidden;") as fs_card:
 
             img_wrap = ui.element("div").classes(
                 "absolute-full fs-img-wrap"
@@ -46,11 +48,11 @@ def make_snapshot_dialogs():
                 "height:48px; background:rgba(0,0,0,0.7); "
                 "transition:opacity 0.25s; opacity:0; "
                 "pointer-events:none; z-index:50;"
-            ):
+            ) as fs_bar:
                 fs_meta = ui.label("").classes(
                     "text-sm text-gray-300 font-mono truncate flex-1")
                 ui.button(icon="close", on_click=fs_dlg.close).props(
-                    "flat round dense color=white size=sm")
+                    'flat round dense color=white aria-label="Close fullscreen screenshot"')
 
     # ── Zoom Logic ────────────────────────────────────────────────────────────
 
@@ -67,7 +69,7 @@ def make_snapshot_dialogs():
             )
             ui.run_javascript(f"""
                 setTimeout(() => {{
-                    const wrap = document.querySelector('.fs-img-wrap');
+                    const wrap = document.getElementById('{img_wrap.html_id}');
                     if (wrap) {{
                         const targetX = ({click_x} * 2) - (wrap.clientWidth / 2);
                         const targetY = ({click_y} * 2) - (wrap.clientHeight / 2);
@@ -95,17 +97,14 @@ def make_snapshot_dialogs():
     # ── Preview Dialog ────────────────────────────────────────────────────────
     with ui.dialog() as snap_dlg, \
          ui.card().classes(
-             "rounded-lg m-0 p-0 shadow-none "
-             "bg-white dark:bg-gray-900 "
-             "border border-gray-200 dark:border-gray-700"
+             "snapshot-card m-0 shadow-none"
          ).style("max-width:900px; width:95vw; overflow:hidden;"):
 
         with ui.row().classes(
-            "items-center justify-between px-3 w-full gap-2 "
-            "bg-gray-100 dark:bg-gray-800"
-        ).style("flex-shrink:0; height:36px;"):
+            "snapshot-toolbar items-center justify-between w-full gap-3"
+        ).style("flex-shrink:0;"):
             snap_meta = ui.label("").classes(
-                "text-xs text-gray-600 dark:text-gray-300 font-mono truncate flex-1")
+                "snapshot-meta flex-1")
 
             with ui.row().classes("gap-1 items-center flex-shrink-0"):
 
@@ -118,12 +117,12 @@ def make_snapshot_dialogs():
                         snap_image.set_source(_src_raw[0])
                     # Use opacity to dim instead of color=gray so button
                     # stays visible in both light and dark modes
-                    ann_btn.style(
-                        "opacity: 1;" if _show_ann[0] else "opacity: 0.4;")
+                    ann_btn.style("opacity: 1;" if _show_ann[0] else "opacity: 0.5;")
+                    ann_btn.props("aria-pressed=true" if _show_ann[0] else "aria-pressed=false")
 
                 ann_btn = ui.button(
-                    "⊞  " + t("snapshot_annotations"), on_click=_toggle_ann
-                ).props("flat dense size=xs color=teal")
+                    t("snapshot_annotations"), icon="crop_free", on_click=_toggle_ann
+                ).props('flat no-caps aria-label="Toggle screenshot annotations" aria-pressed=true')
 
                 # ── Fullscreen ────────────────────────────────────────────────
                 def _open_fs() -> None:
@@ -141,8 +140,8 @@ def make_snapshot_dialogs():
                     fs_dlg.open()
                     ui.run_javascript("""
                         setTimeout(() => {
-                            const card = document.querySelector('.fs-card-wrap');
-                            const bar  = document.querySelector('.fs-top-bar');
+                            const card = document.getElementById('FS_CARD_ID');
+                            const bar  = document.getElementById('FS_BAR_ID');
                             if (!card || !bar) return;
                             let hideTimer;
                             const onMove = () => {
@@ -154,18 +153,18 @@ def make_snapshot_dialogs():
                                     bar.style.pointerEvents = 'none';
                                 }, 2000);
                             };
-                            card.addEventListener('mousemove', onMove);
+                            card.onpointermove = onMove;
                             onMove();
                         }, 100);
-                    """)
+                    """.replace("FS_CARD_ID", fs_card.html_id).replace("FS_BAR_ID", fs_bar.html_id))
 
-                ui.button("⛶  " + t("snapshot_fullscreen"), on_click=_open_fs).props(
-                    "flat dense size=xs color=teal")
+                ui.button(t("snapshot_fullscreen"), icon="fullscreen", on_click=_open_fs).props(
+                    'flat no-caps aria-label="Open fullscreen screenshot"')
                 ui.button(icon="close", on_click=snap_dlg.close).props(
-                    "flat round dense size=xs")
+                    'flat round aria-label="Close screenshot"')
 
         snap_image = ui.image("").props("fit=contain no-spinner").classes(
-            "w-full bg-gray-900"
+            "snapshot-image w-full"
         ).style("max-height:68vh;")
 
     # ── Public interface ──────────────────────────────────────────────────────
@@ -197,6 +196,7 @@ def make_snapshot_dialogs():
         # Show/hide the toggle; reset opacity to full when re-opening
         ann_btn.set_visibility(bool(annotated_b64))
         ann_btn.style("opacity: 1;")
+        ann_btn.props("aria-pressed=true")
 
         snap_dlg.open()
 

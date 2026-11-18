@@ -1,0 +1,39 @@
+.history-dashboard { gap: 24px; min-width: 0; }
+.history-heading { gap: 6px; padding: 4px 0; }
+.history-title { font-size: clamp(30px, 3vw, 42px); line-height: 1.15; }
+.history-subtitle { color: #b7b7b7; font-size: 18px; }
+.history-section-icon { font-size: 23px; color: #c9c9c9; }
+.history-section-title { font-size: 24px; font-weight: 500; }
+.history-filters { gap: 22px; }
+.history-filter-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(150px, .65fr); gap: 20px; }
+.history-filter-actions { gap: 16px; }
+.history-filter-actions .q-btn { min-width: 140px; padding: 0 24px; }
+.history-results-heading { padding: 4px 0; }
+.history-table { min-width: 0; overflow: hidden; }
+.history-table .q-table__middle { overflow-x: auto; max-width: 100%; }
+.teacher-workspace .history-table table { min-width: 1100px; }
+.history-table th { white-space: nowrap; }
+.history-table td { max-width: 310px; overflow-wrap: anywhere; white-space: normal; }
+.history-hit { color: #bdd5c2; }
+.history-muted { color: #999; }
+.admin-glass-page .history-snapshot-button { color: #eee; }
+.history-empty { padding: 42px 24px; gap: 12px; text-align: center; color: #aaa; font-size: 18px; }
+.history-empty-title { font-size: 26px; color: #eee; }
+.history-pagination { gap: 16px; }
+.history-page-count { color: #c8c8c8; font-size: 17px; text-align: center; }
+@media (max-width: 1000px) {
+    .history-filter-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 540px) {
+    .history-dashboard { gap: 18px; }
+    .history-filter-grid { grid-template-columns: minmax(0, 1fr); }
+    .history-filter-actions { align-items: stretch; flex-direction: column; }
+    .history-filter-actions .q-btn { width: 100%; }
+    .history-pagination { gap: 8px; flex-wrap: nowrap; }
+    .history-page-count { font-size: 16px; }
+}
+
+.history-table .q-table__middle { max-height: min(62vh, 640px); overflow: auto; }
+.history-table thead th { position: sticky; top: 0; z-index: 1; background: #191919f2; backdrop-filter: blur(14px); }
+.history-filters .q-checkbox__inner--truthy .q-checkbox__svg { color: #151515; }
+.history-filters .q-checkbox__inner--falsy { color: #aaa; }

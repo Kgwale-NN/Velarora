@@ -1,0 +1,12 @@
+.admin-glass-page .snapshot-card { padding: 0; border-radius: 24px; background: linear-gradient(145deg, #252525f2, #0c0c0ce0); border: 1px solid #ffffff36; backdrop-filter: blur(28px); }
+.snapshot-toolbar { padding: 16px 20px; min-height: 70px; border-bottom: 1px solid #ffffff1c; }
+.snapshot-meta { color: #ccc; font-size: 16px; min-width: 170px; overflow-wrap: anywhere; }
+.snapshot-toolbar .q-btn { font-size: 17px; }
+.snapshot-image { background: #080808; }
+.admin-glass-page .fs-card-wrap { padding: 0 !important; border: 0; border-radius: 0; }
+.admin-glass-page .fs-top-bar { min-height: 58px; background: #101010b8 !important; backdrop-filter: blur(20px); }
+@media (max-width: 600px) {
+    .snapshot-toolbar { padding: 12px; }
+    .snapshot-meta { flex-basis: 100%; }
+    .snapshot-toolbar .q-btn { font-size: 16px; }
+}
