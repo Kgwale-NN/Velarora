@@ -1,67 +1,50 @@
-"""Schedule updates operations."""
-from __future__ import annotations
-from typing import Optional
+"""Schedule writes with atomic notification classes and optional group changes."""
+from contextlib import nullcontext
 from backend.db._core import _conn, _now
-from backend.db.schedule_notifications import set_schedule_notify_classes
+from backend.db.schedule_notifications import _replace_notify_classes, _invalidate_notify_cache
+
+_UNSET = object()
 
 
-def create_schedule(
-    group_id:                  int,
-    name:                      str,
-    days_of_week:              str,
-    start_time:                str,
-    end_time:                  str,
-    created_by:                Optional[int]       = None,
-    model_id:                  Optional[int]       = None,
-    use_custom_notify_classes: bool                = False,
-    notify_class_ids:          Optional[list[int]] = None,
-) -> int:
+def create_schedule(group_id, name, days_of_week, start_time, end_time, created_by=None,
+                    model_id=None, use_custom_notify_classes=False, notify_class_ids=None,
+                    is_active=True, *, _commit=True):
+    """Create a weekly schedule and its notification classes in one transaction."""
     c = _conn()
-    cur = c.execute(
-        "INSERT INTO schedule "
-        "(group_id, name, days_of_week, start_time, end_time, "
-        " model_id, use_custom_notify_classes, created_by, created_at) "
-        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        (group_id, name, days_of_week, start_time, end_time,
-         model_id, 1 if use_custom_notify_classes else 0,
-         created_by, _now()),
-    )
-    c.commit()
-    sid = cur.lastrowid
-    if use_custom_notify_classes and notify_class_ids:
-        set_schedule_notify_classes(sid, notify_class_ids)
+    with c if _commit else nullcontext():
+        cur = c.execute(
+            'INSERT INTO schedule (group_id,name,days_of_week,start_time,end_time,model_id,'
+            'use_custom_notify_classes,created_by,created_at,is_active) VALUES (?,?,?,?,?,?,?,?,?,?)',
+            (group_id, name, days_of_week, start_time, end_time, model_id,
+             int(bool(use_custom_notify_classes)), created_by, _now(), int(bool(is_active))))
+        sid = cur.lastrowid
+        _replace_notify_classes(c, sid, (notify_class_ids or []) if use_custom_notify_classes else [])
+    if _commit:
+        _invalidate_notify_cache()
     return sid
 
 
-def update_schedule(
-    schedule_id:               int,
-    name:                      str,
-    days_of_week:              str,
-    start_time:                str,
-    end_time:                  str,
-    is_active:                 bool,
-    model_id:                  Optional[int]       = None,
-    use_custom_notify_classes: bool                = False,
-    notify_class_ids:          Optional[list[int]] = None,
-) -> None:
+def update_schedule(schedule_id, name, days_of_week, start_time, end_time, is_active,
+                    model_id=None, use_custom_notify_classes=False, notify_class_ids=None,
+                    *, group_id=_UNSET, _commit=True):
+    """Keep the group unchanged unless group_id is supplied, including explicit None."""
     c = _conn()
-    c.execute(
-        "UPDATE schedule SET name=?, days_of_week=?, start_time=?, "
-        "end_time=?, is_active=?, model_id=?, use_custom_notify_classes=? "
-        "WHERE id=?",
-        (name, days_of_week, start_time, end_time,
-         1 if is_active else 0,
-         model_id, 1 if use_custom_notify_classes else 0,
-         schedule_id),
-    )
-    c.commit()
-    set_schedule_notify_classes(
-        schedule_id,
-        notify_class_ids if (use_custom_notify_classes and notify_class_ids is not None) else [],
-    )
+    with c if _commit else nullcontext():
+        cur = c.execute(
+            'UPDATE schedule SET name=?,days_of_week=?,start_time=?,end_time=?,is_active=?,'
+            'model_id=?,use_custom_notify_classes=? WHERE id=?',
+            (name, days_of_week, start_time, end_time, int(bool(is_active)), model_id,
+             int(bool(use_custom_notify_classes)), schedule_id))
+        if cur.rowcount == 0:
+            raise ValueError('This schedule no longer exists. Refresh and try again.')
+        if group_id is not _UNSET:
+            c.execute('UPDATE schedule SET group_id=? WHERE id=?', (group_id, schedule_id))
+        _replace_notify_classes(c, schedule_id, (notify_class_ids or []) if use_custom_notify_classes else [])
+    if _commit:
+        _invalidate_notify_cache()
 
 
-def delete_schedule(schedule_id: int) -> None:
-    c = _conn()
-    c.execute("DELETE FROM schedule WHERE id = ?", (schedule_id,))
-    c.commit()
+def delete_schedule(schedule_id):
+    with _conn() as c:
+        c.execute('DELETE FROM schedule WHERE id=?', (schedule_id,))
+    _invalidate_notify_cache()

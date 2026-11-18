@@ -1,0 +1,72 @@
+.schedules-dashboard { gap: 24px; min-width: 0; }
+.schedules-heading { gap: 20px; }
+.schedules-heading-copy { gap: 6px; }
+.schedules-title { font-size: clamp(30px, 3vw, 42px); line-height: 1.15; }
+.schedules-subtitle { font-size: 18px; color: #b7b7b7; }
+.schedules-help { font-size: 17px; color: #b1b1b1; line-height: 1.45; }
+.schedules-section-icon { font-size: 23px; color: #c9c9c9; flex-shrink: 0; }
+.admin-glass-page .schedules-explainer { flex-direction: row; align-items: center; gap: 18px; }
+.schedules-stats { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 20px; }
+.admin-glass-page .schedule-stat-card { min-width: 0; padding: 24px; min-height: 150px; gap: 22px; }
+.schedule-stat-label { font-size: 18px; color: #c3c3c3; }
+.schedule-stat-value { font-size: 42px; color: #f2f2f2; line-height: 1; font-variant-numeric: lining-nums tabular-nums; }
+.schedules-heading .q-btn, .schedules-toolbar .q-btn { padding: 0 24px; min-width: 140px; }
+.admin-glass-page .schedules-toolbar { flex-direction: row; align-items: end; gap: 24px; }
+.schedules-search { flex: 1; min-width: 0; }
+.schedules-table { min-width: 0; overflow: hidden; }
+.schedules-table .q-table__middle { max-height: 60vh; overflow: auto; }
+.schedules-table table { min-width: 1150px; }
+.schedules-table th { white-space: nowrap; position: sticky; top: 0; z-index: 1; background: #1a1a1af2; backdrop-filter: blur(14px); }
+.schedules-table td { max-width: 250px; white-space: normal; overflow-wrap: anywhere; }
+.schedules-table td:nth-child(5) { white-space: nowrap; }
+.schedules-table td:last-child, .schedules-table th:last-child { position: sticky; right: 0; min-width: 110px; background: #171717f5; }
+.schedules-table th:last-child { z-index: 2; }
+.schedule-row-actions { display: flex; justify-content: flex-end; align-items: center; gap: 4px; }
+.admin-glass-page .schedule-status { color: #bbb; background: #ffffff06; border: 1px solid #ffffff25; padding: 6px 12px; border-radius: 30px; font-size: 15px; }
+.admin-glass-page .schedule-status.is-enabled { color: #eee; background: #ffffff10; border-color: #ffffff40; }
+.schedule-status.is-enabled::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #b3ddbb; margin-right: 7px; }
+.schedules-empty { padding: 44px 24px; gap: 12px; font-size: 18px; color: #aaa; text-align: center; }
+.schedules-empty-title { color: #eee; font-size: 26px; }
+.admin-glass-page .schedule-dialog { width: min(680px,94vw); max-width: 94vw; max-height: 90dvh; padding: 28px; gap: 20px; border-radius: 28px; border: 1px solid #ffffff3b; background: linear-gradient(145deg,#242424ed,#0c0c0ce8); backdrop-filter: blur(28px); }
+.schedule-dialog-header { gap: 16px; flex-wrap: nowrap; flex-shrink: 0; }
+.schedule-dialog-title { font-size: 28px; flex: 1; min-width: 0; line-height: 1.2; overflow-wrap: anywhere; }
+.schedule-dialog-body { min-height: 0; overflow-y: auto; gap: 20px; padding: 2px; overscroll-behavior: contain; }
+.schedule-fields { gap: 22px; }
+.schedule-times { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px; }
+.schedule-times input { color-scheme: dark; min-width: 0; }
+.schedule-days { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 8px; }
+.schedule-days .q-checkbox { border: 1px solid #ffffff22; border-radius: 16px; padding: 2px 4px; background: #ffffff04; }
+.schedule-days .q-checkbox__label { padding-left: 0; font-size: 17px; }
+.schedule-days .q-checkbox__inner { font-size: 34px; }
+.schedule-field-heading { font-size: 20px; color: #eee; margin-bottom: -10px; }
+.schedule-class-choices { gap: 10px; }
+.schedule-class-choices .q-checkbox { width: 100%; padding: 7px 12px; border: 1px solid #ffffff20; border-radius: 16px; background: #ffffff04; }
+.schedule-fields .q-checkbox__inner--truthy .q-checkbox__svg { color: #151515; }
+.schedule-fields .q-checkbox__inner--falsy, .schedule-fields .q-toggle__inner--falsy { color: #aaa; }
+.schedule-form-error { color: #eabbbb; font-size: 17px; }
+.schedule-form-error:empty { display: none; }
+.schedule-dialog-footer { border-top: 1px solid #ffffff19; padding-top: 18px; flex-shrink: 0; }
+.schedule-dialog-footer .q-btn { padding: 0 22px; }
+.schedule-dialog-footer .q-btn__content { flex-wrap: nowrap; white-space: nowrap; }
+.schedule-skeleton { height: 70px; border-radius: 18px; background: #ffffff0c; }
+.admin-glass-page .schedule-delete-dialog { width: min(560px,94vw); }
+.schedule-delete-name { color: #eee; font-size: 25px; overflow-wrap: anywhere; }
+@media (max-width: 650px) {
+    .schedules-dashboard { gap: 18px; }
+    .schedules-heading > .q-btn { width: 100%; }
+    .schedules-stats { gap: 12px; }
+    .admin-glass-page .schedule-stat-card { padding: 18px 12px; gap: 18px; min-height: 125px; }
+    .schedule-stat-label { font-size: 16px; }
+    .schedule-stat-value { font-size: 34px; }
+    .schedules-stats .schedules-section-icon { display: none; }
+    .admin-glass-page .schedules-toolbar { flex-direction: column; align-items: stretch; gap: 18px; }
+    .schedules-search { width: 100%; }
+    .admin-glass-page .schedule-dialog { padding: 22px 16px; gap: 18px; }
+    .schedule-dialog-title { font-size: 25px; }
+    .schedule-times { grid-template-columns: minmax(0,1fr); gap: 22px; }
+    .schedule-days { gap: 6px; }
+    .schedule-days .q-checkbox__label { font-size: 16px; }
+    .schedule-days .q-checkbox__inner { font-size: 29px; }
+    .admin-glass-page .schedule-dialog-footer .q-btn { flex: 1; padding: 0 8px; font-size: 16px; }
+    .schedule-dialog-footer .q-btn .q-icon.on-left { font-size: 20px; margin-right: 6px; }
+}
