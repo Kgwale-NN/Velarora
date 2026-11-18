@@ -1,163 +1,145 @@
-"""
-frontend/pages/alerts.py
-────────────────────
-Alert Rules page  /alerts  (teacher only)
-"""
-from nicegui import ui
-
-import backend.state as state
+"""Teacher alert rules with model scoping and schedule-aware glass controls."""
+import logging
+from nicegui import run, ui
 from backend.core.auth import require_auth
-from backend.db.database import (
-    get_active_model, get_model_by_id, get_prohibited_class_ids,
-    list_alert_rules, set_alert_rule,
-)
 from frontend.pages._nav import nav
+from frontend.pages.admin_shell import toast
+from frontend.pages.alert_rule_data import load_context, save_global_rule
+from frontend.pages.alert_rule_row import class_row
+from frontend.pages.design_assets import stylesheet
+from frontend.pages.glass_fields import text_field
 from frontend.translate import t
 
 
-@ui.page("/alerts")
-def page_alerts() -> None:
-    current = require_auth(required_role="teacher")
+@ui.page('/alerts')
+def page_alerts():
+    current = require_auth(required_role='teacher')
     if current is None:
         return
     nav(current)
+    stylesheet('alert-rules.css')
+    view = {'context': None, 'loading': False, 'saving': 0, 'needs_refresh': False}
+    rows = []
+    with ui.column().classes('alerts-dashboard w-full'):
+        with ui.column().classes('alerts-heading'):
+            ui.label(t('alerts_title')).classes('alerts-title')
+            ui.label('Choose which detected classes should raise an alert.').classes('alerts-subtitle')
+        with ui.card().classes('alerts-explainer w-full'):
+            ui.icon('info_outline').classes('alerts-section-icon')
+            with ui.column().classes('alerts-explainer-copy'):
+                ui.label('Prohibited classes can trigger alerts during monitoring.').classes('alerts-explainer-title')
+                ui.label('Allowed classes still appear in History. The repeat-detection threshold in Settings controls when alerts are raised.').classes('alerts-help')
+        with ui.element('div').classes('alerts-stats w-full'):
+            counts = []
+            for label, icon in [('Classes shown', 'category'), ('Prohibited', 'notifications_active'), ('Allowed', 'notifications_off')]:
+                with ui.card().classes('alerts-stat-card user-stat-card'):
+                    with ui.row().classes('w-full items-center justify-between gap-3'):
+                        ui.label(label).classes('alerts-stat-label')
+                        ui.icon(icon).classes('alerts-section-icon')
+                    counts.append(ui.label('—').classes('alerts-stat-value'))
+        with ui.card().classes('alerts-toolbar w-full'):
+            with ui.column().classes('alerts-model-copy'):
+                model_label = ui.label('Loading detection classes...').classes('alerts-section-title')
+                model_hint = ui.label('').classes('alerts-help')
+            refresh_btn = ui.button('Refresh', icon='refresh', on_click=lambda: refresh()).props('no-caps')
+        with ui.card().classes('alerts-schedule-note w-full') as schedule_note:
+            ui.icon('lock_outline').classes('alerts-section-icon')
+            ui.label(t('alerts_schedule_override_note')).classes('alerts-help')
+        schedule_note.set_visibility(False)
+        search = text_field('Find a class', icon='search', placeholder='Search detection classes', props='debounce=150')
+        with ui.column().classes('alerts-rules w-full') as rules_list:
+            for _ in range(3):
+                ui.skeleton().classes('alerts-loading w-full')
+        with ui.column().classes('alerts-empty items-center w-full') as empty:
+            ui.icon('manage_search').classes('alerts-empty-icon')
+            empty_title = ui.label('No matching classes').classes('alerts-empty-title')
+            empty_hint = ui.label('Try a different class name.').classes('alerts-help')
+        empty.set_visibility(False)
+        ui.label(t('alerts_changes_note')).classes('alerts-help')
 
-    with ui.column().classes("w-full max-w-2xl mx-auto p-4 gap-4"):
-        ui.label(t("alerts_title")).classes("text-xl font-bold")
+    def update_counts():
+        context = view['context']
+        if not context:
+            return
+        rules = context['rules']
+        prohibited = sum(bool(r['effective_enabled']) for r in rules)
+        for label, value in zip(counts, [len(rules), prohibited, len(rules) - prohibited]):
+            label.set_text(str(value))
 
-        with ui.card().classes(
-            "w-full "
-            "bg-yellow-50 border border-yellow-300 "
-            "dark:bg-yellow-950 dark:border-yellow-700"
-        ):
-            ui.markdown(t("alerts_info")).classes(
-                "text-sm text-yellow-900 dark:text-yellow-200")
+    def filter_rows():
+        query = (search.value or '').strip().casefold()
+        visible = 0
+        for name, card in rows:
+            show = query in name.casefold()
+            card.set_visibility(show)
+            visible += show
+        empty.set_visibility(not visible and not view['loading'])
 
-        with ui.card().classes("w-full"):
-            # When monitoring is running, use the model it's actually using.
-            # A schedule may pin a different model than the DB-active one.
-            db_active   = get_active_model()
-            running_mid = state.running_model_id if state.monitor else None
-            schedule_id = getattr(state.monitor, "schedule_id", None) if state.monitor else None
+    async def save(class_id, enabled):
+        context = view['context']
+        if view['loading'] or context is None:
+            return False
+        view['saving'] += 1
+        refresh_btn.props('disable')
+        try:
+            try:
+                await run.io_bound(save_global_rule, class_id, enabled, context['signature'])
+            except ValueError as exc:
+                toast(str(exc), type='warning')
+                view['needs_refresh'] = True
+                return False
+            except Exception:
+                logging.getLogger(__name__).exception('Alert rule save failed')
+                toast('The change could not be saved. Your previous rule is still shown. Try again.', type='negative')
+                return False
+            rule = next(r for r in context['rules'] if r['class_id'] == class_id)
+            rule['enabled'] = rule['effective_enabled'] = enabled
+            update_counts()
+            toast(t('alerts_enabled_for' if enabled else 'alerts_disabled_for').format(name=rule['name']), type='positive')
+            return True
+        finally:
+            view['saving'] -= 1
+            if not view['saving']:
+                refresh_btn.props(remove='disable')
+                if view['needs_refresh']:
+                    view['needs_refresh'] = False
+                    ui.timer(0.05, refresh, once=True)
 
-            if running_mid is not None and running_mid != (db_active or {}).get("id"):
-                active = get_model_by_id(running_mid)
-                is_schedule_override = True
-            else:
-                active = db_active
-                is_schedule_override = False
+    async def refresh():
+        if view['loading'] or view['saving']:
+            return
+        view['loading'] = True
+        refresh_btn.props('loading')
+        try:
+            context = await run.io_bound(load_context)
+            view['context'] = context
+            active = context['active']
+            model_label.set_text(f"Classes for {active['name']}" if active else 'All detection classes')
+            model_hint.set_text('Currently running model.' if context['running_override'] else
+                                ('Rules for this model.' if active else 'No active model. Showing all saved detection classes.'))
+            schedule_note.set_visibility(context['readonly'])
+            rules_list.clear()
+            rows.clear()
+            with rules_list:
+                for rule in context['rules']:
+                    rows.append((rule['name'], class_row(rule, readonly=context['readonly'], save=save)))
+            empty_title.set_text('No matching classes' if context['rules'] else 'No detection classes yet')
+            empty_hint.set_text('Try a different class name.' if context['rules'] else
+                                (t('alerts_none_active') if active else t('alerts_none_any')))
+            update_counts()
+        except Exception:
+            logging.getLogger(__name__).exception('Alert rules could not load')
+            if view['context'] is None:
+                rules_list.clear()
+                model_label.set_text('Detection classes unavailable')
+                model_hint.set_text('Refresh to try loading the rules again.')
+                empty_title.set_text('Rules could not load')
+                empty_hint.set_text('Use Refresh to try again.')
+            toast('Alert rules could not load. Please refresh and try again.', type='negative')
+        finally:
+            view['loading'] = False
+            refresh_btn.props(remove='loading')
+            filter_rows()
 
-            # Compute effective prohibited class IDs for the running session.
-            # This respects per-schedule custom class overrides.
-            effective_prohibited: set[int] | None = None
-            schedule_has_custom = False
-            if state.monitor and running_mid is not None:
-                prohibited_map = get_prohibited_class_ids(running_mid, schedule_id)
-                effective_prohibited = {v["id"] for v in prohibited_map.values()}
-                # Check if this is a schedule-specific override (not just global)
-                if schedule_id is not None:
-                    from backend.db.database import get_schedule
-                    s = get_schedule(schedule_id)
-                    schedule_has_custom = bool(s and s.get("use_custom_notify_classes"))
-
-            if active:
-                active_names = {n.strip() for n in active.get("class_names", [])}
-                label_text = t("alerts_classes_active").format(name=active["name"])
-                if is_schedule_override:
-                    label_text += f"  ({t('alerts_classes_running')})"
-                ui.label(label_text).classes(
-                    "text-sm font-semibold text-gray-600 dark:text-gray-400 mb-3")
-            else:
-                active_names = None
-                ui.label(t("alerts_classes_all")).classes(
-                    "text-sm font-semibold text-gray-600 dark:text-gray-400 mb-3")
-
-            # Banner when a schedule overrides the global prohibited-class list
-            if schedule_has_custom:
-                with ui.row().classes("items-center gap-2 mb-2 px-1 py-1 rounded "
-                                      "bg-blue-50 dark:bg-blue-950 "
-                                      "border border-blue-200 dark:border-blue-700"):
-                    ui.icon("info", size="xs").classes("text-blue-500")
-                    ui.label(t("alerts_schedule_override_note")).classes(
-                        "text-xs text-blue-700 dark:text-blue-300")
-
-            rules = list_alert_rules()
-            if active_names is not None:
-                rules = [r for r in rules if r["name"] in active_names]
-
-            if not rules:
-                msg = (
-                    t("alerts_none_active")
-                    if active_names is not None
-                    else t("alerts_none_any")
-                )
-                ui.label(msg).classes("text-gray-600 dark:text-gray-500 text-sm")
-            else:
-                for r in rules:
-                    # When monitoring is live, derive effective enabled from the
-                    # actual prohibited set (respects schedule overrides).
-                    eff = (r["class_id"] in effective_prohibited
-                           if effective_prohibited is not None
-                           else bool(r["enabled"]))
-                    _class_row(r, effective_enabled=eff,
-                               readonly=schedule_has_custom)
-
-        ui.label(t("alerts_changes_note")).classes(
-            "text-xs text-gray-500 dark:text-gray-500")
-
-
-def _class_row(
-    r: dict,
-    effective_enabled: bool | None = None,
-    readonly: bool = False,
-) -> None:
-    """
-    Render a single class row.
-
-    effective_enabled — when provided, overrides r["enabled"] for the status
-                        label and toggle display (reflects the live session state).
-    readonly          — when True the toggle is disabled (schedule override active;
-                        editing global rules won't affect the current session).
-    """
-    display_enabled = effective_enabled if effective_enabled is not None else bool(r["enabled"])
-
-    with ui.card().classes("w-full").style("padding: 10px 16px;"):
-        with ui.row().classes("items-center gap-4 w-full"):
-
-            ui.element("div").style(
-                f"width:14px; height:14px; border-radius:50%; "
-                f"background:{r['color_hex']}; flex-shrink:0;"
-            )
-
-            ui.label(r["name"]).classes("flex-1 text-sm font-mono")
-
-            status = ui.label(
-                t("alerts_prohibited") if display_enabled else t("alerts_allowed")
-            ).classes(
-                "text-xs " +
-                ("text-red-500 dark:text-red-400"
-                 if display_enabled else
-                 "text-green-600 dark:text-green-400")
-            )
-
-            toggle = ui.switch(value=display_enabled)
-            if readonly:
-                toggle.props("disable")
-                toggle.tooltip(t("alerts_toggle_readonly_hint"))
-
-            def on_change(e, cid=r["class_id"], name=r["name"], st=status) -> None:
-                enabled = bool(e.value)
-                set_alert_rule(cid, enabled)
-                if enabled:
-                    st.set_text(t("alerts_prohibited"))
-                    st.classes(replace="text-xs text-red-500 dark:text-red-400")
-                else:
-                    st.set_text(t("alerts_allowed"))
-                    st.classes(replace="text-xs text-green-600 dark:text-green-400")
-                ui.notify(
-                    t("alerts_enabled_for" if enabled else "alerts_disabled_for").format(name=name),
-                    type="positive" if enabled else "info",
-                )
-
-            if not readonly:
-                toggle.on_value_change(on_change)
+    search.on_value_change(filter_rows)
+    ui.timer(0.01, refresh, once=True)

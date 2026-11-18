@@ -1,0 +1,53 @@
+.alerts-dashboard { gap: 24px; min-width: 0; }
+.alerts-heading { gap: 6px; padding: 4px 0; }
+.alerts-title { font-size: clamp(30px, 3vw, 42px); line-height: 1.15; }
+.alerts-subtitle { color: #b7b7b7; font-size: 18px; }
+.admin-glass-page .alerts-explainer { flex-direction: row; gap: 18px; align-items: start; }
+.alerts-section-icon { font-size: 23px; color: #c9c9c9; flex-shrink: 0; }
+.alerts-explainer-copy, .alerts-model-copy { gap: 7px; min-width: 0; }
+.alerts-explainer-title { color: #eee; font-size: 21px; }
+.alerts-help { color: #b1b1b1; font-size: 17px; line-height: 1.45; }
+.alerts-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.admin-glass-page .alerts-stat-card { min-width: 0; min-height: 150px; padding: 24px; gap: 22px; }
+.alerts-stat-label { font-size: 18px; color: #c3c3c3; }
+.alerts-stat-value { color: #f2f2f2; font-size: 42px; line-height: 1; font-variant-numeric: lining-nums tabular-nums; }
+.admin-glass-page .alerts-toolbar { flex-direction: row; align-items: center; justify-content: space-between; gap: 24px; }
+.alerts-section-title { font-size: 24px; line-height: 1.3; overflow-wrap: anywhere; }
+.alerts-toolbar .q-btn { padding: 0 24px; min-width: 140px; }
+.admin-glass-page .alerts-schedule-note { flex-direction: row; gap: 16px; align-items: start; background: #ffffff09; }
+.alerts-schedule-note .alerts-help { color: #ddd; }
+.alerts-rules { gap: 14px; }
+.admin-glass-page .alert-rule-card { flex-direction: row; align-items: center; justify-content: space-between; padding: 22px 24px; gap: 20px; transition: transform 350ms ease, border-color 350ms ease, box-shadow 350ms ease; }
+.alert-rule-identity { gap: 16px; align-items: center; min-width: 0; flex: 1; flex-wrap: nowrap; }
+.alert-rule-icon { font-size: 24px; color: #bfbfbf; flex-shrink: 0; }
+.alert-rule-copy { gap: 6px; min-width: 0; }
+.alert-rule-name { font-size: 23px; color: #eee; overflow-wrap: anywhere; }
+.alert-rule-hint { font-size: 16px; color: #aaa; }
+.alert-rule-controls { align-items: center; gap: 18px; flex-wrap: nowrap; }
+.alert-rule-status { font-size: 16px; border: 1px solid #ffffff26; border-radius: 30px; padding: 5px 12px; white-space: nowrap; }
+.alert-rule-status.is-prohibited { color: #eee; background: #ffffff10; border-color: #ffffff50; }
+.alert-rule-status.is-allowed { color: #aaa; background: #ffffff04; }
+.alert-rule-controls .q-toggle__inner--falsy { color: #aaa; }
+.alerts-empty { padding: 40px 24px; text-align: center; gap: 14px; }
+.alerts-empty-icon { font-size: 40px; color: #999; }
+.alerts-empty-title { font-size: 26px; color: #eee; }
+.alerts-loading { height: 98px; border-radius: 20px; background: #ffffff0c; }
+@media (hover: hover) and (pointer: fine) {
+    .admin-glass-page .alert-rule-card:hover { transform: translateY(-2px); border-color: #ffffff4a; box-shadow: inset 0 1px #ffffff29, 0 12px 30px #0005; }
+}
+@media (max-width: 650px) {
+    .alerts-dashboard { gap: 18px; }
+    .alerts-stats { gap: 12px; }
+    .admin-glass-page .alerts-stat-card { padding: 18px 12px; min-height: 125px; gap: 18px; }
+    .alerts-stat-label { font-size: 16px; }
+    .alerts-stat-value { font-size: 34px; }
+    .alerts-stats .alerts-section-icon { display: none; }
+    .admin-glass-page .alerts-toolbar { flex-direction: column; align-items: stretch; gap: 18px; }
+    .admin-glass-page .alert-rule-card { flex-direction: column; align-items: stretch; gap: 18px; padding: 20px; }
+    .alert-rule-controls { justify-content: space-between; }
+    .alerts-section-title { font-size: 22px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .admin-glass-page .alert-rule-card { transition: none; }
+    .admin-glass-page .alert-rule-card:hover { transform: none; }
+}

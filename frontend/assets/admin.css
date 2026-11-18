@@ -155,3 +155,7 @@
     .teacher-monitor-toolbar { gap: 8px; }
     .admin-glass-page .teacher-monitor-toolbar .q-btn { padding: 0 12px; }
 }
+
+@media (max-width: 650px) {
+    .teacher-header .admin-page-title { display: none; }
+}
