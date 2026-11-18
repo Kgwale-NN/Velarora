@@ -14,21 +14,23 @@ def get_or_create_group(name: str, description: str = "") -> int:
 
 def create_group(name: str, description: str = "") -> int:
     c = _conn()
-    cur = c.execute(
-        "INSERT INTO computer_group (name, description, created_at) VALUES (?, ?, ?)",
-        (name, description or None, _now()),
-    )
-    c.commit()
+    with c:
+        cur = c.execute(
+            "INSERT INTO computer_group (name, description, created_at) VALUES (?, ?, ?)",
+            (name, description or None, _now()),
+        )
     return cur.lastrowid
 
 
 def update_group(group_id: int, name: str, description: str = "") -> None:
     c = _conn()
-    c.execute(
-        "UPDATE computer_group SET name = ?, description = ? WHERE id = ?",
-        (name, description or None, group_id),
-    )
-    c.commit()
+    with c:
+        cur = c.execute(
+            "UPDATE computer_group SET name = ?, description = ? WHERE id = ?",
+            (name, description or None, group_id),
+        )
+        if cur.rowcount == 0:
+            raise ValueError('This group no longer exists. Refresh the page and try again.')
 
 
 def delete_group(group_id: int) -> None:

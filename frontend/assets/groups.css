@@ -1,0 +1,71 @@
+.groups-dashboard { gap: 24px; min-width: 0; }
+.groups-heading { gap: 20px; }
+.groups-heading-copy { gap: 6px; }
+.groups-title { font-size: clamp(30px, 3vw, 42px); line-height: 1.15; }
+.groups-subtitle { color: #b7b7b7; font-size: 18px; }
+.groups-help { color: #b1b1b1; font-size: 17px; line-height: 1.45; }
+.groups-section-icon { color: #c9c9c9; font-size: 23px; }
+.groups-heading .q-btn, .groups-toolbar .q-btn { padding: 0 24px; min-width: 140px; }
+.groups-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.admin-glass-page .group-stat-card { padding: 24px; gap: 22px; min-height: 150px; min-width: 0; }
+.group-stat-label { color: #c3c3c3; font-size: 18px; }
+.group-stat-value { font-size: 42px; line-height: 1; color: #f2f2f2; font-variant-numeric: lining-nums tabular-nums; }
+.admin-glass-page .groups-toolbar { flex-direction: row; align-items: end; gap: 24px; }
+.groups-search { flex: 1; min-width: 0; }
+.groups-table { min-width: 0; overflow: hidden; }
+.groups-table .q-table__middle { overflow: auto; max-height: 60vh; }
+.groups-table table { min-width: 850px; }
+.groups-table th { white-space: nowrap; position: sticky; top: 0; z-index: 1; background: #1a1a1af2; backdrop-filter: blur(14px); }
+.groups-table td { white-space: normal; overflow-wrap: anywhere; max-width: 320px; }
+.groups-table td:nth-child(4) { white-space: nowrap; min-width: 170px; }
+.groups-table td:last-child, .groups-table th:last-child { position: sticky; right: 0; min-width: 160px; background: #171717f5; }
+.groups-table th:last-child { z-index: 2; }
+.group-row-actions { display: flex; align-items: center; justify-content: flex-end; gap: 4px; }
+.groups-empty { padding: 44px 24px; gap: 12px; text-align: center; font-size: 18px; color: #aaa; }
+.groups-empty-title { font-size: 26px; color: #eee; }
+.admin-glass-page .group-dialog { width: min(560px, 94vw); max-width: 94vw; max-height: 90dvh; padding: 28px; gap: 22px; border-radius: 28px; border: 1px solid #ffffff3b; background: linear-gradient(145deg, #242424ed, #0c0c0ce8); backdrop-filter: blur(28px); }
+.group-dialog-header { gap: 18px; flex-wrap: nowrap; flex-shrink: 0; }
+.group-dialog-title { font-size: 28px; line-height: 1.2; flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.group-dialog-body { min-height: 0; overflow-y: auto; gap: 22px; overscroll-behavior: contain; padding: 2px; }
+.group-dialog-footer { flex-shrink: 0; border-top: 1px solid #ffffff19; padding-top: 18px; }
+.group-dialog-footer .q-btn { padding: 0 22px; }
+.group-form-error { color: #eabbbb; font-size: 17px; }
+.group-form-error:empty { display: none; }
+.group-computer-choices { max-height: 330px; overflow-y: auto; gap: 12px; flex-shrink: 0; }
+.group-computer-choices .q-checkbox { width: 100%; padding: 10px 12px; border: 1px solid #ffffff1c; border-radius: 16px; background: #ffffff04; }
+.group-computer-choices .q-checkbox__label { overflow-wrap: anywhere; min-width: 0; font-size: 18px; }
+.group-computer-choices .q-checkbox__inner--truthy .q-checkbox__svg { color: #151515; }
+.group-computer-choices .q-checkbox__inner--falsy { color: #aaa; }
+.admin-glass-page .group-assign-dialog { width: min(640px, 94vw); }
+.group-delete-name { font-size: 25px; color: #eee; overflow-wrap: anywhere; }
+.admin-glass-page .group-confirm-delete { border-color: #efb2b249; }
+.group-import-panel { border: 1px solid #ffffff25; border-radius: 22px; overflow: hidden; }
+.group-import-panel > .q-expansion-item__container > .q-item { min-height: 64px; padding: 18px 24px; font-size: 22px; }
+.group-import-panel .q-expansion-item__content { padding: 8px 24px 24px; }
+.group-import-actions { margin-top: 20px; }
+.group-import-actions .q-btn { padding: 0 20px; }
+.admin-glass-page .group-config-dialog { width: min(860px, 94vw); }
+.group-config-text textarea { font-family: Consolas, monospace; font-size: 13px; color: #d5d5d5; resize: none; }
+.admin-glass-page .group-config-text .q-field__control,
+.admin-glass-page .group-config-text .q-field__control::before,
+.admin-glass-page .group-config-text .q-field__control::after { border-radius: 16px !important; }
+@media (max-width: 650px) {
+    .groups-dashboard { gap: 18px; }
+    .groups-heading > .q-btn { width: 100%; }
+    .groups-stats { gap: 12px; }
+    .admin-glass-page .group-stat-card { padding: 20px 14px; min-height: 140px; gap: 18px; }
+    .group-stat-value { font-size: 34px; }
+    .group-stat-label { font-size: 17px; }
+    .groups-stats .groups-section-icon { display: none; }
+    .admin-glass-page .groups-toolbar { flex-direction: column; align-items: stretch; gap: 18px; }
+    .groups-search { width: 100%; }
+    .admin-glass-page .group-dialog { padding: 22px 18px; gap: 18px; }
+    .group-dialog-title { font-size: 25px; }
+    .group-dialog-footer .q-btn { flex: 1; padding: 0 14px; }
+    .group-import-actions .q-btn { width: 100%; }
+}
+.group-dialog-footer .q-btn__content { flex-wrap: nowrap; white-space: nowrap; }
+@media (max-width: 650px) {
+    .admin-glass-page .group-dialog-footer .q-btn { font-size: 16px; padding: 0 10px; }
+    .group-dialog-footer .q-btn .q-icon.on-left { font-size: 20px; margin-right: 6px; }
+}
