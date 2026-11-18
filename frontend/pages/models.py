@@ -127,7 +127,21 @@ def page_models() -> None:
 # ── GPU status card ───────────────────────────────────────────────────────────
 
 def _gpu_card() -> None:
-    info = get_torch_info()
+    with ui.column().classes("w-full") as status:
+        ui.skeleton("rect").classes("w-full h-24 rounded-2xl")
+
+    async def load_status():
+        info = await run.io_bound(get_torch_info)
+        if status.is_deleted:
+            return
+        status.clear()
+        with status:
+            _gpu_card_content(info)
+
+    ui.timer(0, load_status, once=True)
+
+
+def _gpu_card_content(info: dict) -> None:
 
     with ui.card().classes("w-full"):
         with ui.row().classes("items-center gap-3 flex-wrap"):

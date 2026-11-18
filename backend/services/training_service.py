@@ -20,6 +20,7 @@ Progress message shapes
 """
 from __future__ import annotations
 
+from functools import lru_cache
 import csv
 import json
 import queue
@@ -55,8 +56,9 @@ BASE_MODELS = [
 
 # ── GPU detection ─────────────────────────────────────────────────────────────
 
+@lru_cache(maxsize=1)
 def get_torch_info() -> dict:
-    """Return dict with torch version, cuda availability, and suggested install."""
+    """Probe hardware once per process; package installation restarts the server."""
     try:
         import torch
         cuda_ok    = torch.cuda.is_available()

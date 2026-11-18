@@ -1,8 +1,8 @@
-@font-face { font-family: "Cormorant Garamond"; font-style: normal; font-weight: 400; font-display: swap; src: url("/design-assets/fonts/cormorant-normal-400.ttf") format("truetype"); }
-@font-face { font-family: "Cormorant Garamond"; font-style: normal; font-weight: 500; font-display: swap; src: url("/design-assets/fonts/cormorant-normal-500.ttf") format("truetype"); }
-@font-face { font-family: "Cormorant Garamond"; font-style: normal; font-weight: 600; font-display: swap; src: url("/design-assets/fonts/cormorant-normal-600.ttf") format("truetype"); }
-@font-face { font-family: "Cormorant Garamond"; font-style: italic; font-weight: 400; font-display: swap; src: url("/design-assets/fonts/cormorant-italic-400.ttf") format("truetype"); }
-@font-face { font-family: "Cormorant Garamond"; font-style: italic; font-weight: 500; font-display: swap; src: url("/design-assets/fonts/cormorant-italic-500.ttf") format("truetype"); }
+@font-face { font-family: "Cormorant Garamond"; font-style: normal; font-weight: 400; font-display: swap; src: url("/design-assets/fonts/cormorant-normal-400.woff2") format("woff2"); }
+@font-face { font-family: "Cormorant Garamond"; font-style: normal; font-weight: 500; font-display: swap; src: url("/design-assets/fonts/cormorant-normal-500.woff2") format("woff2"); }
+@font-face { font-family: "Cormorant Garamond"; font-style: normal; font-weight: 600; font-display: swap; src: url("/design-assets/fonts/cormorant-normal-600.woff2") format("woff2"); }
+@font-face { font-family: "Cormorant Garamond"; font-style: italic; font-weight: 400; font-display: swap; src: url("/design-assets/fonts/cormorant-italic-400.woff2") format("woff2"); }
+@font-face { font-family: "Cormorant Garamond"; font-style: italic; font-weight: 500; font-display: swap; src: url("/design-assets/fonts/cormorant-italic-500.woff2") format("woff2"); }
 body.velarora-login-page, body.admin-glass-page { font-family: "Cormorant Garamond", Georgia, serif; font-size: 19px; }
 .velarora-login-page .login-brand, .admin-glass-page .admin-brand { font-weight: 500; font-size: 28px; letter-spacing: -.4px; }
 .velarora-login-page .login-heading { font-weight: 500; font-size: 38px; line-height: 1.12; letter-spacing: -.6px; }

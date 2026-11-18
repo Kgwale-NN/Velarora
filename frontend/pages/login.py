@@ -16,7 +16,7 @@ from pathlib import Path
 
 from fastapi import Request
 from fastapi.responses import RedirectResponse
-from nicegui import app, ui
+from nicegui import app, run, ui
 
 from backend.core import rate_limit
 from backend.core.auth import get_session_user, home_path_for, set_session_user
@@ -24,6 +24,7 @@ from backend.db.staff_email import authenticate_login
 from backend.core import google_login
 from frontend.translate import t
 from frontend.pages.page_style import page_style
+from frontend.pages.design_assets import stylesheet
 
 app.include_router(google_login.router)
 
@@ -43,7 +44,7 @@ def page_login(request: Request) -> None:
         ui.navigate.to(home_path_for(user))
         return
 
-    ui.add_css((Path(__file__).parents[1] / "assets" / "login.css").read_text())
+    stylesheet("login.css")
     ui.query("body").classes(add="velarora-login-page")
     page_style("login")
     with ui.dialog() as help_dialog, ui.card().classes("login-help-dialog"):
@@ -78,7 +79,9 @@ def page_login(request: Request) -> None:
             # Captured at page build; the websocket callback below reuses it.
             client_ip = request.client.host if request.client else "unknown"
 
-            def do_login() -> None:
+            async def do_login() -> None:
+                if login_button._props.get("loading"):
+                    return
                 uname = email.value.strip()
                 wait = rate_limit.login_retry_after(client_ip, uname)
                 if wait > 0:
@@ -86,9 +89,14 @@ def page_login(request: Request) -> None:
                         t("login_rate_limited").format(s=int(wait) + 1))
                     password.set_value("")
                     return
-                u = authenticate_login(uname, password.value)
+                # Count in-flight attempts before yielding to the password worker.
+                rate_limit.record_login_failure(client_ip, uname)
+                login_button.props("loading")
+                try:
+                    u = await run.io_bound(authenticate_login, uname, password.value)
+                finally:
+                    login_button.props(remove="loading")
                 if u is None:
-                    rate_limit.record_login_failure(client_ip, uname)
                     error.set_text(t("login_invalid"))
                     password.set_value("")
                     return
@@ -96,7 +104,7 @@ def page_login(request: Request) -> None:
                 set_session_user(u, remember=bool(remember.value))
                 ui.navigate.to("/auth/continue")
 
-            ui.button("Sign in", on_click=do_login).props(
+            login_button = ui.button("Sign in", on_click=do_login).props(
                 "unelevated no-caps"
             ).props(remove="color").classes("login-submit")
             ui.label("or continue with").classes("login-divider")

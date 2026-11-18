@@ -1,17 +1,15 @@
 """Shared local font, loading skeleton and gentle page transitions."""
-from pathlib import Path
-from nicegui import app, ui
-
-ASSETS = Path(__file__).parents[1] / "assets"
-app.add_static_files("/design-assets", str(ASSETS))
+from nicegui import ui
+from frontend.pages.design_assets import asset_url, stylesheet
 
 
 def page_style(kind: str):
     ui.colors(primary="#ffffff0d", secondary="#c9c9c9", accent="#a1a1a1",
               dark="#181818", dark_page="#060607")
-    ui.add_css((ASSETS / "page-style.css").read_text())
-    ui.add_css((ASSETS / "glass-motion.css").read_text())
-    ui.add_css((ASSETS / "glass-controls.css").read_text())
+    ui.add_head_html('<link rel="preload" href="/design-assets/fonts/cormorant-normal-400.woff2" as="font" type="font/woff2" crossorigin>')
+    stylesheet("page-style.css")
+    stylesheet("glass-motion.css")
+    stylesheet("glass-controls.css")
     ui.add_body_html(f"""
         <div class="page-loading loading-{kind}" role="status" aria-label="Loading page">
             <span class="loading-sr-only">Loading page</span>
@@ -23,7 +21,7 @@ def page_style(kind: str):
             </div>
         </div>
     """)
-    ui.add_head_html("<script>" + (ASSETS / "dialog-events.js").read_text() + "</script>")
+    ui.add_head_html(f'<script src="{asset_url("dialog-events.js")}" defer></script>')
     ui.add_head_html("""
         <script>
         document.documentElement.classList.remove('velarora-ready');

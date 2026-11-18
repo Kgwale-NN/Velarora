@@ -13,7 +13,7 @@ Roles
 """
 from __future__ import annotations
 
-from nicegui import app as nicegui_app, ui
+from nicegui import app as nicegui_app, run, ui
 
 import backend.state as state
 from backend.core.auth import clear_session
@@ -235,30 +235,37 @@ def password_dialog(current_user: dict):
                                 props="autocomplete=new-password")
         err_lbl = ui.label("").classes("text-red-400 text-sm")
 
-        def do_change() -> None:
-            from backend.db.database import (
-                validate_password, update_password, verify_password,
-            )
-            if not verify_password(current_user["username"], current_pw.value):
-                err_lbl.set_text(t("pwd_err_wrong"))
+        async def do_change() -> None:
+            from backend.db.database import validate_password, update_password, verify_password
+            if save_password._props.get("loading"):
                 return
+            old_value, new_value, confirmation = current_pw.value, new_pw.value, confirm_pw.value
+            save_password.props("loading")
             try:
-                validate_password(new_pw.value)
-            except ValueError as exc:
-                err_lbl.set_text(str(exc))
-                return
-            if new_pw.value != confirm_pw.value:
-                err_lbl.set_text(t("pwd_err_mismatch"))
-                return
-            update_password(current_user["id"], new_pw.value)
-            pwd_dlg.close()
-            current_pw.set_value(""); new_pw.set_value("")
-            confirm_pw.set_value(""); err_lbl.set_text("")
-            from frontend.pages.admin_shell import toast
-            toast(t("pwd_success"), type="positive")
+                if not await run.io_bound(verify_password, current_user["username"], old_value):
+                    err_lbl.set_text(t("pwd_err_wrong"))
+                    return
+                try:
+                    validate_password(new_value)
+                except ValueError as exc:
+                    err_lbl.set_text(str(exc))
+                    return
+                if new_value != confirmation:
+                    err_lbl.set_text(t("pwd_err_mismatch"))
+                    return
+                await run.io_bound(update_password, current_user["id"], new_value)
+                pwd_dlg.close()
+                current_pw.set_value("")
+                new_pw.set_value("")
+                confirm_pw.set_value("")
+                err_lbl.set_text("")
+                from frontend.pages.admin_shell import toast
+                toast(t("pwd_success"), type="positive")
+            finally:
+                save_password.props(remove="loading")
 
         with ui.row().classes("gap-2"):
-            ui.button(t("pwd_save"),   on_click=do_change).props("color=primary dense")
+            save_password = ui.button(t("pwd_save"), on_click=do_change).props("color=primary dense")
             ui.button(t("pwd_cancel"), on_click=pwd_dlg.close).props("flat dense")
 
     return pwd_dlg
