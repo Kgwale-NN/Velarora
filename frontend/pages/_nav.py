@@ -5,9 +5,9 @@ Shared navigation bar — role-aware.
 
 Roles
 ─────
-  admin   — Users, Models, Audit Log, Settings
+  admin   — Users, Models, Audit Log, Admin Profile, Settings
   teacher — Dashboard, History, Analytics, Reports, Alert Rules, Groups,
-            Schedules, Audit Log
+            Schedules
             + Start/Stop monitor + notification bell
   student — My History, My Analytics
 """

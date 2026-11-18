@@ -45,7 +45,6 @@ def workspace_nav(user):
             ("Analytics", "insights", "/analytics"), ("Reports", "description", "/reports"),
             ("Alert Rules", "notifications_active", "/alerts"), ("Groups", "groups", "/groups"),
             ("Schedules", "event", "/schedules"),
-            ("Audit Log", "history", "/audit"),
         ]
     else:
         links = [("Users", "people_outline", "/users"), ("Models", "view_in_ar", "/models"),
