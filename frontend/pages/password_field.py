@@ -4,7 +4,7 @@ from nicegui import ui
 from backend.db.user_passwords import MIN_PASSWORD_LENGTH, validate_password
 
 
-def new_password_field(label: str | None):
+def new_password_field(label: str | None, *, placeholder: str | None = None):
     def feedback(value: str):
         if value:
             try:
@@ -13,7 +13,7 @@ def new_password_field(label: str | None):
                 return str(exc)
         return None
 
-    field = ui.input(label, password=True, password_toggle_button=True, validation=feedback)
+    field = ui.input(label, placeholder=placeholder, password=True, password_toggle_button=True, validation=feedback)
     field.props("outlined autocomplete=new-password")
     field.classes("new-password-field")
     field.props(f'hint="At least {MIN_PASSWORD_LENGTH} characters. Start with a capital letter. Include a number and a symbol." persistent-hint')

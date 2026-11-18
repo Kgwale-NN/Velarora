@@ -69,15 +69,15 @@ def page_users() -> None:
             with ui.element("div").classes("user-create-grid"):
                 new_username = text_field(
                     t("users_username"), icon="person_outline", classes="user-name-field",
-                    props='autocomplete=off', value="",
+                    props='autocomplete=off', value="", placeholder="Enter username",
                 )
                 new_password = text_field(
                     t("users_temp_password"), icon="lock_outline", new_password=True,
-                    classes="user-create-password",
+                    classes="user-create-password", placeholder="Create a temporary password",
                 )
                 new_email = text_field(
                     t("staff_email"), icon="mail_outline", classes="user-email-field",
-                    props="type=email autocomplete=off",
+                    props="type=email autocomplete=off", placeholder="Enter email address",
                 )
                 if admin:
                     new_role = select_field(
