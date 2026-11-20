@@ -17,7 +17,8 @@ def authenticate_login(identifier: str, password: str):
     row = _conn().execute(
         _USER_SELECT + "WHERE u.email = ? COLLATE NOCASE", (identifier.strip(),)
     ).fetchone()
-    return check_credentials(dict(row) if row else None, password)
+    user = check_credentials(dict(row) if row else None, password)
+    return user if user and user["role"] in ("admin", "teacher") else None
 
 
 def link_account_email(user_id: int, value: str) -> None:

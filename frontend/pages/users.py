@@ -13,8 +13,6 @@ from nicegui import context as _ctx
 from backend.core.auth import is_admin, require_auth
 from backend.db.database import (
     MIN_PASSWORD_LENGTH,
-    activate_user,
-    auto_assign_user_events,
     create_user,
     delete_user,
     list_users,
@@ -24,7 +22,6 @@ from backend.db.database import (
 from backend.db.staff_email import link_account_email
 from frontend.pages.admin_shell import toast
 from frontend.pages._nav import nav
-from frontend.pages.password_field import new_password_field
 from frontend.pages.glass_fields import text_field, select_field
 from frontend.translate import t
 
@@ -48,7 +45,7 @@ def page_users() -> None:
                 ("total", "Total users", "people_outline"),
                 ("active", "Active accounts", "verified_user"),
                 ("teachers", "Teachers", "school"),
-                ("students", "Students", "person_outline"),
+                ("students", "Student records", "person_outline"),
             ]:
                 with ui.card().classes("user-stat-card"):
                     with ui.row().classes("w-full items-center justify-between"):
@@ -81,18 +78,11 @@ def page_users() -> None:
                 )
                 if admin:
                     new_role = select_field(
-                        t("users_role"), {"student": t("users_role_student"), "teacher": t("users_role_teacher")},
-                        value="student", classes="user-role-field",
+                        t("users_role"), {"teacher": t("users_role_teacher")},
+                        value="teacher", classes="user-role-field",
                     )
-                    role_hint = ui.label(t("users_hint_windows")).classes(
+                    ui.label("Teachers can sign in. Students are recorded automatically during monitoring.").classes(
                         "text-sm text-gray-400 user-role-hint")
-
-                    def _update_hint() -> None:
-                        role_hint.set_text(
-                            t("users_hint_student") if new_role.value == "student"
-                            else t("users_hint_any")
-                        )
-                    new_role.on_value_change(lambda _: _update_hint())
 
                 form_msg = ui.label("").classes("text-sm user-form-message")
                 create_btn = ui.button(t("users_create_btn")).props("no-caps").classes("user-create-button")
@@ -100,7 +90,7 @@ def page_users() -> None:
                 async def do_create() -> None:
                     uname = new_username.value.strip()
                     pwd   = new_password.value
-                    role  = new_role.value if admin else "student"
+                    role  = "teacher"
 
                     email = new_email.value.strip()
                     if not uname or not pwd or email == "":
@@ -133,12 +123,7 @@ def page_users() -> None:
                             )
                         )
                         # Show success immediately — event assignment runs in background
-                        if role == "student":
-                            form_msg.set_text(
-                                t("users_created_linking").format(uname=uname))
-                        else:
-                            form_msg.set_text(
-                                t("users_created_teacher").format(uname=uname))
+                        form_msg.set_text(t("users_created_teacher").format(uname=uname))
                         form_msg.classes(replace="text-sm user-form-message text-green-600")
                         new_username.set_value("")
                         new_password.set_value("")
@@ -146,10 +131,6 @@ def page_users() -> None:
                         _refresh()
                         create_dialog.close()
                         toast("Account created.", type="positive")
-
-                        if role == "student":
-                            asyncio.create_task(
-                                _assign_events_bg(new_uid, uname, form_msg, _ctx.client))
 
                     except Exception as e:
                         form_msg.set_text(t("users_error").format(e=e))
@@ -170,7 +151,7 @@ def page_users() -> None:
             form_msg.set_text("")
             new_password.error = None
             if admin:
-                new_role.set_value("student")
+                new_role.set_value("teacher")
 
         def show_create() -> None:
             reset_create()
@@ -207,7 +188,7 @@ def page_users() -> None:
                 if not admin:
                     return
                 user = next((u for u in list_users() if u["id"] == e.args.get("id")), None)
-                if user is None or user["email"]:
+                if user is None or user["email"] or user["role"] == "student":
                     return
                 email_target[0] = user["id"]
                 email_name.set_text(user["username"])
@@ -216,7 +197,7 @@ def page_users() -> None:
                 email_dialog.open()
 
         with ui.row().classes("w-full items-center justify-between users-table-heading"):
-            ui.label("All users").classes("text-xl")
+            ui.label("Staff and student records").classes("text-xl")
             table_count = ui.label("").classes("users-table-count")
 
         # ── User table ────────────────────────────────────────────────────────
@@ -247,8 +228,8 @@ def page_users() -> None:
 
         tbl.add_slot("body-cell-is_active", """
             <q-td :props="props">
-                <q-badge :color="props.row.is_active ? 'green' : 'grey'">
-                    {{ props.row.is_active ? '""" + t("users_status_active") + """' : '""" + t("users_status_inactive") + """' }}
+                <q-badge :color="props.row.role !== 'student' && props.row.is_active ? 'green' : 'grey'">
+                    {{ props.row.role === 'student' ? 'No web access' : props.row.is_active ? '""" + t("users_status_active") + """' : '""" + t("users_status_inactive") + """' }}
                 </q-badge>
             </q-td>
         """)
@@ -256,15 +237,10 @@ def page_users() -> None:
         if admin:
             tbl.add_slot("body-cell-actions", """
                 <q-td :props="props">
-                    <q-btn v-if="!props.row.email" flat dense round icon="alternate_email"
+                    <q-btn v-if="!props.row.email && props.row.role !== 'student'" flat dense round icon="alternate_email"
                         aria-label="Add email" @click="$parent.$emit('add_email', props.row)">
                         <q-tooltip>Add sign-in email</q-tooltip>
                     </q-btn>
-                    <q-btn
-                        v-if="props.row.role === 'student' && !props.row.is_active"
-                        flat dense round icon="lock_open" color="primary" aria-label="Activate account"
-                        @click="$parent.$emit('activate_user', props.row)"
-                    />
                     <q-btn
                         v-if="props.row.role !== 'admin'"
                         flat dense round icon="delete" color="red" aria-label="Delete user"
@@ -320,64 +296,15 @@ def page_users() -> None:
         if admin:
             tbl.on("add_email", open_email)
 
-        # ── Set password / activate dialog ────────────────────────────────────
-        _activate_row: list[dict] = [{}]
-        with ui.dialog() as activate_dialog, ui.card().classes("w-96"):
-            ui.label(t("users_activate_title")).classes("text-base font-semibold mb-2")
-            activate_name_lbl = ui.label("").classes(
-                "font-mono text-sm text-yellow-600 dark:text-yellow-300 mb-1")
-            act_email = ui.input(t("staff_email")).props("type=email outlined dense")
-            act_pwd = new_password_field(t("users_temp_password")).classes("w-full")
-            act_msg  = ui.label("").classes("text-sm")
-            with ui.row().classes("gap-2 mt-2"):
-                async def do_activate() -> None:
-                    pwd = act_pwd.value
-                    if len(pwd) < MIN_PASSWORD_LENGTH:
-                        act_msg.set_text(
-                            t("pwd_err_short").format(n=MIN_PASSWORD_LENGTH))
-                        act_msg.classes(replace="text-sm text-red-500")
-                        return
-                    uid = _activate_row[0].get("id")
-                    if not uid:
-                        return
-                    loop = asyncio.get_event_loop()
-                    try:
-                        await loop.run_in_executor(
-                            None, lambda: activate_user(int(uid), pwd, email=act_email.value)
-                        )
-                        act_msg.set_text(t("users_activated").format(
-                            uname=_activate_row[0].get("username", "")))
-                        act_msg.classes(replace="text-sm text-green-600")
-                        act_pwd.set_value("")
-                        _refresh()
-                    except Exception as e:
-                        act_msg.set_text(t("users_error").format(e=e))
-                        act_msg.classes(replace="text-sm text-red-500")
-
-                ui.button(t("users_activate_btn"), on_click=do_activate).props(
-                    "color=primary dense")
-                ui.button(t("users_create_section_cancel"), on_click=activate_dialog.close).props(
-                    "flat dense")
-
-        def handle_activate(e) -> None:
-            row = e.args
-            _activate_row[0] = row
-            act_email.set_value(next((u["email"] for u in list_users() if u["id"] == row["id"]), "") or "")
-            activate_name_lbl.set_text(row.get("username", ""))
-            act_pwd.set_value("")
-            act_msg.set_text("")
-            activate_dialog.open()
-
-        tbl.on("activate_user", handle_activate)
-
     def _refresh() -> None:
         users = list_users()
-        active_count = sum(bool(user["is_active"]) for user in users)
+        staff = [user for user in users if user["role"] != "student"]
+        active_count = sum(bool(user["is_active"]) for user in staff)
         totals["total"].set_text(str(len(users)))
         totals["active"].set_text(str(active_count))
         totals["teachers"].set_text(str(sum(user["role"] == "teacher" for user in users)))
         totals["students"].set_text(str(sum(user["role"] == "student" for user in users)))
-        inactive_count = len(users) - active_count
+        inactive_count = len(staff) - active_count
         inactive_note.set_text(f"{inactive_count} inactive account" + ("" if inactive_count == 1 else "s"))
         table_count.set_text(f"{len(users)} account" + ("" if len(users) == 1 else "s"))
         tbl.rows = [{k: v for k, v in user.items() if k in {"id", "username", "email", "role", "is_active", "created_at"}}
@@ -387,25 +314,6 @@ def page_users() -> None:
     _refresh()
 
     # ── Background tasks ──────────────────────────────────────────────────────
-
-    async def _assign_events_bg(
-        user_id: int, username: str, msg_label: ui.label, client,
-    ) -> None:
-        """Assign historical events to a newly created student in the background."""
-        loop = asyncio.get_event_loop()
-        try:
-            n = await loop.run_in_executor(
-                None, lambda: auto_assign_user_events(username, user_id)
-            )
-            with client:
-                if n:
-                    msg_label.set_text(
-                        t("users_auto_assigned_done").format(uname=username, n=n))
-                else:
-                    msg_label.set_text(
-                        t("users_created_student").format(uname=username, suffix=""))
-        except Exception:
-            pass  # non-critical — user was already created successfully
 
     async def _delete_user_bg(user_id: int, username: str, client) -> None:
         """Nullify events in batches then delete the user row."""

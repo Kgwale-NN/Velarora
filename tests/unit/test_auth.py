@@ -54,14 +54,14 @@ class TestSetSessionUser:
     def test_stores_correct_fields(self):
         storage = {}
         auth, _, _ = _import_auth(storage)
-        auth.set_session_user({"id": 5, "username": "jonas", "role": "student",
+        auth.set_session_user({"id": 5, "username": "jonas", "role": "teacher",
                                "extra": "should_be_dropped"})
-        assert storage["auth"] == {"id": 5, "username": "jonas", "role": "student"}
+        assert storage["auth"] == {"id": 5, "username": "jonas", "role": "teacher"}
 
     def test_overwrites_existing(self):
         storage = {"auth": {"id": 1, "username": "old", "role": "teacher"}}
         auth, _, _ = _import_auth(storage)
-        auth.set_session_user({"id": 2, "username": "new", "role": "student"})
+        auth.set_session_user({"id": 2, "username": "new", "role": "admin"})
         assert storage["auth"]["username"] == "new"
 
 
@@ -99,7 +99,7 @@ class TestRequireAuth:
         user = {"id": 2, "username": "jonas", "role": "student"}
         auth, _, mock_ui = _import_auth({"auth": user})
         result = auth.require_auth(required_role="teacher")
-        mock_ui.navigate.to.assert_called_once_with("/history")
+        mock_ui.navigate.to.assert_called_once_with("/login")
         assert result is None
 
     def test_passes_when_correct_role(self):
@@ -108,7 +108,7 @@ class TestRequireAuth:
         assert auth.require_auth(required_role="teacher") == user
 
     def test_no_role_required_accepts_any_role(self):
-        for role in ("teacher", "student"):
+        for role in ("teacher", "admin"):
             user = {"id": 1, "username": "x", "role": role}
             auth, _, _ = _import_auth({"auth": user})
             assert auth.require_auth() is not None
@@ -127,7 +127,7 @@ def test_remembered_login_expires_and_logout_revokes_it():
 
 
 def test_admin_only_access_rejects_teacher_and_student():
-    for role, home in [('teacher', '/'), ('student', '/history')]:
+    for role, home in [('teacher', '/'), ('student', '/login')]:
         user = {'id': 1, 'username': 'Preview', 'role': role}
         auth, _, mock_ui = _import_auth({'auth': user})
         assert auth.require_auth(required_role='admin') is None
@@ -139,3 +139,21 @@ def test_admin_only_access_accepts_admin():
     auth, _, mock_ui = _import_auth({'auth': user})
     assert auth.require_auth(required_role='admin') == user
     mock_ui.navigate.to.assert_not_called()
+
+
+def test_existing_student_session_is_revoked_for_every_page():
+    storage = {'auth': {'id': 1, 'username': 'Learner', 'role': 'student'},
+               'remember_until': 9999999999}
+    auth, _, navigate = _import_auth(storage)
+    assert auth.require_auth() is None
+    assert 'auth' not in storage and 'remember_until' not in storage
+    navigate.navigate.to.assert_called_once_with('/login')
+
+
+def test_student_cannot_receive_a_new_or_remembered_session():
+    import pytest
+    storage = {'auth': {'id': 2, 'username': 'Old', 'role': 'teacher'}}
+    auth, _, _ = _import_auth(storage)
+    with pytest.raises(ValueError, match='Only staff'):
+        auth.set_session_user({'id': 1, 'username': 'Learner', 'role': 'student'}, remember=True)
+    assert 'auth' not in storage and 'remember_until' not in storage

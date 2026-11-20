@@ -4,7 +4,7 @@ frontend/pages/login.py
 Login page  /login
 No nav bar — shown to unauthenticated users.
 Redirects teacher → /   (dashboard)
-Redirects student → /history
+Student monitoring records cannot sign in.
 
 Brute-force protection: failed attempts are rate-limited per client IP AND
 per username (see backend/core/rate_limit.py), so a shared-IP lab can't be

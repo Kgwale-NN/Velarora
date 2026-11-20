@@ -473,9 +473,9 @@ class TestAutoAssign:
         assert n == 2 and db.count_anonymous_events(cid) == 0
 
 
-def test_all_roles_sign_in_only_by_email(db):
+def test_staff_sign_in_only_by_email(db):
     from backend.db.staff_email import authenticate_login, link_account_email
-    for role in ("admin", "teacher", "student"):
+    for role in ("admin", "teacher"):
         uid = db.create_user(role, "Test!9existing-password", role)
         email = role + "@school.example"
         link_account_email(uid, email)

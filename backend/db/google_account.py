@@ -17,7 +17,8 @@ def google_account(claims):
         with conn:
             changed = conn.execute(
                 "UPDATE user SET google_subject=? WHERE email=? COLLATE NOCASE "
-                "AND is_active=1 AND (google_subject IS NULL OR google_subject=?)",
+                "AND is_active=1 AND role_id IN (SELECT id FROM role WHERE name IN ('admin','teacher')) "
+                "AND (google_subject IS NULL OR google_subject=?)",
                 (subject, email, subject),
             )
             if changed.rowcount != 1:
