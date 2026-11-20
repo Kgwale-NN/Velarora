@@ -2,6 +2,7 @@
 from __future__ import annotations
 from typing import Optional
 from backend.db._core import _conn
+from backend.db.teacher_scope import owner_id, require_run
 
 
 _RUN_SELECT = """
@@ -33,14 +34,17 @@ _RUN_SELECT = """
 
 def list_runs(limit: int = 100) -> list[dict]:
     c = _conn()
+    uid = owner_id()
+    where, params = ("WHERE r.started_by=? ",[uid]) if uid is not None else ("",[])
     rows = c.execute(
-        _RUN_SELECT + "ORDER BY r.id DESC LIMIT ?", (limit,)
+        _RUN_SELECT + where + "ORDER BY r.id DESC LIMIT ?", params+[limit]
     ).fetchall()
     return [dict(r) for r in rows]
 
 
 def get_run(run_id: int) -> Optional[dict]:
     c = _conn()
+    require_run(run_id)
     row = c.execute(_RUN_SELECT + "WHERE r.id = ?", (run_id,)).fetchone()
     return dict(row) if row else None
 

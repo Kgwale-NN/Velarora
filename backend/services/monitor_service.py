@@ -68,6 +68,7 @@ class MonitorController:
         schedule_id: Optional[int]        = None,
         started_by:  Optional[int]        = None,
         group_name:  Optional[str]        = None,
+        workspace=None,
     ) -> None:
         """
         cfg         — settings dict from collect_cfg()
@@ -81,6 +82,9 @@ class MonitorController:
         group_name  — label of the monitored group ('' / None = all computers);
                       recorded on the session's monitoring_run row for reports.
         """
+        self.state = workspace or state
+        self._models = {}
+        self._threads = []
         self.cfg         = cfg
         self._computers  = computers
         self.model_id    = model_id
@@ -96,20 +100,57 @@ class MonitorController:
 
     # ── Public ────────────────────────────────────────────────────────────────
 
+    def _model(self,path):
+        if self.state is state:
+            return yolo.get_model(path)
+        if path not in self._models:
+            self._models[path] = yolo.YOLO(path,task='detect')
+        return self._models[path]
+
     def start(self) -> None:
         self._stop.clear()
-        threading.Thread(target=self._run, daemon=True, name="monitor-main").start()
+        worker = threading.Thread(target=self._run_guarded, daemon=True, name="monitor-main")
+        self._threads.append(worker)
+        worker.start()
+
+    def _run_guarded(self):
+        try:
+            self._run()
+        except Exception as exc:
+            self._stop.set()
+            self._log(f"Monitoring startup failed: {exc}")
+            if self.run_id is not None:
+                finish_run(self.run_id)
+        finally:
+            if self._stop.is_set() or not self.run_id:
+                self.state.monitor = None
+
+    def _detect_guarded(self):
+        if self._stop.is_set():
+            return
+        try:
+            self._detect_worker()
+        except Exception as exc:
+            self._log(f"Detection worker stopped: {exc}")
+        finally:
+            self._stop.set()
+            self.state.monitor = None
+            if self.run_id is not None:
+                finish_run(self.run_id)
 
     def stop(self) -> None:
         self._stop.set()
-        state.running_model_id = None
+        self.state.running_model_id = None
+        deadline = time.monotonic()+12
+        for worker in list(self._threads):
+            if worker is not threading.current_thread():
+                worker.join(max(0,deadline-time.monotonic()))
         if self.run_id is not None:
             try:
                 finish_run(self.run_id)
             except Exception as e:
                 self._log(f"⚠ Failed to finalize run record: {e}")
-            self.run_id = None
-        if self._proc:
+        if self._proc and self.state is state:
             try:
                 self._proc.terminate()
                 self._proc.wait(3)
@@ -123,7 +164,7 @@ class MonitorController:
     # ── Logging ───────────────────────────────────────────────────────────────
 
     def _log(self, msg: str) -> None:
-        state.log_q.put(f"[{datetime.now().strftime('%H:%M:%S')}] {msg}")
+        self.state.log_q.put(f"[{datetime.now().strftime('%H:%M:%S')}] {msg}")
 
     # ── Orchestration ─────────────────────────────────────────────────────────
 
@@ -163,7 +204,7 @@ class MonitorController:
 
         self._log(f"Loading model: {cfg['model_path']}")
         try:
-            yolo.get_model(cfg["model_path"])
+            self._model(cfg["model_path"])
             self._log("✅ Model ready")
         except Exception as e:
             self._log(f"❌ Model load failed: {e}")
@@ -188,7 +229,7 @@ class MonitorController:
         for c in computers:
             self._log(f"  • {c['name']}  ({c['host']})")
             cid = upsert_computer(c["name"], c["host"])
-            state.computer_ids[c["name"]] = cid
+            self.state.computer_ids[c["name"]] = cid
 
         # Record the session for the Reports page. Created only once monitoring
         # is actually about to start — early validation failures above leave no
@@ -203,17 +244,26 @@ class MonitorController:
             )
         except Exception as e:
             self._log(f"⚠ Failed to create run record: {e}")
+            return
 
+        if self._stop.is_set():
+            self.stop()
+            return
+        if self.state is not state:
+            from backend.db.classroom_runs import register_run_computers
+            register_run_computers(self.run_id,self.state.room_id,list(self.state.computer_ids.values()))
         for c in computers:
-            threading.Thread(
+            worker = threading.Thread(
                 target=self._io_worker,
                 args=(c["name"], c["host"], base_url),
                 daemon=True, name=f"io-{c['host']}",
-            ).start()
+            )
+            self._threads.append(worker)
+            worker.start()
 
-        threading.Thread(
-            target=self._detect_worker, daemon=True, name="yolo"
-        ).start()
+        worker = threading.Thread(target=self._detect_guarded, daemon=True, name="yolo")
+        self._threads.append(worker)
+        worker.start()
         self._log(f"🚀 Monitoring started  (interval={cfg['interval']} s)")
 
     # ── Per-computer I/O worker ───────────────────────────────────────────────
@@ -271,7 +321,12 @@ class MonitorController:
             # pipeline, excluding network round-trip and remote screen capture
             # (which we cannot instrument from the client side).
             ts_capture = time.perf_counter()
-            if app_name and foreground_app() != app_name:
+            if self.state is not state:
+                agent = _conn().execute("SELECT last_app FROM computer_agent WHERE computer_id=? AND last_run_id=? "
+                    "AND last_seen>=datetime('now','localtime','-5 seconds')",
+                    (self.state.computer_ids.get(name),self.run_id)).fetchone()
+                app_name = agent['last_app'] if agent else app_name
+            if local_windows_target(host) and app_name and (foreground_app() or "").casefold() != app_name.casefold():
                 app_name = None
 
             # Decode in this worker (parallel across IO threads) so the detect
@@ -297,11 +352,11 @@ class MonitorController:
                             f"[{name}] OS user '{os_login}' — "
                             "auto-created inactive student account"
                         )
-                    state.computer_users[name]        = db_user["id"] if db_user else None
-                    state.computer_os_usernames[name] = os_login
+                    self.state.computer_users[name]        = db_user["id"] if db_user else None
+                    self.state.computer_os_usernames[name] = os_login
                 else:
-                    state.computer_users[name]        = None
-                    state.computer_os_usernames[name] = None
+                    self.state.computer_users[name]        = None
+                    self.state.computer_os_usernames[name] = None
 
             try:
                 # Use the ts_capture taken right after grab_framebuffer (above),
@@ -343,7 +398,7 @@ class MonitorController:
             active       = get_active_model()
             active_model_id = active["id"] if active else None
 
-        model = yolo.get_model(model_path)
+        model = self._model(model_path)
 
         # Determine max batch size. ONNX models may have a static batch dimension
         # (e.g. 1) that ONNX Runtime won't exceed — inspect the model to find out.
@@ -378,7 +433,7 @@ class MonitorController:
         det_iou    = float(cfg["detect_iou"])
 
         # Publish which model is actually running so UI pages can reflect it.
-        state.running_model_id = active_model_id
+        self.state.running_model_id = active_model_id
         if self.run_id is not None:
             try:
                 set_run_model(self.run_id, active_model_id)
@@ -390,10 +445,10 @@ class MonitorController:
         _capture_interval = float(cfg["interval"])
         _agg_flush  = time.perf_counter() + _capture_interval
 
-        # Publish the capture interval so state.is_computer_online() can scale
+        # Publish the capture interval so self.state.is_computer_online() can scale
         # its threshold to whatever the user has configured.
-        state.capture_interval = _capture_interval
-        state.computer_last_frame_ts.clear()
+        self.state.capture_interval = _capture_interval
+        self.state.computer_last_frame_ts.clear()
 
         try:
             while not self._stop.is_set():
@@ -455,6 +510,8 @@ class MonitorController:
                     batch_log: list[str] = []
                     wrote_anything = False
 
+                    if self._stop.is_set():
+                        break
                     for comp_name, raw_bytes, res, img_bgr, app_name in zip(
                         valid_names, raw_batch, results, imgs, apps
                     ):
@@ -466,9 +523,9 @@ class MonitorController:
                         # encode — that's the one image we have to materialize.
                         ann_bytes = raw_bytes if not dets else encode_jpeg(annotated, img_q_put)
 
-                        computer_id = state.computer_ids.get(comp_name)
-                        user_id     = state.computer_users.get(comp_name)
-                        os_uname    = state.computer_os_usernames.get(comp_name)
+                        computer_id = self.state.computer_ids.get(comp_name)
+                        user_id     = self.state.computer_users.get(comp_name)
+                        os_uname    = self.state.computer_os_usernames.get(comp_name)
 
                         if computer_id is not None:
                             ev_id = insert_event(
@@ -500,7 +557,7 @@ class MonitorController:
 
                         # Push pre-encoded JPEG bytes to live preview queue
                         try:
-                            state.img_q.put_nowait(
+                            self.state.img_q.put_nowait(
                                 (comp_name, raw_bytes, ann_bytes, dets)
                             )
                         except queue.Full:
@@ -526,11 +583,11 @@ class MonitorController:
                             self._log(f"⚠ DB commit failed: {_ce}")
 
                     # Stamp "last frame seen" for every computer in this batch.
-                    # state.is_computer_online() reads these to decide whether
+                    # self.state.is_computer_online() reads these to decide whether
                     # a computer has gone silent.
                     _now_stamp = time.perf_counter()
                     for _n in valid_names:
-                        state.computer_last_frame_ts[_n] = _now_stamp
+                        self.state.computer_last_frame_ts[_n] = _now_stamp
 
                     if cycle_timing and valid_ts:
                         _agg_lats.extend(
@@ -541,11 +598,11 @@ class MonitorController:
                             avg        = sum(_agg_lats) / len(_agg_lats)
                             # Count only computers that delivered a frame
                             # recently — offline machines stay in
-                            # state.latest_frames forever and used to inflate
+                            # self.state.latest_frames forever and used to inflate
                             # this count.
                             n_tracked  = sum(
-                                1 for cn in state.latest_frames
-                                if state.is_computer_online(cn)
+                                1 for cn in self.state.latest_frames
+                                if self.state.is_computer_online(cn)
                             ) or len(_agg_lats)
                             est_30     = avg * 30
                             self._log(
@@ -566,7 +623,11 @@ class MonitorController:
 
         finally:
             # Always clear the running model so the UI stops reflecting it.
-            state.running_model_id = None
+            self.state.running_model_id = None
+            if self.state is not state and self.state.monitor is self:
+                self.state.monitor = None
+            if self.run_id is not None:
+                finish_run(self.run_id)
 
 
 # ── Latency CSV logger ───────────────────────────────────────────────────────
@@ -611,31 +672,38 @@ def drain_worker() -> None:
     drain only has to base64-wrap them (very cheap), instead of running a
     full cv2.imencode per frame per computer on every cycle.
     """
-    from backend.core.imaging import bytes_to_b64_dataurl
 
     while True:
-        try:
-            while True:
-                msg = state.log_q.get_nowait()
-                state.log_buffer.append(msg)
-                state.log_total += 1
-                if len(state.log_buffer) > state.LOG_CAP:
-                    state.log_buffer.pop(0)
-        except queue.Empty:
-            pass
-
-        try:
-            while True:
-                name, raw_bytes, ann_bytes, dets = state.img_q.get_nowait()
-                # If ann_bytes is raw_bytes (no detections) the wrapper gets
-                # called twice on the same bytes; base64 encoding is ~free
-                # compared to the JPEG encode we already eliminated.
-                state.latest_frames[name] = (
-                    bytes_to_b64_dataurl(ann_bytes),
-                    bytes_to_b64_dataurl(raw_bytes),
-                    dets,
-                )
-        except queue.Empty:
-            pass
-
+        from backend.services.classroom_state import rooms, registry_lock
+        with registry_lock:
+            targets=[state]+list(rooms.values())
+        for target in targets:
+            _drain_state(target)
         time.sleep(0.05)
+
+
+def _drain_state(target):
+    from backend.core.imaging import bytes_to_b64_dataurl
+    try:
+        while True:
+            msg = target.log_q.get_nowait()
+            target.log_buffer.append(msg)
+            target.log_total += 1
+            if len(target.log_buffer) > target.LOG_CAP:
+                target.log_buffer.pop(0)
+    except queue.Empty:
+        pass
+
+    try:
+        while True:
+            name, raw_bytes, ann_bytes, dets = target.img_q.get_nowait()
+            # If ann_bytes is raw_bytes (no detections) the wrapper gets
+            # called twice on the same bytes; base64 encoding is ~free
+            # compared to the JPEG encode we already eliminated.
+            target.latest_frames[name] = (
+                bytes_to_b64_dataurl(ann_bytes),
+                bytes_to_b64_dataurl(raw_bytes),
+                dets,
+            )
+    except queue.Empty:
+        pass

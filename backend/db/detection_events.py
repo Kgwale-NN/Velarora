@@ -2,12 +2,18 @@
 from __future__ import annotations
 from typing import Optional
 from backend.db._core import _conn, _now
+from backend.db.teacher_scope import owner_id
 
 
 def list_classes() -> list[dict]:
     c = _conn()
     return [dict(r) for r in c.execute(
-        "SELECT * FROM detection_class ORDER BY name"
+        "SELECT * FROM detection_class WHERE (? IS NULL OR id IN (SELECT class_id FROM model_class) "
+        "OR id IN (SELECT n.class_id FROM notification n JOIN detection_event e ON e.id=n.event_id "
+        "JOIN monitoring_run r ON r.id=e.run_id WHERE r.started_by=?) "
+        "OR id IN (SELECT d.class_id FROM detection d JOIN detection_event e ON e.id=d.event_id "
+        "JOIN monitoring_run r ON r.id=e.run_id WHERE r.started_by=?)) ORDER BY name",
+        (owner_id(),owner_id(),owner_id())
     ).fetchall()]
 
 

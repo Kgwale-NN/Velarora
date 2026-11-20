@@ -3,7 +3,6 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Optional
 from backend.db._core import _conn
-from backend.db.schedule_queries import list_schedules
 
 
 def find_overlapping_schedules(
@@ -11,6 +10,7 @@ def find_overlapping_schedules(
     start_time: str,
     end_time:   str,
     exclude_id: Optional[int] = None,
+    group_id: Optional[int] = None,
 ) -> list[dict]:
     """
     Return ALL schedules (any group) that overlap with the given window.
@@ -20,7 +20,9 @@ def find_overlapping_schedules(
     schedules across different groups are just as ambiguous as within one group.
     Pass exclude_id=<id> when editing to skip the schedule being modified.
     """
-    existing = list_schedules()
+    existing = [dict(r) for r in _conn().execute("SELECT * FROM schedule WHERE is_active=1")]
+    if group_id is not None:
+        existing = [s for s in existing if s["group_id"] == group_id]
     new_days = {d for d in days.split(",") if d}
     result = []
     for s in existing:

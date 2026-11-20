@@ -32,7 +32,14 @@ from backend.services.schedule_service import start_scheduler
 
 log = logging.getLogger(__name__)
 
+# Register the authenticated workstation channel.
+from backend.core.agent_api import router as workstation_router
+nicegui_app.include_router(workstation_router)
+
 # Register pages
+import frontend.pages.classroom_status
+import frontend.pages.workstations
+import frontend.pages.application_rules
 import frontend.pages.admin_profile  # noqa: F401
 import frontend.pages.teacher_profile  # noqa: F401
 import frontend.pages.login      # noqa: F401

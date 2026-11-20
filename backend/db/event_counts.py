@@ -1,6 +1,7 @@
 """Event counts operations."""
 from __future__ import annotations
 from typing import Optional
+from backend.db.teacher_scope import event_scope
 from backend.db._core import _conn
 
 
@@ -16,6 +17,9 @@ def count_query_events(
     """
     clauses: list[str] = []
     params:  list      = []
+    scope, scope_params = event_scope('')
+    clauses.append(scope)
+    params.extend(scope_params)
 
     if computer_id:
         clauses.append("computer_id = ?"); params.append(computer_id)
@@ -25,10 +29,11 @@ def count_query_events(
         clauses.append("had_detection = 1")
     if class_name:
         clauses.append(
-            "id IN (SELECT d.event_id FROM detection d "
-            "JOIN detection_class dc ON dc.id = d.class_id WHERE dc.name = ?)"
+            "(id IN (SELECT d.event_id FROM detection d "
+            "JOIN detection_class dc ON dc.id = d.class_id WHERE dc.name = ?) OR "
+            "id IN (SELECT n.event_id FROM notification n JOIN detection_class dc ON dc.id=n.class_id WHERE dc.name=?))"
         )
-        params.append(class_name)
+        params.extend([class_name,class_name])
 
     where = ("WHERE " + " AND ".join(clauses)) if clauses else ""
     c = _conn()

@@ -122,6 +122,10 @@ def password_dialog(current_user: dict):
         async def do_change() -> None:
             from backend.db.database import validate_password, update_password
             from backend.db.user_queries import verify_password_by_id
+            from backend.core.auth import require_auth
+            signed=require_auth(current_user["role"])
+            if not signed or signed["id"]!=current_user["id"]:
+                return
             if save_password._props.get("loading"):
                 return
             old_value, new_value, confirmation = current_pw.value, new_pw.value, confirm_pw.value
@@ -162,6 +166,6 @@ def password_dialog(current_user: dict):
 
 # ── Notification bell ─────────────────────────────────────────────────────────
 
-def _notification_bell() -> None:
+def _notification_bell(user_id) -> None:
     from frontend.pages.notification_panel import notification_bell
-    notification_bell()
+    notification_bell(user_id)

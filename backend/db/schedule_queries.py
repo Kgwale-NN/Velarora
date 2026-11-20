@@ -2,6 +2,7 @@
 from __future__ import annotations
 from typing import Optional
 from backend.db._core import _conn
+from backend.db.teacher_scope import owner_id, require_schedule
 from backend.db.schedule_notifications import get_notify_class_ids_for_schedule
 
 
@@ -20,8 +21,9 @@ def list_schedules() -> list[dict]:
         FROM   schedule s
         LEFT JOIN computer_group g ON g.id = s.group_id
         LEFT JOIN ml_model       m ON m.id = s.model_id
+        WHERE (? IS NULL OR s.created_by=?)
         ORDER BY g.name, s.start_time
-    """).fetchall()
+    """,(owner_id(),owner_id())).fetchall()
     return [dict(r) for r in rows]
 
 
@@ -36,6 +38,7 @@ def list_schedules_for_group(group_id: int) -> list[dict]:
 
 def get_schedule(schedule_id: int) -> Optional[dict]:
     c = _conn()
+    require_schedule(schedule_id)
     row = c.execute("""
         SELECT s.*,
                g.name AS group_name,

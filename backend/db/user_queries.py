@@ -57,9 +57,11 @@ def check_credentials(user: Optional[dict], password: str) -> Optional[dict]:
 
 
 def list_users() -> list[dict]:
+    from backend.db.teacher_scope import owner_id
     c = _conn()
     return [dict(r) for r in c.execute(
-        _USER_SELECT + "ORDER BY r.name, u.username"
+        _USER_SELECT + "WHERE (? IS NULL OR u.id IN (SELECT e.user_id FROM detection_event e "
+        "JOIN monitoring_run mr ON mr.id=e.run_id WHERE mr.started_by=?)) ORDER BY r.name,u.username",(owner_id(),owner_id())
     ).fetchall()]
 
 

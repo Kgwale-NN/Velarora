@@ -5,8 +5,14 @@ import logging
 from datetime import date, timedelta
 from nicegui import run, ui
 from backend.core.auth import require_auth
-from backend.db.database import (get_class_distribution, get_daily_detections,
-    get_student_activity, get_summary_stats, list_computers, list_users)
+from backend.db.database import (
+    get_class_distribution as _source_get_class_distribution,
+    get_daily_detections as _source_get_daily_detections,
+    get_student_activity as _source_get_student_activity,
+    get_summary_stats as _source_get_summary_stats,
+    list_computers as _source_list_computers,
+    list_users as _source_list_users,
+)
 from frontend.pages._nav import nav
 from frontend.pages.admin_shell import toast
 from frontend.pages.analytics_charts import activity_chart, distribution_chart
@@ -17,9 +23,16 @@ from frontend.translate import t
 
 @ui.page('/analytics')
 def page_analytics():
-    current = require_auth()
+    current = require_auth("teacher")
     if current is None:
         return
+    from frontend.pages.teacher_calls import bind
+    get_summary_stats = bind(current["id"], _source_get_summary_stats)
+    get_class_distribution = bind(current["id"], _source_get_class_distribution)
+    get_daily_detections = bind(current["id"], _source_get_daily_detections)
+    get_student_activity = bind(current["id"], _source_get_student_activity)
+    list_computers = bind(current["id"], _source_list_computers)
+    list_users = bind(current["id"], _source_list_users)
     nav(current)
     teacher = current['role'] == 'teacher'
     stylesheet('analytics.css')

@@ -116,7 +116,7 @@ def page_users() -> None:
 
                     loop = asyncio.get_event_loop()
                     try:
-                        new_uid = await loop.run_in_executor(
+                        await loop.run_in_executor(
                             None, lambda: create_user(
                                 uname, pwd, role,
                                 created_by_id=current["id"], email=email,

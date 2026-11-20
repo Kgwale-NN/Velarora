@@ -206,6 +206,12 @@ def build_run_pdf(run_id: int, labels: dict[str, str]) -> Optional[bytes]:
         [70, 60, 60],
     )
 
+    from backend.db.run_applications import application_summary
+    apps = application_summary(run_id)
+    if apps:
+        pdf.section("Windows applications used")
+        pdf.table(["Application", "Recorded samples"],[[r["application"],r["samples"]] for r in apps],[130,60])
+
     # ── Alert screenshots (from page 2 onward) ────────────────────────────────
     # Keep page 1 compact (tables only); evidence images for each fired alert
     # go on dedicated pages so a teacher can verify legit vs. false positive.

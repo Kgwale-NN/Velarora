@@ -47,6 +47,10 @@ def update_password(user_id: int, new_password: str) -> None:
 def delete_user(user_id: int) -> None:
     from backend.db.audit import _insert_audit
     c = _conn()
+    if c.execute("SELECT 1 FROM monitoring_run WHERE started_by=? AND status='running' LIMIT 1",(user_id,)).fetchone() or c.execute(
+        "SELECT 1 FROM workstation_alarm a JOIN monitoring_run r ON r.id=a.run_id LEFT JOIN computer_agent ca ON ca.computer_id=a.computer_id "
+        "WHERE r.started_by=? AND (a.stopped_at IS NULL OR ca.audio_active=1) LIMIT 1",(user_id,)).fetchone():
+        raise ValueError("End this teacher’s exams and acknowledge their alarms before deleting the account.")
     c.execute("DELETE FROM user WHERE id = ?", (user_id,))
     _insert_audit(c, "user.delete", entity="user", entity_id=user_id)
     c.commit()

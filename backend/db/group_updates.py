@@ -36,6 +36,8 @@ def update_group(group_id: int, name: str, description: str = "") -> None:
 def delete_group(group_id: int) -> None:
     """Delete a group; membership rows cascade-delete via computer_group_member."""
     c = _conn()
+    if c.execute("SELECT 1 FROM monitoring_run WHERE classroom_id=? AND status='running' LIMIT 1",(group_id,)).fetchone():
+        raise ValueError("End the classroom’s running exam before deleting it.")
     c.execute("DELETE FROM computer_group WHERE id = ?", (group_id,))
     c.commit()
 

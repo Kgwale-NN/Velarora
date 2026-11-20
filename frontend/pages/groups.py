@@ -14,7 +14,7 @@ from frontend.translate import t
 
 @ui.page('/groups')
 def page_groups():
-    current = require_auth(required_role='teacher')
+    current = require_auth(required_role='admin')
     if current is None:
         return
     nav(current)

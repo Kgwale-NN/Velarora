@@ -1,6 +1,7 @@
 """Run summary operations."""
 from __future__ import annotations
 from backend.db._core import _conn
+from backend.db.teacher_scope import require_run
 
 
 def get_run_class_summary(run_id: int) -> list[dict]:
@@ -8,6 +9,7 @@ def get_run_class_summary(run_id: int) -> list[dict]:
     Per detection class: bounding-box count, that class's share of all
     detections in the run (`pct`, 0–100), and the mean confidence.
     """
+    require_run(run_id)
     c = _conn()
     rows = c.execute("""
         SELECT dc.name, dc.color_hex,
@@ -29,6 +31,7 @@ def get_run_class_summary(run_id: int) -> list[dict]:
 
 def get_run_student_summary(run_id: int) -> list[dict]:
     """Per student: frames captured, frames with detections, classes seen."""
+    require_run(run_id)
     c = _conn()
     rows = c.execute("""
         SELECT COALESCE(u.username, e.os_username, '(unknown)') AS student,
@@ -65,6 +68,7 @@ def get_run_student_summary(run_id: int) -> list[dict]:
 
 def get_run_computer_summary(run_id: int) -> list[dict]:
     """Per computer: frames captured and frames with detections."""
+    require_run(run_id)
     c = _conn()
     rows = c.execute("""
         SELECT comp.name           AS computer,

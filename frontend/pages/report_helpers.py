@@ -2,7 +2,7 @@
 import csv
 import io
 from datetime import datetime
-from backend.db.database import get_run_detections
+from backend.db.run_applications import run_activity
 from frontend.translate import t
 
 _TS_FMT = "%Y-%m-%d %H:%M:%S"
@@ -25,11 +25,11 @@ def _run_csv(run_id: int) -> bytes:
     buf = io.StringIO()
     w = csv.writer(buf, lineterminator="\n")
     w.writerow(["detected_at", "computer", "student", "class",
-                "confidence", "box_x1", "box_y1", "box_x2", "box_y2"])
-    for d in get_run_detections(run_id):
+                "windows_app", "confidence", "box_x1", "box_y1", "box_x2", "box_y2"])
+    for d in run_activity(run_id):
         w.writerow([
             d["detected_at"], d["computer"], d["student"], d["class_name"],
-            f"{d['confidence']:.3f}",
+            d["foreground_app"], f"{d['confidence']:.3f}" if d["confidence"] is not None else "",
             d["box_x1"], d["box_y1"], d["box_x2"], d["box_y2"],
         ])
     return buf.getvalue().encode("utf-8-sig")

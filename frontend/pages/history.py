@@ -3,9 +3,8 @@ frontend/pages/history.py
 ────────────────────
 History page  /history
 
-Teacher view  — full filters (computer, student, class, hits-only)
-Student view  — auto-filtered to own records, computer selector hidden
-Both views    — 📷 opens snapshot preview; ⛶ Full screen opens maximized dialog.
+Teacher-owned records with computer, student, class and hits-only filters.
+Screenshots can be opened in the shared preview and fullscreen viewer.
 Paginated     — records loaded in configurable page sizes (50 / 100 / 200).
 """
 import asyncio
@@ -14,13 +13,13 @@ from nicegui import run, ui
 
 from backend.core.auth import require_auth
 from backend.db.database import (
-    count_query_events,
-    get_event_frame_b64,
-    get_event_frame_annotated_b64,
-    list_classes,
-    list_computers,
-    list_users,
-    query_events,
+    count_query_events as _source_count_query_events,
+    get_event_frame_b64 as _source_get_event_frame_b64,
+    get_event_frame_annotated_b64 as _source_get_event_frame_annotated_b64,
+    list_classes as _source_list_classes,
+    list_computers as _source_list_computers,
+    list_users as _source_list_users,
+    query_events as _source_query_events,
 )
 from frontend.pages._nav import nav
 from frontend.pages.admin_shell import toast
@@ -32,9 +31,17 @@ from frontend.translate import t
 
 @ui.page("/history")
 async def page_history() -> None:
-    current = require_auth()
+    current = require_auth("teacher")
     if current is None:
         return
+    from frontend.pages.teacher_calls import bind
+    list_classes = bind(current["id"], _source_list_classes)
+    query_events = bind(current["id"], _source_query_events)
+    count_query_events = bind(current["id"], _source_count_query_events)
+    get_event_frame_b64 = bind(current["id"], _source_get_event_frame_b64)
+    get_event_frame_annotated_b64 = bind(current["id"], _source_get_event_frame_annotated_b64)
+    list_computers = bind(current["id"], _source_list_computers)
+    list_users = bind(current["id"], _source_list_users)
     nav(current)
     is_teacher = current["role"] == "teacher"
     stylesheet("history.css")

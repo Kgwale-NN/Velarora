@@ -58,14 +58,15 @@ def test_group_change_and_rules_roll_back_together_on_invalid_class(schedule_dat
     assert len(db.list_schedules())==1
 
 
-def test_overlap_is_global_adjacent_is_allowed_and_edit_excludes_self(schedule_data):
+def test_overlap_is_per_classroom_adjacent_is_allowed_and_edit_excludes_self(schedule_data):
     a,b,_,_=schedule_data
     sid=save_editor_schedule(payload(a),None)
     with pytest.raises(ValueError,match='Time conflict'):
-        save_editor_schedule(payload(b,name='Clash',start='09:30',end='10:30'),None)
+        save_editor_schedule(payload(a,name='Clash',start='09:30',end='10:30'),None)
     save_editor_schedule(payload(a),None,sid)
-    save_editor_schedule(payload(b,name='Next',start='10:00',end='11:00'),None)
-    assert len(db.list_schedules())==2
+    save_editor_schedule(payload(a,name='Next',start='10:00',end='11:00'),None)
+    save_editor_schedule(payload(b,name='Other classroom',start='09:30',end='10:30'),None)
+    assert len(db.list_schedules())==3
 
 
 @pytest.mark.parametrize('changes',[{'days':[]},{'start':'9:00'},{'start':'25:00'},{'end':'08:00'},{'name':'  '}])

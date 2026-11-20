@@ -3,13 +3,15 @@ from __future__ import annotations
 import base64
 from typing import Optional
 from backend.db._core import _conn
+from backend.db.teacher_scope import event_scope
 
 
 def get_event_frame_b64(event_id: int) -> Optional[str]:
     """Return the stored raw (unannotated) frame as a base64 JPEG data-URL, or None."""
     c = _conn()
+    scope, params = event_scope()
     row = c.execute(
-        "SELECT frame_blob FROM detection_event WHERE id = ?", (event_id,)
+        f"SELECT frame_blob FROM detection_event WHERE id = ? AND {scope}", [event_id]+params
     ).fetchone()
     if row and row["frame_blob"]:
         b64 = base64.b64encode(bytes(row["frame_blob"])).decode()
@@ -28,8 +30,9 @@ def get_event_frame_annotated_b64(event_id: int) -> Optional[str]:
     from backend.core.colors import hex_to_bgr
 
     c = _conn()
+    scope, params = event_scope()
     row = c.execute(
-        "SELECT frame_blob FROM detection_event WHERE id = ?", (event_id,)
+        f"SELECT frame_blob FROM detection_event WHERE id = ? AND {scope}", [event_id]+params
     ).fetchone()
     if not row or not row["frame_blob"]:
         return None

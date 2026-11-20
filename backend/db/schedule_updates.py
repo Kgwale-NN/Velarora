@@ -1,5 +1,6 @@
 """Schedule writes with atomic notification classes and optional group changes."""
 from contextlib import nullcontext
+from backend.db.teacher_scope import owner_id, require_schedule
 from backend.db._core import _conn, _now
 from backend.db.schedule_notifications import _replace_notify_classes, _invalidate_notify_cache
 
@@ -10,6 +11,8 @@ def create_schedule(group_id, name, days_of_week, start_time, end_time, created_
                     model_id=None, use_custom_notify_classes=False, notify_class_ids=None,
                     is_active=True, *, _commit=True):
     """Create a weekly schedule and its notification classes in one transaction."""
+    if owner_id() is not None and created_by != owner_id():
+        raise PermissionError("Cannot create a schedule for another teacher.")
     c = _conn()
     with c if _commit else nullcontext():
         cur = c.execute(
@@ -28,6 +31,7 @@ def update_schedule(schedule_id, name, days_of_week, start_time, end_time, is_ac
                     model_id=None, use_custom_notify_classes=False, notify_class_ids=None,
                     *, group_id=_UNSET, _commit=True):
     """Keep the group unchanged unless group_id is supplied, including explicit None."""
+    require_schedule(schedule_id)
     c = _conn()
     with c if _commit else nullcontext():
         cur = c.execute(
@@ -45,6 +49,7 @@ def update_schedule(schedule_id, name, days_of_week, start_time, end_time, is_ac
 
 
 def delete_schedule(schedule_id):
+    require_schedule(schedule_id)
     with _conn() as c:
         c.execute('DELETE FROM schedule WHERE id=?', (schedule_id,))
     _invalidate_notify_cache()

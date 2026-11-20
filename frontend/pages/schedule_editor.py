@@ -1,8 +1,8 @@
 """Glass schedule editor with explicit model and notification policy choices."""
 import logging
 from nicegui import run, ui
-from backend.db.schedule_editor_data import editor_choices
-from backend.db.schedule_editor_save import save_editor_schedule
+from backend.db.schedule_editor_data import (editor_choices as _source_editor_choices)
+from backend.db.schedule_editor_save import (save_editor_schedule as _source_save_editor_schedule)
 from frontend.pages.admin_shell import toast
 from frontend.pages.glass_fields import select_field, text_field
 from frontend.translate import t
@@ -13,6 +13,9 @@ def day_labels():
 
 
 def schedule_editor(user_id, refresh):
+    from frontend.pages.teacher_calls import bind
+    editor_choices = bind(user_id, _source_editor_choices)
+    save_editor_schedule = bind(user_id, _source_save_editor_schedule)
     editing, choices, generation = [None], [None], [0]
     loading = [False]
     checks = {}
@@ -26,7 +29,7 @@ def schedule_editor(user_id, refresh):
                     ui.skeleton().classes('schedule-skeleton w-full')
             with ui.column().classes('schedule-fields w-full') as fields:
                 name = text_field(t('schedules_field_name'), icon='event_note', placeholder='e.g. Morning exam')
-                group = select_field(t('schedules_field_group'), {'':'All computers'}, value='', icon='groups')
+                group = select_field(t('schedules_field_group'), {'':'Choose classroom'}, value='', icon='groups')
                 model = select_field(t('schedules_field_model'), {'':'Use active model'}, value='', icon='view_in_ar')
                 ui.label('Days of week').classes('schedule-field-heading')
                 with ui.element('div').classes('schedule-days w-full'):
@@ -101,7 +104,7 @@ def schedule_editor(user_id, refresh):
             return
         choices[0] = data
         current = data['schedule'] or {}
-        group.options = {'':'All computers', **{str(g['id']):g['name'] for g in data['groups']}}
+        group.options = {'':'Choose classroom', **{str(g['id']):g['name'] for g in data['groups']}}
         model.options = {'':'Use active model', **{str(m['id']):m['name'] for m in data['models']}}
         group.set_value(str(current['group_id']) if current.get('group_id') is not None else
                         (str(data['groups'][0]['id']) if not current and data['groups'] else ''))

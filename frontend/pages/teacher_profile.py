@@ -20,6 +20,8 @@ async def teacher_profile():
         clear_session()
         ui.navigate.to('/login')
         return
+    from frontend.pages.teacher_calls import bind
+    save_name=bind(current['id'],update_teacher_name)
     nav(current)
     stylesheet('teacher-profile.css')
     password = password_dialog(current)
@@ -52,7 +54,7 @@ async def teacher_profile():
         save_button.props('loading')
         name.props('disable')
         try:
-            saved = await run.io_bound(update_teacher_name,current['id'],value)
+            saved = await run.io_bound(save_name,current['id'],value)
         except ValueError as exc:
             error.set_text(str(exc))
             return

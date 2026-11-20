@@ -16,6 +16,8 @@ def init_db() -> None:
     c = _conn()
     c.executescript(ACCOUNTS_SQL + SCHEDULES_SQL + EVENTS_SQL + MODELS_SQL)
     _migrate(c)
+    from backend.db.schema_classrooms import migrate
+    migrate(c)
     # Seed roles idempotently after CREATE TABLE IF NOT EXISTS
     c.executemany(
         "INSERT OR IGNORE INTO role (name) VALUES (?)",

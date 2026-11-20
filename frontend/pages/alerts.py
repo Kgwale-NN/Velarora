@@ -11,9 +11,9 @@ from frontend.pages.glass_fields import text_field
 from frontend.translate import t
 
 
-@ui.page('/alerts')
+@ui.page('/model-alert-rules')
 def page_alerts():
-    current = require_auth(required_role='teacher')
+    current = require_auth(required_role='admin')
     if current is None:
         return
     nav(current)

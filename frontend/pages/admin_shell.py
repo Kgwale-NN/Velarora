@@ -43,12 +43,14 @@ def workspace_nav(user):
         links = [
             ("Dashboard", "dashboard", "/"), ("History", "history", "/history"),
             ("Analytics", "insights", "/analytics"), ("Reports", "description", "/reports"),
-            ("Alert Rules", "notifications_active", "/alerts"), ("Groups", "groups", "/groups"),
+            ("App Rules", "notifications_active", "/alerts"),
             ("Schedules", "event", "/schedules"), ("My Profile", "person_outline", "/teacher-profile"),
         ]
     else:
-        links = [("Users", "people_outline", "/users"), ("Models", "view_in_ar", "/models"),
+        links = [("Users", "people_outline", "/users"), ("Classrooms", "meeting_room", "/groups"),
+                 ("Workstations", "computer", "/workstations"), ("Classroom overview", "visibility", "/classroom-status"), ("Models", "view_in_ar", "/models"),
                  ("Audit Log", "history", "/audit"), ("Admin Profile", "person_outline", "/profile"),
+                 ("Model alert rules", "notifications_active", "/model-alert-rules"),
                  ("Settings", "settings", "/settings")]
     home = "/" if teacher else "/users"
     with ui.left_drawer(value=False).props("overlay bordered width=270").classes("admin-drawer") as drawer:
@@ -81,7 +83,7 @@ def workspace_nav(user):
         ui.space()
         if teacher:
             from frontend.pages._nav import _notification_bell, _user_menu
-            _notification_bell()
+            _notification_bell(user["id"])
             _user_menu(user, dark, on_logout=logout.open).classes("teacher-account-menu")
         else:
             with ui.link(target="/profile").classes("admin-account"):

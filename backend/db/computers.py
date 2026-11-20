@@ -6,6 +6,7 @@ Computer registry — upsert and list monitored machines.
 from __future__ import annotations
 
 from backend.db._core import _conn, _now
+from backend.db.teacher_scope import owner_id
 
 
 def upsert_computer(name: str, host_address: str) -> int:
@@ -35,5 +36,6 @@ def upsert_computer(name: str, host_address: str) -> int:
 def list_computers() -> list[dict]:
     c = _conn()
     return [dict(r) for r in c.execute(
-        "SELECT * FROM computer ORDER BY name"
+        "SELECT * FROM computer WHERE (? IS NULL OR id IN (SELECT e.computer_id FROM detection_event e "
+        "JOIN monitoring_run r ON r.id=e.run_id WHERE r.started_by=?)) ORDER BY name",(owner_id(),owner_id())
     ).fetchall()]

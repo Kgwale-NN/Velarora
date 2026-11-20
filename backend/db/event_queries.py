@@ -1,6 +1,7 @@
 """Event queries operations."""
 from __future__ import annotations
 from typing import Optional
+from backend.db.teacher_scope import event_scope
 from backend.db._core import _conn
 
 
@@ -27,6 +28,9 @@ def query_events(
     # ── Step 1: get IDs via indexes ───────────────────────────────────────────
     id_clauses: list[str] = []
     id_params:  list      = []
+    scope, scope_params = event_scope('')
+    id_clauses.append(scope)
+    id_params.extend(scope_params)
 
     if computer_id:
         id_clauses.append("computer_id = ?");   id_params.append(computer_id)
@@ -36,10 +40,11 @@ def query_events(
         id_clauses.append("had_detection = 1")
     if class_name:
         id_clauses.append(
-            "id IN (SELECT d.event_id FROM detection d "
-            "JOIN detection_class dc ON dc.id = d.class_id WHERE dc.name = ?)"
+            "(id IN (SELECT d.event_id FROM detection d "
+            "JOIN detection_class dc ON dc.id = d.class_id WHERE dc.name = ?) OR "
+            "id IN (SELECT n.event_id FROM notification n JOIN detection_class dc ON dc.id=n.class_id WHERE dc.name=?))"
         )
-        id_params.append(class_name)
+        id_params.extend([class_name,class_name])
 
     id_where = ("WHERE " + " AND ".join(id_clauses)) if id_clauses else ""
     id_params.extend([limit, offset])
@@ -65,8 +70,8 @@ def query_events(
             e.had_detection,
             COALESCE(e.foreground_app, '—') AS foreground_app,
             CASE WHEN e.frame_blob IS NOT NULL THEN 1 ELSE 0 END AS has_frame,
-            GROUP_CONCAT(dc.name || ' (' || ROUND(d.confidence*100) || '%)', ', ')
-                                AS detections,
+            COALESCE(GROUP_CONCAT(dc.name || ' (' || ROUND(d.confidence*100) || '%)', ', '),
+                     CASE WHEN e.had_detection=1 THEN e.foreground_app END) AS detections,
             mm.name             AS model_name
         FROM detection_event e
         JOIN computer c ON c.id = e.computer_id

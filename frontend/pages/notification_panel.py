@@ -11,7 +11,12 @@ from frontend.pages.admin_shell import toast
 
 
 class NotificationPanel:
-    def __init__(self):
+    def __init__(self, user_id):
+        from types import SimpleNamespace
+        from frontend.pages.teacher_calls import bind
+        self.db = SimpleNamespace(**{function.__name__:bind(user_id,function) for function in (
+            list_notifications,notification_status,mark_read,mark_all_read,
+            get_event_frame_b64,get_event_frame_annotated_b64)})
         stylesheet('notifications.css')
         self.lock = asyncio.Lock()
         self.cursor = None
@@ -26,6 +31,8 @@ class NotificationPanel:
                         ui.label('Notifications').classes('notification-title')
                         self.summary = ui.label('Checking alerts…').classes('notification-muted')
                     ui.button(icon='close',on_click=self.dialog.close).props('flat round aria-label="Close notifications"')
+                from frontend.pages.classroom_tools import alarm_controls
+                alarm_controls(user_id).classes('notification-alarm-controls')
                 with ui.row().classes('notification-actions w-full'):
                     self.mark_all = ui.button('Mark all as read',icon='done_all',on_click=self.read_all).props('flat no-caps')
                     ui.button(icon='refresh',on_click=self.reload).props('flat round aria-label="Refresh notifications"')
@@ -50,10 +57,10 @@ class NotificationPanel:
                 return
             async with self.lock:
                 try:
-                    status = await run.io_bound(notification_status)
+                    status = await run.io_bound(self.db.notification_status)
                     latest = status['latest']
                     if self.cursor is not None and latest > self.cursor:
-                        arrivals = await run.io_bound(list_notifications,60,self.cursor)
+                        arrivals = await run.io_bound(self.db.list_notifications,60,self.cursor)
                         self.announce([n for n in arrivals if not n['is_read']])
                         latest = max([latest]+[n['id'] for n in arrivals])
                     self.cursor = latest if self.cursor is None else max(self.cursor,latest)
@@ -63,7 +70,7 @@ class NotificationPanel:
                     self.summary.set_text(f'{count} unread' if count else 'You’re all caught up')
                     self.mark_all.set_enabled(count > 0)
                     if self.dialog.value or force:
-                        items = await run.io_bound(list_notifications)
+                        items = await run.io_bound(self.db.list_notifications)
                         signature = [(n['id'],n['is_read'],n['has_frame']) for n in items]
                         if force or signature != self.signature:
                             self.render(items)
@@ -113,7 +120,7 @@ class NotificationPanel:
     async def read(self,notification_id):
         with self.dialog:
             try:
-                await run.io_bound(mark_read,notification_id)
+                await run.io_bound(self.db.mark_read,notification_id)
                 await self.reload()
             except Exception:
                 toast('Could not mark this alert as read. Please try again.',type='negative')
@@ -122,7 +129,7 @@ class NotificationPanel:
         with self.dialog:
             self.mark_all.props('loading')
             try:
-                await run.io_bound(mark_all_read)
+                await run.io_bound(self.db.mark_all_read)
                 await self.reload()
             except Exception:
                 toast('Could not mark alerts as read. Please try again.',type='negative')
@@ -136,12 +143,12 @@ class NotificationPanel:
             self.snapshot_busy = True
             loading = toast('Loading screenshot…',timeout=0,spinner=True)
             try:
-                raw = await run.io_bound(get_event_frame_b64,item['event_id'])
+                raw = await run.io_bound(self.db.get_event_frame_b64,item['event_id'])
                 if not raw:
                     toast('This screenshot is no longer available.',type='warning')
                     return
-                annotated = await run.io_bound(get_event_frame_annotated_b64,item['event_id'])
-                await run.io_bound(mark_read,item['id'])
+                annotated = await run.io_bound(self.db.get_event_frame_annotated_b64,item['event_id'])
+                await run.io_bound(self.db.mark_read,item['id'])
                 await self.reload()
                 self.show_snapshot(raw,' • '.join(str(item[k]) for k in ('class_name','computer','student','created_at')),annotated)
             except Exception:
@@ -162,7 +169,7 @@ class NotificationPanel:
                     continue
                 self.cooldowns[computer] = now
                 if not self.dialog.value:
-                    toast(f"{item['class_name']} detected — {computer} • {item['student']}",type='warning',timeout=8000,close_button=True)
+                    toast(f"{computer} opened {item['class_name']} • {item['student']}",type='warning',timeout=8000,close_button=True)
                 shown += 1
                 if shown == 3:
                     break
@@ -170,5 +177,5 @@ class NotificationPanel:
                 play_alert_sound()
 
 
-def notification_bell():
-    return NotificationPanel()
+def notification_bell(user_id):
+    return NotificationPanel(user_id)

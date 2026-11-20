@@ -19,23 +19,23 @@ from nicegui import run, ui
 
 from backend.core.auth import require_auth
 from backend.db.database import (
-    get_event_frame_annotated_b64,
-    get_event_frame_b64,
-    get_run,
-    get_run_alerts,
-    get_run_class_summary,
-    get_run_computer_summary,
-    get_run_student_summary,
-    list_runs,
+    get_event_frame_annotated_b64 as _source_get_event_frame_annotated_b64,
+    get_event_frame_b64 as _source_get_event_frame_b64,
+    get_run as _source_get_run,
+    get_run_alerts as _source_get_run_alerts,
+    get_run_class_summary as _source_get_run_class_summary,
+    get_run_computer_summary as _source_get_run_computer_summary,
+    get_run_student_summary as _source_get_run_student_summary,
+    list_runs as _source_list_runs,
     run_short_label,
 )
 from frontend.pages._nav import nav
 from frontend.pages.admin_shell import toast
 from frontend.pages.design_assets import stylesheet
 from frontend.pages.glass_fields import text_field
-from frontend.pages.report_helpers import _duration, _run_csv, _pdf_labels
+from frontend.pages.report_helpers import (_duration, _run_csv as _source_run_csv, _pdf_labels)
 from frontend.pages._snapshot import make_snapshot_dialogs
-from backend.services.report_export import build_run_pdf
+from backend.services.report_export import (build_run_pdf as _source_build_run_pdf)
 from frontend.translate import t
 
 @ui.page("/reports")
@@ -43,6 +43,19 @@ def page_reports() -> None:
     current = require_auth(required_role="teacher")
     if current is None:
         return
+    from frontend.pages.teacher_calls import bind
+    list_runs = bind(current["id"], _source_list_runs)
+    get_run = bind(current["id"], _source_get_run)
+    get_run_class_summary = bind(current["id"], _source_get_run_class_summary)
+    get_run_student_summary = bind(current["id"], _source_get_run_student_summary)
+    get_run_computer_summary = bind(current["id"], _source_get_run_computer_summary)
+    get_run_alerts = bind(current["id"], _source_get_run_alerts)
+    get_event_frame_b64 = bind(current["id"], _source_get_event_frame_b64)
+    get_event_frame_annotated_b64 = bind(current["id"], _source_get_event_frame_annotated_b64)
+    _run_csv = bind(current["id"], _source_run_csv)
+    from backend.db.run_applications import application_summary
+    apps = bind(current["id"],application_summary)
+    build_run_pdf = bind(current["id"], _source_build_run_pdf)
     nav(current)
     stylesheet("reports.css")
     list_busy = [False]
@@ -252,7 +265,7 @@ def page_reports() -> None:
             if result is None:
                 return None
             return (result, get_run_alerts(run_id), get_run_class_summary(run_id),
-                    get_run_student_summary(run_id), get_run_computer_summary(run_id))
+                    get_run_student_summary(run_id), get_run_computer_summary(run_id), apps(run_id))
 
         def _detail_closed(e):
             if not e.value:
@@ -289,7 +302,7 @@ def page_reports() -> None:
                 detail_dlg.close()
                 toast(t("reports_not_found"), type="warning")
                 return
-            report_run, alerts, cls_rows, stu_rows, comp_rows = payload
+            report_run, alerts, cls_rows, stu_rows, comp_rows, app_rows = payload
             _open_run_id[0] = run_id
 
             trigger = (
@@ -331,6 +344,9 @@ def page_reports() -> None:
             detail_body.clear()
 
             _alerts_section(alerts)
+            _breakdown_table("Windows applications used",[
+                {"name":"application","label":"Windows app","field":"application","align":"left"},
+                {"name":"samples","label":"Recorded samples","field":"samples","align":"center"}],app_rows)
 
             for r in cls_rows:
                 r["avg_conf"] = f"{r['avg_conf']:.0%}"

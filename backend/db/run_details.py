@@ -1,6 +1,7 @@
 """Run details operations."""
 from __future__ import annotations
 from backend.db._core import _conn
+from backend.db.teacher_scope import require_run
 
 
 def get_run_alerts(run_id: int) -> list[dict]:
@@ -9,6 +10,7 @@ def get_run_alerts(run_id: int) -> list[dict]:
     newest first, with class / computer / student resolved and a has_frame
     flag so the UI can offer a screenshot button per alert.
     """
+    require_run(run_id)
     c = _conn()
     rows = c.execute("""
         SELECT n.id, n.event_id, n.created_at,
@@ -33,6 +35,7 @@ def get_run_detections(run_id: int) -> list[dict]:
     Every individual detection of the run, newest first — the row set used
     for the CSV export.
     """
+    require_run(run_id)
     c = _conn()
     rows = c.execute("""
         SELECT e.detected_at,

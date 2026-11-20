@@ -108,6 +108,7 @@ def check_and_fire(
 
     # Increment counters and fire when threshold reached
     fired = 0
+    fired_classes = []
     for cid, entry in detected_prohibited.items():
         key = (computer, cid)
         count = state.consecutive_detections.get(key, 0) + 1
@@ -123,5 +124,8 @@ def check_and_fire(
                 _commit  = False,   # batched with the detect worker's event commit
             )
             fired += 1
+            fired_classes.append(cid)
 
+    from backend.services.vision_alarms import update
+    update(event_id,dets,prohibited,fired_classes)
     return fired

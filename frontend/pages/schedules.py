@@ -2,7 +2,12 @@
 import logging
 from nicegui import run, ui
 from backend.core.auth import require_auth
-from backend.db.database import list_schedules, get_schedule, delete_schedule, log_action
+from backend.db.database import (
+    list_schedules as _source_list_schedules,
+    get_schedule as _source_get_schedule,
+    delete_schedule as _source_delete_schedule,
+    log_action,
+)
 from frontend.pages._nav import nav
 from frontend.pages.admin_shell import toast
 from frontend.pages.design_assets import stylesheet
@@ -21,6 +26,10 @@ def page_schedules():
     current = require_auth(required_role='teacher')
     if current is None:
         return
+    from frontend.pages.teacher_calls import bind
+    list_schedules = bind(current["id"], _source_list_schedules)
+    get_schedule = bind(current["id"], _source_get_schedule)
+    delete_schedule = bind(current["id"], _source_delete_schedule)
     nav(current)
     stylesheet('schedules.css')
     busy, pending = [False], [None]

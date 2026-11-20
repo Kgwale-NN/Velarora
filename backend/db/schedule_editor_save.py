@@ -1,6 +1,7 @@
 """Validate and save an editor submission and audit record in one transaction."""
 import re
 from backend.db._core import _conn
+from backend.db.teacher_scope import owner_id, require_schedule
 from backend.db.audit import _insert_audit
 from backend.db.schedule_updates import create_schedule, update_schedule
 from backend.db.schedule_timing import find_overlapping_schedules
@@ -8,6 +9,12 @@ from backend.db.schedule_notifications import _invalidate_notify_cache
 
 
 def save_editor_schedule(payload, user_id, schedule_id=None):
+    if owner_id() is not None and owner_id() != user_id:
+        raise PermissionError('Cannot edit another teacher’s schedule.')
+    if schedule_id is not None:
+        require_schedule(schedule_id)
+    if owner_id() is not None and payload.get('group_id') is None:
+        raise ValueError('Choose a classroom for this exam.')
     name = (payload.get('name') or '').strip()
     if not name:
         raise ValueError('Name is required.')
@@ -38,8 +45,10 @@ def save_editor_schedule(payload, user_id, schedule_id=None):
         if not selected.issubset(valid_ids):
             raise ValueError('The model or its classes changed. Reopen this window and review the alert rules.')
         day_string = ','.join(days)
-        conflicts = find_overlapping_schedules(day_string, start, end, exclude_id=schedule_id)
+        conflicts = find_overlapping_schedules(day_string, start, end, exclude_id=schedule_id, group_id=gid)
         if conflicts:
+            if owner_id() is not None:
+                raise ValueError('This classroom already has an exam at that time. Choose another time or room.')
             raise ValueError('Time conflict with ' + ', '.join(s['name'] for s in conflicts) + '. Choose another time or day.')
         kwargs = dict(model_id=mid, use_custom_notify_classes=custom, notify_class_ids=list(selected), _commit=False)
         if schedule_id is None:

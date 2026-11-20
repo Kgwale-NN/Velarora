@@ -1,6 +1,7 @@
 """Analytics filters operations."""
 from __future__ import annotations
 from typing import Optional
+from backend.db.teacher_scope import event_scope
 
 
 def _analytics_where(
@@ -11,6 +12,9 @@ def _analytics_where(
 ) -> tuple[str, list]:
     clauses: list[str] = []
     params:  list      = []
+    scope, scope_params = event_scope('e')
+    clauses.append(scope)
+    params.extend(scope_params)
     if computer_id:
         clauses.append("e.computer_id = ?"); params.append(computer_id)
     if user_id:

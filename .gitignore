@@ -63,3 +63,7 @@ server.stderr.log
 .ruff_cache/
 weights/
 Training-Datasets/
+
+# Per-workstation bearer credentials stay off GitHub.
+workstation/*.json
+velarora-pc-*.json
