@@ -37,3 +37,8 @@
     animation-duration: 1.6s;
   }
 }
+
+.medium {
+  width: 28px;
+  height: 28px;
+}

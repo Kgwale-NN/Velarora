@@ -1,3 +1,4 @@
+import { AlarmList } from "../../components/ExamAlarms/AlarmList";
 import { useState } from "react";
 import { useResource, type Row, text } from "../../lib/useResource";
 import { api, json, errorText } from "../../lib/api";
@@ -31,6 +32,9 @@ export function Notifications({ notify }: { notify: Notify }) {
         <Button onClick={() => read()}>Mark all as read</Button>
       </header>
       <ResourceState {...r} retry={r.reload} />
+      <Panel title="Active exam alarms">
+        <AlarmList />
+      </Panel>
       <Panel>
         {r.data?.rows.map((n) => (
           <div className={styles.item} key={Number(n.id)}>

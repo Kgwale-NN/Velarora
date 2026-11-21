@@ -11,7 +11,7 @@
 }
 
 .muted {
-  color: #9ca6b3;
+  color: var(--ui-muted);
   line-height: 1.6;
 }
 

@@ -12,23 +12,23 @@
   display: flex;
   align-items: center;
   gap: 18px;
-  border: 1px solid #ffffff18;
+  border: 1px solid var(--ui-border);
   border-radius: 20px;
   padding: 20px 24px;
-  background: #ffffff03;
-  color: #666;
-  font-size: 15px;
-  margin-bottom: 32px;
+  background: var(--ui-surface);
+  color: var(--ui-muted);
+  font-size: 13px;
+  margin-bottom: 24px;
   flex-wrap: wrap;
 }
 .guide strong {
   font-weight: 400;
-  color: #aaa;
+  color: var(--ui-muted);
   margin-left: 8px;
 }
 .guide i {
   height: 1px;
-  background: #ffffff16;
+  background: var(--ui-border);
   flex: 1;
   min-width: 20px;
 }
@@ -51,48 +51,48 @@
 }
 .identity small {
   display: block;
-  color: #777;
-  font-size: 14px;
+  color: var(--ui-muted);
+  font-size: 12px;
   margin-top: 5px;
 }
 .roomIcon {
-  border: 1px solid #ffffff22;
+  border: 1px solid var(--ui-border);
   border-radius: 12px;
   width: 40px;
   height: 40px;
   display: grid;
   place-items: center;
-  background: #ffffff04;
+  background: var(--ui-hover);
   flex-shrink: 0;
-  color: #aaa;
+  color: var(--ui-muted);
 }
 .count {
   font-size: 23px;
 }
 .count span {
-  font-size: 14px;
-  color: #777;
+  font-size: 12px;
+  color: var(--ui-muted);
   margin-left: 4px;
 }
 .badge {
   font-size: 13px;
-  border: 1px solid #ffffff20;
+  border: 1px solid var(--ui-border);
   border-radius: 999px;
   padding: 4px 11px;
-  color: #aaa;
+  color: var(--ui-muted);
   white-space: nowrap;
 }
 .link {
   display: flex;
   align-items: center;
   gap: 6px;
-  color: #bbb;
+  color: var(--ui-muted);
   text-decoration: none;
-  font-size: 14px;
+  font-size: 12px;
   white-space: nowrap;
 }
 .link:hover {
-  color: #fff;
+  color: var(--ui-text);
 }
 .actions {
   display: flex;
@@ -102,8 +102,8 @@
   padding: 8px;
 }
 .note {
-  color: #777;
-  font-size: 15px;
+  color: var(--ui-muted);
+  font-size: 13px;
   line-height: 1.5;
   margin-top: 19px;
 }
@@ -118,31 +118,31 @@
   display: flex;
   gap: 12px;
   align-items: center;
-  border: 1px solid #ffffff18;
+  border: 1px solid var(--ui-border);
   border-radius: 16px;
   padding: 14px;
   cursor: pointer;
-  background: #ffffff03;
+  background: var(--ui-surface);
 }
 .choices label:has(input:checked) {
-  border-color: #ffffff50;
-  background: #ffffff09;
+  border-color: var(--ui-border-hover);
+  background: var(--ui-hover);
 }
 .choices input {
-  accent-color: #ddd;
+  accent-color: var(--ui-text);
   width: 16px;
   height: 16px;
 }
 .choices small {
   display: block;
-  color: #777;
+  color: var(--ui-muted);
   font:
     11px system-ui,
     sans-serif;
   margin-top: 5px;
 }
 .error {
-  color: #ffcaca;
+  color: var(--ui-error);
   display: flex;
   align-items: center;
   gap: 15px;

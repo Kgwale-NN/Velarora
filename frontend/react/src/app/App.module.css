@@ -117,9 +117,9 @@
   }
 }
 
-.teacher {
+.light {
   --sidebar-width: 224px;
-  --workspace-header-height: 72px;
+  --workspace-header-height: 64px;
   --navbar-background: #ffffffd9;
   --ui-text: #202124;
   --ui-muted: #6b6e74;
@@ -184,56 +184,56 @@
   color: #202124;
   color-scheme: light;
 }
-.teacher .workspace {
+.light .workspace {
   margin-left: var(--sidebar-width, 224px);
 }
-.teacher .slash {
+.light .slash {
   color: #c0c2c7;
   margin: 0 10px;
 }
-.teacher .main {
-  padding: 28px 32px 22px;
+.light .main {
+  padding: 24px 28px 20px;
   max-width: 1700px;
 }
-.teacher .footer {
+.light .footer {
   border-color: #e8e9eb;
   color: #777b82;
   font-size: 11px;
   margin-top: 30px;
 }
-.teacher .footer span {
+.light .footer span {
   color: #9a9da2;
 }
 @media (max-width: 1100px) {
-  .teacher .main {
+  .light .main {
     padding: 24px;
   }
 }
 @media (max-width: 800px) {
-  .teacher .workspace {
+  .light .workspace {
     margin-left: 0;
   }
-  .teacher .main {
+  .light .main {
     padding: 24px 18px;
   }
 }
 
-.teacher .main {
+.light .main {
   font-size: 14px;
 }
-.teacher .main > div {
+.light .main > div {
   min-width: 0;
 }
-.teacher .main h1 {
+.light .main h1 {
   color: var(--ui-text);
-  font-size: 27px;
+  font-size: 25px;
   font-weight: 600;
   line-height: 1.25;
   letter-spacing: -0.8px;
   margin: 0;
 }
 @media (max-width: 650px) {
-  .teacher .main h1 {
+  .light .main h1 {
     font-size: 25px;
   }
 }
@@ -246,7 +246,7 @@
 }
 
 @media (min-width: 801px) and (max-width: 1100px) {
-  .app:not(.teacher):not(.compact) {
+  .app:not(.light):not(.compact) {
     --sidebar-width: 215px;
   }
 }
@@ -260,7 +260,7 @@
   .app {
     --workspace-header-height: 78px;
   }
-  .teacher {
+  .light {
     --workspace-header-height: 68px;
   }
 }
@@ -270,4 +270,19 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+}
+
+.light .brand {
+  color: var(--ui-text);
+  font-family: inherit;
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 600;
+}
+.light .gate h1 {
+  font-size: 25px;
+  font-weight: 600;
+}
+.light .gate p {
+  color: var(--ui-muted);
 }

@@ -1,0 +1,92 @@
+.notice {
+  --ui-text: #202124;
+  --ui-border: #e6e7e9;
+  --ui-hover: #f0f1f3;
+  --button-primary-bg: #202124;
+  --button-primary-text: #fff;
+  --button-primary-border: #202124;
+  --button-primary-hover: #343538;
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  width: min(360px, calc(100vw - 32px));
+  z-index: 1900;
+  padding: 16px;
+  box-sizing: border-box;
+  border: 1px solid #dfe0e3;
+  border-radius: 16px;
+  background: #fffffff0;
+  backdrop-filter: blur(24px);
+  color: #202124;
+  box-shadow: 0 12px 40px #00000020;
+  font:
+    13px/1.5 -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Arial,
+    sans-serif;
+  animation: appear 0.25s ease both;
+}
+.notice header {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.notice header button {
+  margin-left: auto;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #6b6e74;
+  cursor: pointer;
+}
+.notice header button:hover {
+  background: #f0f1f3;
+}
+.notice p {
+  margin: 10px 0 3px;
+  overflow-wrap: anywhere;
+}
+.notice small {
+  color: #6b6e74;
+}
+.notice footer {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 14px;
+}
+.notice footer button {
+  min-height: 34px;
+  padding: 7px 12px;
+  font-size: 12px;
+}
+.notice a {
+  color: #44474d;
+  font-size: 12px;
+}
+@keyframes appear {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (max-width: 600px) {
+  .notice {
+    right: 16px;
+    bottom: 16px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .notice {
+    animation: none;
+  }
+}

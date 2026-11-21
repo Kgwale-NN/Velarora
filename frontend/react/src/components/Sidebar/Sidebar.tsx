@@ -42,7 +42,7 @@ export function Sidebar({
       <aside
         ref={element}
         id="workspace-sidebar"
-        className={`${styles.sidebar} ${role === "teacher" ? styles.light : ""} ${collapsed ? styles.collapsed : ""} ${open ? styles.open : ""}`}
+        className={`${styles.sidebar} ${styles.light} ${collapsed ? styles.collapsed : ""} ${open ? styles.open : ""}`}
         aria-label="Workspace sidebar"
         aria-hidden={mobile && !open ? true : undefined}
         inert={mobile && !open}
@@ -116,14 +116,6 @@ export function Sidebar({
           </nav>
         </ScrollShadow>
         <div className={styles.bottom}>
-          <span
-            className={styles.online}
-            title="Local workspace online"
-            aria-label="Local workspace online"
-          >
-            <span className={styles.dot} aria-hidden="true" />
-            <span className={styles.onlineLabel}>Local workspace online</span>
-          </span>
           <AccountMenu
             name={name}
             role={role}

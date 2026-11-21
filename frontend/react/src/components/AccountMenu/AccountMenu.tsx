@@ -10,7 +10,7 @@ type Props = {
   compact?: boolean;
   onLogout: () => void;
 };
-export function AccountMenu({ name, role, compact = false, onLogout }: Props) {
+export function AccountMenu({ name, compact = false, onLogout }: Props) {
   const [open, setOpen] = useState(false),
     [position, setPosition] = useState<{
       left: number;
@@ -22,7 +22,7 @@ export function AccountMenu({ name, role, compact = false, onLogout }: Props) {
   const id = useId(),
     location = useLocation();
   const initials = name.trim().charAt(0).toUpperCase() || "?";
-  const theme = `${styles.theme} ${role === "teacher" ? styles.light : ""}`;
+  const theme = `${styles.theme} ${styles.light}`;
   function close(restore = false) {
     setOpen(false);
     if (restore) trigger.current?.focus();

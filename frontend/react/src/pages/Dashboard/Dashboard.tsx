@@ -1,15 +1,6 @@
 import { useRef, useState } from "react";
-import {
-  Monitor,
-  Play,
-  Square,
-  VolumeX,
-  Wifi,
-  Bell,
-  ShieldCheck,
-  Activity,
-  Expand,
-} from "lucide-react";
+import { Monitor, Play, Square, Wifi, Bell, Expand } from "lucide-react";
+import { useExamAlarms } from "../../components/ExamAlarms/ExamAlarmsProvider";
 import { useResource, text, type Row } from "../../lib/useResource";
 import { api, json, errorText } from "../../lib/api";
 import type { Notify, LiveFrame } from "../../lib/types";
@@ -57,9 +48,9 @@ export function Dashboard({
     selected ? `/classrooms/${selected}/live` : null,
     2000,
   );
-  const alarms = useResource<Row[]>(overview ? null : "/teacher/alarms", 3000);
+  const alarms = useExamAlarms();
   const frames = live.data?.frames || [],
-    alarmRows = alarms.data || [];
+    alarmRows = alarms.rows;
   const activeAlarms = alarmRows.filter(
     (a) => !a.stopped_at || !!a.audio_active,
   );
@@ -296,92 +287,7 @@ export function Dashboard({
               </Panel>
             )
           )}
-          <Panel>
-            <div className={styles.sectionHeading}>
-              <h2>
-                <Activity size={16} />
-                Monitoring activity
-              </h2>
-              <span className={styles.muted}>Newest first</span>
-            </div>
-            <pre className={styles.logs}>
-              {[...(live.data?.logs || [])].reverse().join("\n") ||
-                "No monitoring activity yet."}
-            </pre>
-          </Panel>
         </div>
-        <aside
-          className={`${styles.alerts} ${activeAlarms.length ? styles.urgent : ""}`}
-          aria-label={overview ? "Classroom information" : "Exam alarms"}
-        >
-          <Panel>
-            <div className={styles.sectionHeading}>
-              <h2>
-                <Bell size={16} />
-                {overview ? "Classroom access" : "Exam alarms"}
-              </h2>
-              {!overview && (
-                <span className={styles.count}>{activeAlarms.length}</span>
-              )}
-            </div>
-            {overview ? (
-              <p className={styles.help}>
-                This is a read-only overview. The teacher who started the exam
-                controls its alarms and monitoring.
-              </p>
-            ) : (
-              <>
-                <p className={styles.help}>
-                  Unapproved apps appear here. Only you can stop alarms from
-                  your exams.
-                </p>
-                <ResourceState
-                  loading={alarms.loading}
-                  error={alarms.error}
-                  retry={alarms.reload}
-                />
-                <div className={styles.alarmList}>
-                  {alarmRows.map((a) => (
-                    <article className={styles.alarm} key={Number(a.id)}>
-                      <div className={styles.alarmTop}>
-                        <strong>{text(a.computer || a.computer_name)}</strong>
-                        <span>
-                          {a.stopped_at ? "Stopping" : "Alarm active"}
-                        </span>
-                      </div>
-                      <p className={styles.appName}>
-                        {text(a.app_name || a.process_name || a.app)}
-                      </p>
-                      <p className={styles.alarmRoom}>
-                        {text(a.classroom || "Your exam")}
-                      </p>
-                      <p className={styles.alarmMessage}>
-                        {a.stopped_at
-                          ? "Waiting for the PC to confirm silence."
-                          : "An unapproved app was opened."}
-                      </p>
-                      <Button
-                        disabled={!!a.stopped_at}
-                        busy={busy}
-                        onClick={() => command(`/teacher/alarms/${a.id}/stop`)}
-                      >
-                        <VolumeX size={14} />
-                        {a.stopped_at ? "Stop requested" : "Stop alarm"}
-                      </Button>
-                    </article>
-                  ))}
-                </div>
-                {!alarms.loading && !alarms.error && !alarmRows.length && (
-                  <div className={styles.clear}>
-                    <ShieldCheck size={28} strokeWidth={1.4} />
-                    <strong>No active alarms</strong>
-                    <p>New exam alarms will appear here.</p>
-                  </div>
-                )}
-              </>
-            )}
-          </Panel>
-        </aside>
       </div>
       {expanded && (
         <Modal title={expanded.name} wide onClose={() => setOpened(null)}>

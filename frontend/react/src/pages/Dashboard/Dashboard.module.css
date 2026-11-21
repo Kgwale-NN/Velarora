@@ -10,7 +10,7 @@
   --stat-value-weight: 600;
   --stat-lift: -3px;
   display: grid;
-  gap: 22px;
+  gap: 16px;
   min-width: 0;
 }
 .heading {
@@ -92,8 +92,8 @@
 }
 .content {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 290px;
-  gap: 22px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
   align-items: start;
 }
 .screens {
@@ -117,8 +117,7 @@
   margin: 0;
   color: var(--ui-text, #eee);
 }
-.sectionHeading h2 > span,
-.count {
+.sectionHeading h2 > span {
   display: inline-grid;
   place-items: center;
   border: 1px solid var(--ui-border, #ffffff20);
@@ -149,82 +148,6 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 18px;
-}
-.alerts {
-  min-width: 0;
-}
-.help {
-  font-size: 12px;
-  line-height: 1.7;
-  margin: 14px 0 18px;
-  color: var(--ui-muted, #a5adb8);
-}
-.alarmList {
-  max-height: 650px;
-  overflow: auto;
-}
-.alarm {
-  padding: 16px 0;
-  border-top: 1px solid var(--ui-border, #ffffff20);
-}
-.alarmTop {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  align-items: center;
-}
-.alarmTop strong {
-  font-size: 13px;
-  overflow-wrap: anywhere;
-}
-.alarmTop > span {
-  font-size: 10px;
-  white-space: nowrap;
-  background: var(--ui-hover, #ffffff08);
-  border: 1px solid var(--ui-border, #ffffff20);
-  padding: 4px 7px;
-  border-radius: 20px;
-  color: var(--ui-text, #eee);
-}
-.alarm .appName {
-  color: var(--ui-text, #eee);
-  font-size: 14px;
-  font-weight: 600;
-  margin: 14px 0 4px;
-  overflow-wrap: anywhere;
-}
-.alarm .alarmRoom {
-  font-size: 10px;
-  margin: 0 0 10px;
-  color: var(--ui-muted, #a5adb8);
-}
-.alarm .alarmMessage {
-  font-size: 11px;
-  line-height: 1.6;
-  margin: 0 0 14px;
-  color: var(--ui-muted, #a5adb8);
-}
-.alarm > button {
-  width: 100%;
-}
-.clear {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 24px 8px 14px;
-  gap: 12px;
-  color: var(--ui-muted, #a5adb8);
-}
-.clear strong {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--ui-text, #eee);
-}
-.clear p {
-  font-size: 11px;
-  line-height: 1.6;
-  margin: 0;
 }
 .empty {
   text-align: center;
@@ -258,19 +181,6 @@
   max-width: 330px;
   margin: 0;
 }
-.logs {
-  max-height: 220px;
-  overflow: auto;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-  font:
-    11px/1.9 ui-monospace,
-    SFMono-Regular,
-    Consolas,
-    monospace;
-  color: var(--ui-muted, #aab9cc);
-  margin: 18px 0 0;
-}
 .muted {
   color: var(--ui-muted, #a5adb8);
   font-size: 11px;
@@ -297,7 +207,7 @@
 }
 @media (max-width: 1150px) {
   .content {
-    grid-template-columns: minmax(0, 1fr) 260px;
+    grid-template-columns: minmax(0, 1fr);
   }
   .toolbar {
     gap: 14px;
@@ -312,17 +222,6 @@
 @media (max-width: 1050px) {
   .content {
     grid-template-columns: 1fr;
-  }
-  .alerts.urgent {
-    grid-row: 1;
-  }
-  .alarmList {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 16px;
-  }
-  .help {
-    margin-bottom: 8px;
   }
 }
 @media (max-width: 650px) {
@@ -375,8 +274,5 @@
   .page {
     gap: 20px;
     --panel-padding: 17px;
-  }
-  .alarmList {
-    display: block;
   }
 }

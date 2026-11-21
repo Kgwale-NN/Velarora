@@ -4,32 +4,32 @@
   justify-content: space-between;
   gap: 24px;
   flex-wrap: wrap;
-  margin-bottom: 28px;
+  margin-bottom: 24px;
 }
 .eyebrow {
   font:
     10px/1.5 system-ui,
     sans-serif;
   letter-spacing: 2.5px;
-  color: #808080;
+  color: var(--ui-muted);
   text-transform: uppercase;
 }
 .heading h1 {
-  font-weight: 400;
-  font-size: 44px;
+  font-weight: 600;
+  font-size: 25px;
   line-height: 1.15;
-  margin: 10px 0 12px;
+  margin: 8px 0;
   letter-spacing: -0.8px;
 }
 .heading p {
-  color: #969696;
+  color: var(--ui-muted);
   margin: 0;
-  font-size: 18px;
+  font-size: 13px;
   line-height: 1.5;
   max-width: 580px;
 }
 @media (max-width: 600px) {
   .heading h1 {
-    font-size: 36px;
+    font-size: 25px;
   }
 }

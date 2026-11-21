@@ -1,0 +1,35 @@
+.dialog {
+  width: min(300px, calc(100vw - 40px));
+  padding: 30px;
+  border: 1px solid #ffffffcc;
+  border-radius: 22px;
+  background: #ffffffe8;
+  color: #202124;
+  box-shadow: 0 18px 60px #00000020;
+  backdrop-filter: blur(24px);
+  font:
+    14px/1.5 -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Arial,
+    sans-serif;
+}
+.dialog::backdrop {
+  background: #17171930;
+  backdrop-filter: blur(5px);
+}
+.content {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 12px;
+  text-align: center;
+}
+.content strong {
+  font-size: 15px;
+  font-weight: 600;
+}
+.content > span:last-child {
+  color: #73767c;
+  font-size: 12px;
+}

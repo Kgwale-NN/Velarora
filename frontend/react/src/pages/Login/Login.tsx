@@ -7,6 +7,7 @@ import { Input } from "../../components/Input/Input";
 import { Button } from "../../components/Button/Button";
 import { Check } from "../../components/Check/Check";
 import { Modal } from "../../components/Modal/Modal";
+import { AuthProgress } from "../../components/AuthProgress/AuthProgress";
 import { AuthLayout } from "../../components/AuthLayout/AuthLayout";
 import { PasswordField } from "../../components/PasswordField/PasswordField";
 import styles from "./Login.module.css";
@@ -50,15 +51,18 @@ export function Login({
       title="Log in to your exam workspace."
       onSubmit={submit}
       aside={
-        forgot && (
-          <Modal title="Reset your password" onClose={() => setForgot(false)}>
-            <p>
-              Ask your school administrator to reset your account password. Give
-              them the email address you use to sign in.
-            </p>
-            <Button onClick={() => setForgot(false)}>Got it</Button>
-          </Modal>
-        )
+        <>
+          {busy && <AuthProgress label="Signing in..." />}
+          {forgot && (
+            <Modal title="Reset your password" onClose={() => setForgot(false)}>
+              <p>
+                Ask your school administrator to reset your account password.
+                Give them the email address you use to sign in.
+              </p>
+              <Button onClick={() => setForgot(false)}>Got it</Button>
+            </Modal>
+          )}
+        </>
       }
     >
       <Input
