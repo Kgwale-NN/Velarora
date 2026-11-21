@@ -5,6 +5,7 @@
 }
 .app {
   --sidebar-width: 246px;
+  --workspace-header-height: 94px;
   font-family: VelaroraSerif, Georgia, serif;
   color: #eee;
   background:
@@ -135,6 +136,7 @@
 
 .teacher {
   --sidebar-width: 224px;
+  --workspace-header-height: 72px;
   --ui-text: #202124;
   --ui-muted: #6b6e74;
   --ui-icon: #73767c;
@@ -283,5 +285,14 @@
 @media (prefers-reduced-motion: reduce) {
   .workspace {
     transition: none;
+  }
+}
+
+@media (max-width: 800px) {
+  .app {
+    --workspace-header-height: 78px;
+  }
+  .teacher {
+    --workspace-header-height: 68px;
   }
 }

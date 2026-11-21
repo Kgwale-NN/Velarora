@@ -173,3 +173,8 @@
 .compact .name {
   display: none;
 }
+
+.root > span {
+  display: flex;
+  width: 100%;
+}

@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import { createPortal } from "react-dom";
 import { Link, useLocation } from "react-router-dom";
 import { LogOut, UserRound } from "lucide-react";
+import { Tooltip } from "../Tooltip/Tooltip";
 import styles from "./AccountMenu.module.css";
 type Props = {
   name: string;
@@ -97,33 +98,34 @@ export function AccountMenu({ name, role, compact = false, onLogout }: Props) {
   }
   return (
     <div className={`${theme} ${styles.root}`}>
-      <button
-        ref={trigger}
-        id={id}
-        type="button"
-        className={`${styles.trigger} ${compact ? styles.compact : ""}`}
-        aria-label="Open account menu"
-        aria-haspopup="menu"
-        aria-expanded={open}
-        aria-controls={open ? id + "-popup" : undefined}
-        title={name}
-        onClick={() => (open ? close(true) : show())}
-        onKeyDown={(event) => {
-          if (event.key === "ArrowDown" || event.key === "ArrowUp") {
-            event.preventDefault();
-            if (!open) show();
-            else
-              popup.current
-                ?.querySelector<HTMLElement>('[role="menuitem"]')
-                ?.focus();
-          }
-        }}
-      >
-        <span className={styles.avatar} aria-hidden="true">
-          {initials}
-        </span>
-        <span className={styles.name}>{name}</span>
-      </button>
+      <Tooltip label={name} enabled={compact && !open}>
+        <button
+          ref={trigger}
+          id={id}
+          type="button"
+          className={`${styles.trigger} ${compact ? styles.compact : ""}`}
+          aria-label="Open account menu"
+          aria-haspopup="menu"
+          aria-expanded={open}
+          aria-controls={open ? id + "-popup" : undefined}
+          onClick={() => (open ? close(true) : show())}
+          onKeyDown={(event) => {
+            if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+              event.preventDefault();
+              if (!open) show();
+              else
+                popup.current
+                  ?.querySelector<HTMLElement>('[role="menuitem"]')
+                  ?.focus();
+            }
+          }}
+        >
+          <span className={styles.avatar} aria-hidden="true">
+            {initials}
+          </span>
+          <span className={styles.name}>{name}</span>
+        </button>
+      </Tooltip>
       {open &&
         createPortal(
           <div
