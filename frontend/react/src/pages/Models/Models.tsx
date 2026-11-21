@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Plus, Upload, Play, Pencil, Trash2, RefreshCw } from "lucide-react";
 import { useResource, text, type Row } from "../../lib/useResource";
 import { api, json, errorText } from "../../lib/api";
@@ -49,6 +49,9 @@ export function Models({ notify }: { notify: Notify }) {
     }
   }
   const job = training.data?.job;
+  useEffect(() => {
+    if (job?.model_id) r.reload();
+  }, [job?.model_id, r.reload]);
   return (
     <div className={styles.page}>
       <header className={styles.heading}>
@@ -66,9 +69,6 @@ export function Models({ notify }: { notify: Notify }) {
           <Button onClick={() => setImporting(true)}>
             <Upload size={17} />
             Import model
-          </Button>
-          <Button aria-label="Refresh model library" onClick={r.reload}>
-            <RefreshCw size={17} />
           </Button>
         </div>
       </header>
@@ -190,18 +190,6 @@ export function Models({ notify }: { notify: Notify }) {
               }}
             >
               Cancel training
-            </Button>
-          )}
-          {job.model_id && (
-            <Button
-              onClick={() => {
-                r.reload();
-                notify(
-                  "Training finished. Review the model and activate it when ready.",
-                );
-              }}
-            >
-              Refresh trained model
             </Button>
           )}
         </Panel>

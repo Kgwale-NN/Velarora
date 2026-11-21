@@ -3,7 +3,6 @@ import {
   Monitor,
   Play,
   Square,
-  RefreshCw,
   VolumeX,
   Wifi,
   Bell,
@@ -128,10 +127,6 @@ export function Dashboard({
               : "Choose a classroom, start your exam, and keep every screen in view."}
           </p>
         </div>
-        <Button onClick={refresh} aria-label="Refresh dashboard">
-          <RefreshCw size={15} />
-          Refresh
-        </Button>
       </header>
       <Panel>
         <div className={styles.toolbar}>
@@ -140,10 +135,10 @@ export function Dashboard({
               label="Classroom"
               value={selected}
               disabled={busy || rooms.loading || !rooms.data?.length}
-              onChange={(e) => {
-                setRoom(e.target.value);
+              onChange={(value) => {
+                setRoom(value);
                 setOpened(null);
-                localStorage.setItem("velarora.classroom", e.target.value);
+                localStorage.setItem("velarora.classroom", value);
               }}
               options={
                 rooms.data?.length

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Download, RefreshCw } from "lucide-react";
+import { Download } from "lucide-react";
 import { useResource, text, type Row } from "../../lib/useResource";
 import { api, json, saveBlob, errorText } from "../../lib/api";
 import type { Notify } from "../../lib/types";
@@ -22,10 +22,6 @@ export function Workstations({ notify }: { notify: Notify }) {
     <div className={styles.page}>
       <header className={styles.heading}>
         <h1>Workstation setup</h1>
-        <Button onClick={r.reload}>
-          <RefreshCw size={17} />
-          Refresh
-        </Button>
       </header>
       <ResourceState {...r} retry={r.reload} />
       <Panel title="Connect a student PC">
@@ -61,7 +57,7 @@ export function Workstations({ notify }: { notify: Notify }) {
           <Select
             label="Computer"
             value={pc}
-            onChange={(e) => setPc(e.target.value)}
+            onChange={(value) => setPc(value)}
             required
             options={[
               { value: "", label: "Choose a computer" },

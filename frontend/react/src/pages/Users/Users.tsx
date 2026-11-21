@@ -6,7 +6,6 @@ import {
   UserRound,
   Plus,
   Search,
-  RefreshCw,
   Trash2,
   Mail,
   LockKeyhole,
@@ -172,14 +171,6 @@ export function Users({
             </button>
           ))}
         </div>
-        <Button
-          aria-label="Refresh users"
-          variant="ghost"
-          onClick={() => void load()}
-          busy={loading}
-        >
-          <RefreshCw size={17} />
-        </Button>
       </div>
       {failure && (
         <p className={styles.error} role="alert">

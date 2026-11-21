@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { NavLink } from "react-router-dom";
+import { ScrollShadow } from "@heroui/scroll-shadow";
 import { X, type LucideIcon } from "lucide-react";
 import { Button } from "../Button/Button";
 import { Tooltip } from "../Tooltip/Tooltip";
@@ -96,22 +97,24 @@ export function Sidebar({
         <p className={styles.caption}>
           {role === "admin" ? "ADMINISTRATION" : "TEACHER WORKSPACE"}
         </p>
-        <nav className={styles.navigation} aria-label="Main menu">
-          {links.map(([label, url, Icon]) => (
-            <Tooltip key={url} label={label} enabled={collapsed}>
-              <NavLink
-                to={url}
-                aria-label={label}
-                className={({ isActive }) =>
-                  `${styles.link} ${isActive ? styles.active : ""}`
-                }
-              >
-                <Icon size={18} aria-hidden="true" />
-                <span className={styles.label}>{label}</span>
-              </NavLink>
-            </Tooltip>
-          ))}
-        </nav>
+        <ScrollShadow size={40} hideScrollBar className={styles.scrollArea}>
+          <nav className={styles.navigation} aria-label="Main menu">
+            {links.map(([label, url, Icon]) => (
+              <Tooltip key={url} label={label} enabled={collapsed}>
+                <NavLink
+                  to={url}
+                  aria-label={label}
+                  className={({ isActive }) =>
+                    `${styles.link} ${isActive ? styles.active : ""}`
+                  }
+                >
+                  <Icon size={18} aria-hidden="true" />
+                  <span className={styles.label}>{label}</span>
+                </NavLink>
+              </Tooltip>
+            ))}
+          </nav>
+        </ScrollShadow>
         <div className={styles.bottom}>
           <span
             className={styles.online}

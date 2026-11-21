@@ -1,33 +1,180 @@
 .field {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  min-width: 180px;
-  flex: 1;
-  color: var(--ui-text, #dbdce1);
-}
-.field select {
+  gap: 8px;
+  min-width: 0;
   width: 100%;
-  min-height: var(--select-height, 48px);
+  flex: 1;
+  color: var(--ui-text, #eee);
+  font: inherit;
+}
+.label {
+  display: block;
+  position: static;
+  transform: none;
+  font-size: var(--select-label-size, 13px);
+  line-height: 1.4;
+  color: var(--input-label, #bbb);
+}
+.label::after {
+  content: none;
+}
+.main {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+.trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: var(--select-height, 44px);
+  padding: 10px 15px;
+  box-sizing: border-box;
   border: 1px solid var(--ui-border, #ffffff30);
-  border-radius: 26px;
+  border-radius: 14px;
   background: var(--button-background, #ffffff07);
   color: inherit;
-  padding: 10px 18px;
   font: inherit;
-  outline: none;
+  font-size: var(--input-font-size, 14px);
+  text-align: left;
+  cursor: pointer;
   transition:
-    background 0.3s,
-    border 0.3s;
+    border-color 0.2s,
+    background 0.2s;
 }
-.field select:focus {
-  border-color: var(--ui-text, #c8d9ef);
+.trigger:hover {
+  background: var(--ui-hover, #ffffff12);
+  border-color: var(--ui-border-hover, #ffffff45);
 }
-.field option {
-  background: var(--ui-option-background, #17191c);
-  color: var(--ui-text, #eee);
+.trigger:focus-visible,
+.trigger[data-focus-visible="true"] {
+  outline: 2px solid var(--ui-text, #eee);
+  outline-offset: 3px;
+}
+.trigger[data-disabled="true"],
+.field[data-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.inner {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+.value {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.chevron {
+  position: static;
+  flex-shrink: 0;
+  color: var(--ui-icon, #aaa);
+  transition: transform 0.2s;
+}
+.trigger[aria-expanded="true"] .chevron {
+  transform: rotate(180deg);
+}
+.overlay {
+  z-index: 1100;
+  min-width: var(--trigger-width);
+  max-width: calc(100vw - 24px);
+}
+.popover {
+  --select-text: #ededee;
+  --select-bg: #18181bed;
+  --select-border: #ffffff26;
+  --select-hover: #ffffff12;
+  display: flex;
+  width: 100%;
+  min-width: var(--trigger-width);
+  box-sizing: border-box;
+  padding: 5px;
+  border: 1px solid var(--select-border);
+  border-radius: 16px;
+  background: var(--select-bg);
+  color: var(--select-text);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 12px 35px #00000026;
+  font:
+    14px/1.4 -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Arial,
+    sans-serif;
+}
+.light {
+  --select-text: #202124;
+  --select-bg: #fffffff2;
+  --select-border: #dedfe2;
+  --select-hover: #f0f1f3;
+}
+.scroll {
+  width: 100%;
+  max-height: 260px;
+  overflow-y: auto;
+}
+.list {
+  width: 100%;
+  padding: 0;
+  outline: none;
+}
+.items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 38px;
+  padding: 9px 11px;
+  box-sizing: border-box;
+  border-radius: 10px;
+  color: var(--select-text);
+  cursor: pointer;
+  outline: none;
+}
+.option[data-hover="true"],
+.option[data-focus="true"],
+.option[data-selected="true"] {
+  background: var(--select-hover);
+}
+.option[data-focus-visible="true"] {
+  box-shadow: inset 0 0 0 1px var(--select-border);
+}
+.optionTitle {
+  flex: 1;
+}
+.selectedIcon {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  width: 16px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .trigger,
+  .chevron {
+    transition: none;
+  }
 }
 
-.field > label {
-  font-size: var(--select-label-size, inherit);
+.host {
+  min-width: 0;
+  width: 100%;
+  flex: 1;
+}
+
+.option:not([data-selected="true"]) .selectedIcon {
+  visibility: hidden;
 }

@@ -95,7 +95,7 @@ export function Login({
         </p>
       )}
       <Button variant="primary" type="submit" busy={busy}>
-        Sign in
+        {busy ? "Signing in..." : "Sign in"}
       </Button>
       {session.google && (
         <>

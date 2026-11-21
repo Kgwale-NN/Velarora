@@ -87,7 +87,7 @@ export function ScheduleEditor({
           <Select
             label="Classroom"
             value={text(f.group_id)}
-            onChange={(e) => change("group_id", e.target.value)}
+            onChange={(value) => change("group_id", value)}
             options={r.data.groups.map((g) => ({
               value: Number(g.id),
               label: text(g.name),
@@ -96,8 +96,8 @@ export function ScheduleEditor({
           <Select
             label="Model"
             value={text(f.model_id)}
-            onChange={(e) =>
-              setForm({ ...f, model_id: e.target.value, notify_ids: [] })
+            onChange={(value) =>
+              setForm({ ...f, model_id: value, notify_ids: [] })
             }
             options={[
               { value: "", label: "Use active model" },

@@ -1,5 +1,5 @@
 import { CheckCircle2, AlertCircle, X } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import styles from "./Toast.module.css";
 export interface ToastMessage {
   id: number;
@@ -13,15 +13,23 @@ export function Toast({
   message: ToastMessage | null;
   onDismiss: () => void;
 }) {
+  const [paused, setPaused] = useState(false);
   useEffect(() => {
-    if (!message) return;
+    if (!message || paused) return;
     const timer = window.setTimeout(onDismiss, 6500);
     return () => window.clearTimeout(timer);
-  }, [message, onDismiss]);
+  }, [message, onDismiss, paused]);
   return (
     message && (
       <div
         className={styles.toast}
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
+        onFocus={() => setPaused(true)}
+        onBlur={(event) => {
+          if (!event.currentTarget.contains(event.relatedTarget))
+            setPaused(false);
+        }}
         role={message.kind === "error" ? "alert" : "status"}
       >
         {message.kind === "error" ? (
@@ -30,7 +38,11 @@ export function Toast({
           <CheckCircle2 size={22} />
         )}
         <span>{message.text}</span>
-        <button onClick={onDismiss} aria-label="Dismiss notification">
+        <button
+          type="button"
+          onClick={onDismiss}
+          aria-label="Dismiss notification"
+        >
           <X size={18} />
         </button>
       </div>

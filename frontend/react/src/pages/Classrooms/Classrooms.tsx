@@ -4,7 +4,6 @@ import {
   Monitor,
   Plus,
   Search,
-  RefreshCw,
   Pencil,
   Trash2,
   Download,
@@ -217,14 +216,6 @@ export function Classrooms({ notify }: { notify: Notify }) {
         <Button onClick={importRooms} busy={busy}>
           <Download size={17} />
           Import from Veyon
-        </Button>
-        <Button
-          aria-label="Refresh classrooms"
-          variant="ghost"
-          onClick={() => void load()}
-          busy={loading}
-        >
-          <RefreshCw size={17} />
         </Button>
       </div>
       {failure && (

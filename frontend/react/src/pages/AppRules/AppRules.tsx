@@ -55,7 +55,7 @@ export function AppRules({ notify }: { notify: Notify }) {
             <Select
               label="Policy"
               value={mode}
-              onChange={(e) => setMode(e.target.value)}
+              onChange={(value) => setMode(value)}
               options={[
                 { value: "blocklist", label: "Block these apps" },
                 { value: "allowlist", label: "Allow only these apps" },

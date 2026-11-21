@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import {
   UsersRound,
@@ -14,29 +14,72 @@ import {
   FileText,
   Shield,
 } from "lucide-react";
+import { ThemeContext } from "../lib/ThemeContext";
 import { api, json, errorText } from "../lib/api";
 import type { Session, Notify } from "../lib/types";
 import { Button } from "../components/Button/Button";
 import { Modal } from "../components/Modal/Modal";
 import { Toast, type ToastMessage } from "../components/Toast/Toast";
 import { ResourceState } from "../components/ResourceState/ResourceState";
-import { Users } from "../pages/Users/Users";
-import { Classrooms } from "../pages/Classrooms/Classrooms";
+const Users = lazy(() =>
+  import("../pages/Users/Users").then((m) => ({ default: m.Users })),
+);
+const Classrooms = lazy(() =>
+  import("../pages/Classrooms/Classrooms").then((m) => ({
+    default: m.Classrooms,
+  })),
+);
 import { Login } from "../pages/Login/Login";
 import { Dashboard } from "../pages/Dashboard/Dashboard";
-import { History } from "../pages/History/History";
-import { Analytics } from "../pages/Analytics/Analytics";
-import { Reports } from "../pages/Reports/Reports";
-import { Schedules } from "../pages/Schedules/Schedules";
-import { AppRules } from "../pages/AppRules/AppRules";
-import { Profile } from "../pages/Profile/Profile";
-import { Notifications } from "../pages/Notifications/Notifications";
-import { Workstations } from "../pages/Workstations/Workstations";
-import { Models } from "../pages/Models/Models";
-import { Audit } from "../pages/Audit/Audit";
-import { Settings } from "../pages/Settings/Settings";
-import { ModelRules } from "../pages/ModelRules/ModelRules";
+const History = lazy(() =>
+  import("../pages/History/History").then((m) => ({ default: m.History })),
+);
+const Analytics = lazy(() =>
+  import("../pages/Analytics/Analytics").then((m) => ({
+    default: m.Analytics,
+  })),
+);
+const Reports = lazy(() =>
+  import("../pages/Reports/Reports").then((m) => ({ default: m.Reports })),
+);
+const Schedules = lazy(() =>
+  import("../pages/Schedules/Schedules").then((m) => ({
+    default: m.Schedules,
+  })),
+);
+const AppRules = lazy(() =>
+  import("../pages/AppRules/AppRules").then((m) => ({ default: m.AppRules })),
+);
+const Profile = lazy(() =>
+  import("../pages/Profile/Profile").then((m) => ({ default: m.Profile })),
+);
+const Notifications = lazy(() =>
+  import("../pages/Notifications/Notifications").then((m) => ({
+    default: m.Notifications,
+  })),
+);
+const Workstations = lazy(() =>
+  import("../pages/Workstations/Workstations").then((m) => ({
+    default: m.Workstations,
+  })),
+);
+const Models = lazy(() =>
+  import("../pages/Models/Models").then((m) => ({ default: m.Models })),
+);
+const Audit = lazy(() =>
+  import("../pages/Audit/Audit").then((m) => ({ default: m.Audit })),
+);
+const Settings = lazy(() =>
+  import("../pages/Settings/Settings").then((m) => ({ default: m.Settings })),
+);
+const ModelRules = lazy(() =>
+  import("../pages/ModelRules/ModelRules").then((m) => ({
+    default: m.ModelRules,
+  })),
+);
 import { NotificationBell } from "../components/NotificationBell/NotificationBell";
+import { WorkspaceScroll } from "../components/WorkspaceScroll/WorkspaceScroll";
+import { WorkspaceNavbar } from "../components/WorkspaceNavbar/WorkspaceNavbar";
 import { SidebarToggle } from "../components/SidebarToggle/SidebarToggle";
 import { Sidebar } from "../components/Sidebar/Sidebar";
 import { useSmallScreen } from "../lib/useSmallScreen";
@@ -136,125 +179,144 @@ export function App() {
     }
   }
   return (
-    <div
-      className={`${styles.app} ${!admin ? styles.teacher : ""} ${collapsed && !mobile ? styles.compact : ""}`}
-    >
-      <Sidebar
-        name={user.username}
-        role={user.role}
-        home={home}
-        links={links}
-        collapsed={collapsed && !mobile}
-        mobile={mobile}
-        open={drawer}
-        onClose={() => setDrawer(false)}
-        onLogout={() => {
-          setDrawer(false);
-          setLogout(true);
-        }}
-      />
-      <div className={styles.workspace}>
-        <header className={styles.topbar}>
-          <SidebarToggle
-            open={mobile ? drawer : !collapsed}
-            onClick={() => {
-              if (mobile) setDrawer((v) => !v);
-              else {
-                const next = !collapsed;
-                setCollapsed(next);
-                localStorage.setItem("velarora.sidebar.compact", String(next));
-              }
-            }}
-          />
-          <span className={styles.breadcrumb}>
-            {admin ? "Administration" : "Teacher"}{" "}
-            <span className={styles.slash}>/</span> {title}
-          </span>
-          {!admin && <NotificationBell notify={notify} />}
-        </header>
-        <main key={location.pathname} className={styles.main}>
-          <Routes>
-            {admin ? (
-              <>
-                <Route
-                  path="/users"
-                  element={<Users notify={notify} currentId={user.id} />}
-                />
-                <Route
-                  path="/classrooms"
-                  element={<Classrooms notify={notify} />}
-                />
-                <Route
-                  path="/workstations"
-                  element={<Workstations notify={notify} />}
-                />
-                <Route
-                  path="/classroom-overview"
-                  element={<Dashboard notify={notify} overview />}
-                />
-                <Route path="/models" element={<Models notify={notify} />} />
-                <Route
-                  path="/model-alert-rules"
-                  element={<ModelRules notify={notify} />}
-                />
-                <Route path="/audit" element={<Audit />} />
-                <Route
-                  path="/settings"
-                  element={<Settings notify={notify} />}
-                />
-              </>
-            ) : (
-              <>
-                <Route
-                  path="/dashboard"
-                  element={<Dashboard notify={notify} />}
-                />
-                <Route path="/history" element={<History />} />
-                <Route path="/analytics" element={<Analytics />} />
-                <Route path="/reports" element={<Reports notify={notify} />} />
-                <Route
-                  path="/schedules"
-                  element={<Schedules notify={notify} />}
-                />
-                <Route
-                  path="/app-rules"
-                  element={<AppRules notify={notify} />}
-                />
-                <Route
-                  path="/notifications"
-                  element={<Notifications notify={notify} />}
-                />
-              </>
-            )}
-            <Route
-              path="/profile"
-              element={<Profile notify={notify} onUpdated={load} />}
+    <ThemeContext.Provider value={admin ? "dark" : "light"}>
+      <div
+        className={`${styles.app} ${!admin ? styles.teacher : ""} ${collapsed && !mobile ? styles.compact : ""}`}
+      >
+        <Sidebar
+          name={user.username}
+          role={user.role}
+          home={home}
+          links={links}
+          collapsed={collapsed && !mobile}
+          mobile={mobile}
+          open={drawer}
+          onClose={() => setDrawer(false)}
+          onLogout={() => {
+            setDrawer(false);
+            setLogout(true);
+          }}
+        />
+        <div className={styles.workspace}>
+          <WorkspaceNavbar>
+            <SidebarToggle
+              open={mobile ? drawer : !collapsed}
+              onClick={() => {
+                if (mobile) setDrawer((v) => !v);
+                else {
+                  const next = !collapsed;
+                  setCollapsed(next);
+                  localStorage.setItem(
+                    "velarora.sidebar.compact",
+                    String(next),
+                  );
+                }
+              }}
             />
-            <Route path="*" element={<Navigate to={home} replace />} />
-          </Routes>
-          <footer className={styles.footer}>
-            Velarora <span>Classrooms connected. Exams protected.</span>
-          </footer>
-        </main>
+            <span className={styles.breadcrumb}>
+              {admin ? "Administration" : "Teacher"}{" "}
+              <span className={styles.slash}>/</span> {title}
+            </span>
+            {!admin && <NotificationBell notify={notify} />}
+          </WorkspaceNavbar>
+          <WorkspaceScroll>
+            <main key={location.pathname} className={styles.main}>
+              <Suspense
+                fallback={
+                  <ResourceState loading={true} error="" retry={load} />
+                }
+              >
+                <Routes>
+                  {admin ? (
+                    <>
+                      <Route
+                        path="/users"
+                        element={<Users notify={notify} currentId={user.id} />}
+                      />
+                      <Route
+                        path="/classrooms"
+                        element={<Classrooms notify={notify} />}
+                      />
+                      <Route
+                        path="/workstations"
+                        element={<Workstations notify={notify} />}
+                      />
+                      <Route
+                        path="/classroom-overview"
+                        element={<Dashboard notify={notify} overview />}
+                      />
+                      <Route
+                        path="/models"
+                        element={<Models notify={notify} />}
+                      />
+                      <Route
+                        path="/model-alert-rules"
+                        element={<ModelRules notify={notify} />}
+                      />
+                      <Route path="/audit" element={<Audit />} />
+                      <Route
+                        path="/settings"
+                        element={<Settings notify={notify} />}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <Route
+                        path="/dashboard"
+                        element={<Dashboard notify={notify} />}
+                      />
+                      <Route path="/history" element={<History />} />
+                      <Route path="/analytics" element={<Analytics />} />
+                      <Route
+                        path="/reports"
+                        element={<Reports notify={notify} />}
+                      />
+                      <Route
+                        path="/schedules"
+                        element={<Schedules notify={notify} />}
+                      />
+                      <Route
+                        path="/app-rules"
+                        element={<AppRules notify={notify} />}
+                      />
+                      <Route
+                        path="/notifications"
+                        element={<Notifications notify={notify} />}
+                      />
+                    </>
+                  )}
+                  <Route
+                    path="/profile"
+                    element={<Profile notify={notify} onUpdated={load} />}
+                  />
+                  <Route path="*" element={<Navigate to={home} replace />} />
+                </Routes>
+              </Suspense>
+              <footer className={styles.footer}>
+                Velarora <span>Classrooms connected. Exams protected.</span>
+              </footer>
+            </main>
+          </WorkspaceScroll>
+        </div>
+        <Toast message={message} onDismiss={dismiss} />
+        {logout && (
+          <Modal
+            title="Log out of Velarora?"
+            onClose={() => setLogout(false)}
+            busy={busy}
+          >
+            <p>You will return to the sign-in page.</p>
+            <footer>
+              <Button onClick={() => setLogout(false)} disabled={busy}>
+                Stay here
+              </Button>
+              <Button variant="primary" onClick={signOut} busy={busy}>
+                {busy ? "Logging out..." : "Log out"}
+              </Button>
+            </footer>
+          </Modal>
+        )}
       </div>
-      <Toast message={message} onDismiss={dismiss} />
-      {logout && (
-        <Modal
-          title="Log out of Velarora?"
-          onClose={() => setLogout(false)}
-          busy={busy}
-        >
-          <p>You will return to the sign-in page.</p>
-          <footer>
-            <Button onClick={() => setLogout(false)} disabled={busy}>
-              Stay here
-            </Button>
-            <Button variant="primary" onClick={signOut} busy={busy}>
-              Log out
-            </Button>
-          </footer>
-        </Modal>
-      )}
-    </div>
+    </ThemeContext.Provider>
   );
 }

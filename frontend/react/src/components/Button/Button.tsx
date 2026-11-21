@@ -1,5 +1,5 @@
 import type { ButtonHTMLAttributes } from "react";
-import { LoaderCircle } from "lucide-react";
+import { Spinner } from "../Spinner/Spinner";
 import styles from "./Button.module.css";
 type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: "primary" | "secondary" | "danger" | "ghost";
@@ -7,7 +7,8 @@ type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 export function Button({
   children,
-  variant = "secondary",
+  variant,
+  type = "button",
   busy = false,
   disabled,
   className = "",
@@ -16,11 +17,12 @@ export function Button({
   return (
     <button
       {...props}
+      type={type}
       disabled={disabled || busy}
       aria-busy={busy}
-      className={`${styles.button} ${styles[variant]} ${className}`}
+      className={`${styles.button} ${styles[variant ?? (type === "submit" ? "primary" : "secondary")]} ${className}`}
     >
-      {busy && <LoaderCircle className={styles.spinner} size={17} />} {children}
+      {busy && <Spinner />} {children}
     </button>
   );
 }

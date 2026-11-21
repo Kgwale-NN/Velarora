@@ -132,9 +132,7 @@ export function TrainingForm({
               <Select
                 label="Base model"
                 value={form.base_model}
-                onChange={(e) =>
-                  setForm({ ...form, base_model: e.target.value })
-                }
+                onChange={(value) => setForm({ ...form, base_model: value })}
                 options={bases.map((b) => ({ value: b, label: b }))}
               />
               {(["epochs", "imgsz", "batch"] as const).map((k) => (
@@ -161,9 +159,7 @@ export function TrainingForm({
               <Select
                 label="Fine-tune existing model (optional)"
                 value={form.source_id}
-                onChange={(e) =>
-                  setForm({ ...form, source_id: e.target.value })
-                }
+                onChange={(value) => setForm({ ...form, source_id: value })}
                 options={[
                   { value: "", label: "Train from base weights" },
                   ...models

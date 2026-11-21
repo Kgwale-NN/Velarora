@@ -89,3 +89,10 @@ The teacher shell applies its palette across History, Analytics, Reports, Schedu
 The sidebar account control is a reusable `AccountMenu` component. Its bottom name-and-avatar block opens a glass popover with Profile and Log out. The duplicate top-right profile and account role caption are removed. The popover uses a portal so it is not clipped by the scrolling sidebar, stays inside the viewport, supports keyboard navigation and Escape, and closes on outside clicks. Logging out still requires the existing confirmation dialog. Teacher menus use the light palette; administrator menus retain the dark palette.
 
 The reusable Sidebar component supports an expanded desktop menu and a 64px icon rail. The header toggle remembers the preference in localStorage. Compact links keep accessible names and hover titles; the bottom account menu remains available in either view. Phones use the full drawer, with Escape, outside-click dismissal, keyboard focus handling and hidden-menu inertness. Width transitions respect reduced-motion preferences. Sidebar styles live in its own CSS Module.
+
+
+## Shared navigation and form controls
+
+HeroUI's Navbar, ScrollShadow, Select and Spinner packages are wrapped by reusable components with local CSS Modules. The header remains above the scrolling workspace, while 40px overflow fades indicate more page or sidebar content. Teachers retain the light palette and administrators the dark palette. Select popovers inherit their theme explicitly and mount inside an existing native dialog when used in a form popup. Select callbacks receive the selected string value.
+
+Sign-in and logout show an 18px loading spinner and progress text, with duplicate submissions disabled. Submit buttons use the primary style; other buttons default to type=button. Bordered toasts appear at bottom-right, pause dismissal while hovered or focused, and expose a dismiss button. Manual page refresh buttons have been removed; browser refresh and existing automatic polling remain. The model library reloads automatically when a training result becomes available. Secondary pages load on demand with a skeleton fallback.

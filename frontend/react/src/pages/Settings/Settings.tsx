@@ -115,7 +115,7 @@ export function Settings({ notify }: { notify: Notify }) {
                       key={key}
                       label={label}
                       value={text(form[key])}
-                      onChange={(e) => update(key, e.target.value)}
+                      onChange={(value) => update(key, value)}
                       options={
                         kind === "auth"
                           ? [

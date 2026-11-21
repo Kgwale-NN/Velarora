@@ -58,19 +58,19 @@ export function History() {
           <Select
             label="Computer"
             value={computer}
-            onChange={(e) => setComputer(e.target.value)}
+            onChange={(value) => setComputer(value)}
             options={opts(choices.data?.computers || [], "name")}
           />
           <Select
             label="Student"
             value={student}
-            onChange={(e) => setStudent(e.target.value)}
+            onChange={(value) => setStudent(value)}
             options={opts(choices.data?.students || [], "username")}
           />
           <Select
             label="Detected class"
             value={klass}
-            onChange={(e) => setKlass(e.target.value)}
+            onChange={(value) => setKlass(value)}
             options={[
               { value: "", label: "All" },
               ...(choices.data?.classes || []).map((c) => ({

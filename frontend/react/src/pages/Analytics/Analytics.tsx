@@ -63,13 +63,13 @@ export function Analytics() {
           <Select
             label="Computer"
             value={computer}
-            onChange={(e) => setComputer(e.target.value)}
+            onChange={(value) => setComputer(value)}
             options={opts(choices.data?.computers || [], "name")}
           />
           <Select
             label="Student"
             value={student}
-            onChange={(e) => setStudent(e.target.value)}
+            onChange={(value) => setStudent(value)}
             options={opts(choices.data?.students || [], "username")}
           />
           <Button type="submit">Apply filters</Button>
