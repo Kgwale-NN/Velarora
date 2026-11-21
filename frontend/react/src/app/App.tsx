@@ -135,9 +135,7 @@ export function App() {
     }
   }
   return (
-    <div
-      className={`${styles.app} ${!admin && location.pathname === "/dashboard" ? styles.teacher : ""}`}
-    >
+    <div className={`${styles.app} ${!admin ? styles.teacher : ""}`}>
       <aside className={`${styles.sidebar} ${drawer ? styles.open : ""}`}>
         <div className={styles.sidebarTop}>
           <NavLink to={home} className={styles.brand}>

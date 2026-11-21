@@ -16,11 +16,11 @@
 
 .badge {
   display: inline-flex;
-  border: 1px solid #adc9ed40;
+  border: 1px solid var(--ui-border, #adc9ed40);
   border-radius: 20px;
   padding: 4px 10px;
-  background: #a8caff0a;
-  color: #d0dff0;
+  background: var(--ui-hover, #a8caff0a);
+  color: var(--ui-text, #d0dff0);
 }
 
 @media (max-width: 760px) {

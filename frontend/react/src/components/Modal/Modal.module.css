@@ -54,7 +54,7 @@
   margin-top: 6px;
 }
 .panel [role="alert"] {
-  color: #ffc4c4;
+  color: var(--ui-error, #ffc4c4);
   font-size: 16px;
   margin: 0;
 }

@@ -15,7 +15,7 @@
   margin: 0;
 }
 .heading p {
-  color: #a5adb8;
+  color: var(--ui-muted, #a5adb8);
 }
 
 .actions {

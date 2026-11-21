@@ -15,7 +15,7 @@
   margin: 0;
 }
 .heading p {
-  color: #a5adb8;
+  color: var(--ui-muted, #a5adb8);
 }
 .toolbar {
   display: flex;
@@ -31,7 +31,7 @@
   align-items: center;
 }
 .muted {
-  color: #9ca6b3;
+  color: var(--ui-muted, #9ca6b3);
   line-height: 1.6;
 }
 

@@ -15,7 +15,7 @@
   margin: 0;
 }
 .heading p {
-  color: #a5adb8;
+  color: var(--ui-muted, #a5adb8);
 }
 
 .actions {
@@ -25,18 +25,18 @@
   align-items: center;
 }
 .muted {
-  color: #9ca6b3;
+  color: var(--ui-muted, #9ca6b3);
   line-height: 1.6;
 }
 
 .item {
   padding: 16px 0;
-  border-bottom: 1px solid #ffffff18;
+  border-bottom: 1px solid var(--ui-border, #ffffff18);
 }
 .empty {
   text-align: center;
   padding: 36px;
-  color: #a1aab6;
+  color: var(--ui-muted, #a1aab6);
 }
 
 @media (max-width: 760px) {

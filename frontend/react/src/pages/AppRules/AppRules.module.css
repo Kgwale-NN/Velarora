@@ -9,7 +9,7 @@
 }
 
 .muted {
-  color: #9ca6b3;
+  color: var(--ui-muted, #9ca6b3);
   line-height: 1.6;
 }
 
@@ -18,13 +18,18 @@
   min-height: 160px;
   resize: vertical;
   padding: 18px;
-  border: 1px solid #ffffff30;
+  border: 1px solid var(--ui-border, #ffffff30);
   border-radius: 20px;
-  color: #e9edf2;
-  background: #ffffff05;
+  color: var(--ui-text, #e9edf2);
+  background: var(--ui-surface, #ffffff05);
   font: inherit;
   box-sizing: border-box;
 }
 
 @media (max-width: 760px) {
+}
+
+.fieldarea:focus-visible {
+  outline: 2px solid var(--ui-text, #eee);
+  outline-offset: 3px;
 }

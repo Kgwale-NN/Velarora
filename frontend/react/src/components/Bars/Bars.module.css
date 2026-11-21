@@ -17,12 +17,12 @@
 .track {
   height: 9px;
   border-radius: 10px;
-  background: #ffffff08;
+  background: var(--chart-track, #ffffff08);
   overflow: hidden;
 }
 .track > div {
   height: 100%;
-  background: linear-gradient(90deg, #7e95b0, #e1ebf7);
+  background: var(--chart-fill, linear-gradient(90deg, #7e95b0, #e1ebf7));
   border-radius: 10px;
   transition: width 0.7s ease;
 }

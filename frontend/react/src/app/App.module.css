@@ -329,6 +329,20 @@
   --ui-surface-hover: #fdfdfd;
   --ui-hover: #f0f1f3;
   --ui-option-background: #ffffff;
+  --table-heading-bg: #f5f6f8;
+  --table-font-size: 13px;
+  --table-cell-padding: 14px 18px;
+  --chart-track: #eceef1;
+  --chart-fill: linear-gradient(90deg, #242528, #696c72);
+  --panel-padding: 22px;
+  --panel-radius: 18px;
+  --panel-heading-size: 16px;
+  --stat-padding: 22px;
+  --stat-label-size: 12px;
+  --stat-note-size: 11px;
+  --stat-value-size: 34px;
+  --stat-value-weight: 600;
+  --stat-lift: -3px;
   --ui-accent: #171719;
   --ui-accent-text: #ffffff;
   --ui-error: #a52333;
@@ -349,7 +363,14 @@
   --select-height: 42px;
   --modal-heading-size: 22px;
   --toast-font-size: 14px;
+  --select-label-size: 12px;
   --input-label: #44474d;
+  --input-label-size: 12px;
+  --input-font-size: 14px;
+  --input-height: 44px;
+  --input-icon-size: 16px;
+  --input-icon: #666a71;
+  --input-placeholder: #74777c;
   --input-text: #202124;
   --input-border: #dedfe2;
   --input-background: #ffffff;
@@ -493,5 +514,25 @@
   }
   .teacher .account {
     max-width: 210px;
+  }
+}
+
+.teacher .main {
+  font-size: 14px;
+}
+.teacher .main > div {
+  min-width: 0;
+}
+.teacher .main h1 {
+  color: var(--ui-text);
+  font-size: 27px;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.8px;
+  margin: 0;
+}
+@media (max-width: 650px) {
+  .teacher .main h1 {
+    font-size: 25px;
   }
 }

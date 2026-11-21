@@ -78,8 +78,10 @@ The old `frontend/pages` files are retained as inactive migration references and
 
 ## Teacher dashboard design
 
-The teacher dashboard uses a light black-and-white theme with the login's system font, a compact sidebar, classroom controls, and three summary cards. Theme values live in the scoped App CSS Module; shared buttons, panels, selects, statistics, dialogs and notifications consume those values and keep their previous defaults elsewhere.
+Every teacher page uses the same light black-and-white theme. The dashboard uses this theme with the login's system font, a compact sidebar, classroom controls, and three summary cards. Theme values live in the scoped App CSS Module; shared buttons, panels, selects, statistics, dialogs and notifications consume those values and keep their previous defaults elsewhere.
 
 Live computer cards are in `components/ComputerScreen`, with their own TSX and CSS Module. They show online, offline and waiting states and open a larger live preview. Classroom PC totals come from classroom membership; online totals come from recent captures. Alarm totals include stop commands awaiting workstation acknowledgement. Alarms from the teacher's other exams remain visible and show their classroom.
 
 Start/stop controls retain the existing APIs and ownership checks. Another teacher's active classroom cannot be controlled from this page. Loading and empty states explain missing classrooms, missing PCs and pending captures. On smaller screens, the menu becomes a drawer and active alarms move above the screen grid.
+
+The teacher shell applies its palette across History, Analytics, Reports, Schedules, App Rules, Notifications and Profile. Shared tables, charts, input hints, forms and dialogs use scoped theme values for readable text and borders. Administrator pages keep the existing dark defaults, including the shared Profile page when opened by an administrator.
