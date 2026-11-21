@@ -3,9 +3,6 @@ import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import {
   UsersRound,
   School,
-  Menu,
-  PanelLeftClose,
-  PanelLeftOpen,
   Box,
   Settings as SettingsIcon,
   History as HistoryIcon,
@@ -40,6 +37,7 @@ import { Audit } from "../pages/Audit/Audit";
 import { Settings } from "../pages/Settings/Settings";
 import { ModelRules } from "../pages/ModelRules/ModelRules";
 import { NotificationBell } from "../components/NotificationBell/NotificationBell";
+import { SidebarToggle } from "../components/SidebarToggle/SidebarToggle";
 import { Sidebar } from "../components/Sidebar/Sidebar";
 import { useSmallScreen } from "../lib/useSmallScreen";
 import styles from "./App.module.css";
@@ -157,25 +155,8 @@ export function App() {
       />
       <div className={styles.workspace}>
         <header className={styles.topbar}>
-          <Button
-            variant="ghost"
-            className={styles.sidebarToggle}
-            aria-label={
-              mobile
-                ? "Open menu"
-                : collapsed
-                  ? "Expand sidebar"
-                  : "Collapse sidebar"
-            }
-            title={
-              mobile
-                ? "Open menu"
-                : collapsed
-                  ? "Expand sidebar"
-                  : "Collapse sidebar"
-            }
-            aria-expanded={mobile ? drawer : !collapsed}
-            aria-controls="workspace-sidebar"
+          <SidebarToggle
+            open={mobile ? drawer : !collapsed}
             onClick={() => {
               if (mobile) setDrawer((v) => !v);
               else {
@@ -184,16 +165,8 @@ export function App() {
                 localStorage.setItem("velarora.sidebar.compact", String(next));
               }
             }}
-          >
-            {mobile ? (
-              <Menu size={21} />
-            ) : collapsed ? (
-              <PanelLeftOpen size={19} />
-            ) : (
-              <PanelLeftClose size={19} />
-            )}
-          </Button>
-          <span>
+          />
+          <span className={styles.breadcrumb}>
             {admin ? "Administration" : "Teacher"}{" "}
             <span className={styles.slash}>/</span> {title}
           </span>

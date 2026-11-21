@@ -1,0 +1,33 @@
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 6px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--ui-icon, #999);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+.toggle:hover {
+  background: var(--ui-hover, #ffffff12);
+  color: var(--ui-text, #eee);
+}
+.toggle:focus-visible {
+  outline: 2px solid var(--ui-text, #eee);
+  outline-offset: 3px;
+}
+.toggle:active {
+  background: var(--ui-hover, #ffffff1a);
+}
+@media (prefers-reduced-motion: reduce) {
+  .toggle {
+    transition: none;
+  }
+}

@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { NavLink } from "react-router-dom";
 import { X, type LucideIcon } from "lucide-react";
 import { Button } from "../Button/Button";
+import { Tooltip } from "../Tooltip/Tooltip";
 import { AccountMenu } from "../AccountMenu/AccountMenu";
 import styles from "./Sidebar.module.css";
 type Props = {
@@ -97,18 +98,18 @@ export function Sidebar({
         </p>
         <nav className={styles.navigation} aria-label="Main menu">
           {links.map(([label, url, Icon]) => (
-            <NavLink
-              key={url}
-              to={url}
-              aria-label={label}
-              title={collapsed ? label : undefined}
-              className={({ isActive }) =>
-                `${styles.link} ${isActive ? styles.active : ""}`
-              }
-            >
-              <Icon size={18} aria-hidden="true" />
-              <span className={styles.label}>{label}</span>
-            </NavLink>
+            <Tooltip key={url} label={label} enabled={collapsed}>
+              <NavLink
+                to={url}
+                aria-label={label}
+                className={({ isActive }) =>
+                  `${styles.link} ${isActive ? styles.active : ""}`
+                }
+              >
+                <Icon size={18} aria-hidden="true" />
+                <span className={styles.label}>{label}</span>
+              </NavLink>
+            </Tooltip>
           ))}
         </nav>
         <div className={styles.bottom}>

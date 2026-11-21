@@ -226,3 +226,10 @@
     transform: none;
   }
 }
+
+.navigation > span {
+  display: flex;
+}
+.link {
+  width: 100%;
+}

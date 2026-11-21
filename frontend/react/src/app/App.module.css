@@ -44,9 +44,7 @@
   font-size: 16px;
   color: #999;
 }
-.topbar > button {
-  display: none;
-}
+
 .slash {
   margin: 0 13px;
   color: #444;
@@ -112,9 +110,6 @@
   }
 }
 @media (max-width: 800px) {
-  .topbar > button {
-    display: inline-flex;
-  }
   .workspace {
     margin-left: 0;
   }
@@ -122,7 +117,7 @@
     height: 78px;
     padding: 0 18px;
   }
-  .topbar > span {
+  .topbar > .breadcrumb {
     display: none;
   }
   .main {
@@ -279,9 +274,7 @@
 .workspace {
   transition: margin-left 0.32s ease;
 }
-.topbar > .sidebarToggle {
-  display: inline-flex;
-}
+
 @media (min-width: 801px) and (max-width: 1100px) {
   .app:not(.teacher):not(.compact) {
     --sidebar-width: 215px;
