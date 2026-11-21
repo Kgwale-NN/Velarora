@@ -16,7 +16,13 @@ export function Input({ label, icon, hint, id: provided, ...props }: Props) {
         <input
           {...props}
           id={id}
-          aria-describedby={hint ? id + "-hint" : undefined}
+          aria-describedby={
+            hint
+              ? [props["aria-describedby"], id + "-hint"]
+                  .filter(Boolean)
+                  .join(" ")
+              : props["aria-describedby"]
+          }
         />
       </div>
       {hint && <small id={id + "-hint"}>{hint}</small>}

@@ -40,6 +40,7 @@ def register(app):
     routes = {
         "/": "dashboard",
         "/login": "login",
+        "/signup": "signup",
         "/users": "users",
         "/groups": "classrooms",
         "/models": "models",

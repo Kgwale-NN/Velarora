@@ -5,6 +5,7 @@ All active browser pages use React and TypeScript. The Python backend retains au
 ## Pages
 
 - Sign-in: email/password, remember me, Google sign-in and password-reset guidance.
+- Teacher sign-up: public registration with full name, email, strong password and confirmation. New accounts can sign in as teachers; administrator roles cannot be selected. Email verification is not configured yet.
 - Administrator: Users, Classrooms, Workstations, Classroom overview, Models and training, Model alert rules, Audit log, Profile and Settings.
 - Teacher: Dashboard, History, Analytics, Reports, Schedules, App rules, Notifications and Profile.
 - Students remain monitoring records and have no website sign-in access.
@@ -20,6 +21,7 @@ frontend/react/src/
                         # panels, notifications, snapshots and charts
   pages/
     Login/
+    Signup/
     Users/
     Classrooms/
     Dashboard/
@@ -60,7 +62,7 @@ Build output and `node_modules` are ignored by Git. Source files and the lockfil
 
 ## Backend contracts
 
-- `/api/session`, `/api/login`, `/api/logout`, `/api/profile`: staff account operations.
+- `/api/session`, `/api/login`, `/api/signup`, `/api/logout`, `/api/profile`: staff account operations.
 - `/api/admin/*`: live administrator role checks on every request.
 - `/api/teacher/*`: teacher-owned history, reports, schedules, rules, notifications, alarms and exam controls.
 - `/api/classrooms/*`: shared classroom selection; screen data is visible to the owning teacher or an administrator.

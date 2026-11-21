@@ -1,0 +1,104 @@
+.page {
+  --input-label: #202020;
+  --input-text: #111111;
+  --input-icon: #555555;
+  --input-border: #d1d1d1;
+  --input-background: rgb(255 255 255 / 75%);
+  --input-autofill-background: #ffffff;
+  --input-focus-border: #222222;
+  --input-focus-background: #ffffff;
+  --input-focus-ring: rgb(0 0 0 / 6%);
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 32px 20px;
+  box-sizing: border-box;
+  font-family: VelaroraSerif, Georgia, serif;
+  color: #111111;
+  background:
+    radial-gradient(circle at 20% 20%, #ededed 0%, transparent 45%), #ffffff;
+  color-scheme: light;
+}
+.card {
+  width: min(100%, 420px);
+  display: grid;
+  gap: 24px;
+  padding: 40px 36px;
+  box-sizing: border-box;
+  border-radius: 32px;
+  background: rgb(255 255 255 / 65%);
+  border: 1px solid rgb(0 0 0 / 10%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow:
+    0 20px 60px rgb(0 0 0 / 7%),
+    inset 0 1px 0 rgb(255 255 255 / 90%);
+  animation: arrive 2s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+.brand {
+  text-align: center;
+  font-style: italic;
+  font-size: 29px;
+}
+.card h1 {
+  text-align: center;
+  font-size: 36px;
+  font-weight: 500;
+  line-height: 1.15;
+  margin: 0 0 12px;
+}
+@keyframes arrive {
+  0% {
+    opacity: 0;
+    transform: perspective(1000px) translateZ(-80px) translateY(20px);
+  }
+  65% {
+    opacity: 1;
+    transform: perspective(1000px) translateZ(15px);
+  }
+  100% {
+    transform: perspective(1000px) translateZ(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    animation: none;
+  }
+}
+
+.card label {
+  color: #202020;
+}
+.card input[type="checkbox"] {
+  accent-color: #111111;
+}
+.card button[type="submit"] {
+  color: #ffffff;
+  background: #000000;
+  border-color: #000000;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 8%);
+}
+.card button[type="submit"]:hover:enabled {
+  background: #242424;
+  box-shadow: 0 8px 20px rgb(0 0 0 / 14%);
+}
+.card button[type="submit"]:focus-visible {
+  outline-color: #111111;
+}
+.page dialog {
+  color: #111111;
+  background: rgb(255 255 255 / 92%);
+  border-color: rgb(0 0 0 / 12%);
+  box-shadow: 0 24px 70px rgb(0 0 0 / 15%);
+}
+.page dialog p {
+  color: #555555;
+}
+.page dialog button {
+  color: #111111;
+  border-color: #d1d1d1;
+  background: rgb(255 255 255 / 70%);
+}
+.page dialog button:hover:enabled {
+  background: #eeeeee;
+}

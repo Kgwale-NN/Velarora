@@ -32,6 +32,7 @@ import { ResourceState } from "../components/ResourceState/ResourceState";
 import { Users } from "../pages/Users/Users";
 import { Classrooms } from "../pages/Classrooms/Classrooms";
 import { Login } from "../pages/Login/Login";
+import { Signup } from "../pages/Signup/Signup";
 import { Dashboard } from "../pages/Dashboard/Dashboard";
 import { History } from "../pages/History/History";
 import { Analytics } from "../pages/Analytics/Analytics";
@@ -107,7 +108,11 @@ export function App() {
   if (!session.user)
     return (
       <>
-        <Login session={session} onLogin={setSession} />
+        {location.pathname === "/signup" ? (
+          <Signup />
+        ) : (
+          <Login session={session} onLogin={setSession} />
+        )}
         <Toast message={message} onDismiss={dismiss} />
       </>
     );

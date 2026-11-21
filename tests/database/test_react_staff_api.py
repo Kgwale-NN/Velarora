@@ -233,3 +233,108 @@ def test_teacher_password_reset_is_admin_only(api):
         ).status_code
         == 400
     )
+
+
+def signup_payload(**changes):
+    return {
+        "username": "New Teacher",
+        "email": "new@example.test",
+        "password": "Secure-password1",
+        "confirm_password": "Secure-password1",
+        **changes,
+    }
+
+
+def test_public_signup_creates_only_teacher_and_can_sign_in(api):
+    from backend.core import rate_limit
+
+    rate_limit.reset_all()
+    api.state.pop("auth")
+    response = api.client.post(
+        "/api/signup", json=signup_payload(email=" NEW@EXAMPLE.TEST "), headers=api.headers
+    )
+    assert response.status_code == 201, response.text
+    assert response.headers["cache-control"] == "no-store"
+    assert response.json() == {
+        "ok": True,
+        "message": "Your teacher account is ready. Sign in to continue.",
+    }
+    user = db.get_user_by_username("New Teacher")
+    assert (
+        user["role"] == "teacher" and user["email"] == "new@example.test" and user["is_active"] == 1
+    )
+    assert user["hashed_password"] != "Secure-password1"
+    assert "auth" not in api.state
+    response = api.client.post(
+        "/api/login",
+        json={"email": "new@example.test", "password": "Secure-password1"},
+        headers=api.headers,
+    )
+    assert response.status_code == 200 and response.json()["user"]["role"] == "teacher"
+
+
+def test_public_signup_rejects_role_injection_csrf_and_signed_in_users(api):
+    from backend.core import rate_limit
+
+    rate_limit.reset_all()
+    assert (
+        api.client.post("/api/signup", json=signup_payload(), headers=api.headers).status_code
+        == 409
+    )
+    api.state.pop("auth")
+    assert api.client.post("/api/signup", json=signup_payload()).status_code == 403
+    assert (
+        api.client.post(
+            "/api/signup", json=signup_payload(role="admin"), headers=api.headers
+        ).status_code
+        == 422
+    )
+    assert db.get_user_by_username("New Teacher") is None
+
+
+def test_public_signup_validates_password_email_and_duplicate_accounts(api):
+    from backend.core import rate_limit
+
+    rate_limit.reset_all()
+    api.state.pop("auth")
+    assert (
+        api.client.post(
+            "/api/signup",
+            json=signup_payload(confirm_password="Different123!"),
+            headers=api.headers,
+        ).status_code
+        == 400
+    )
+    assert (
+        api.client.post(
+            "/api/signup",
+            json=signup_payload(password="weakpassword1!", confirm_password="weakpassword1!"),
+            headers=api.headers,
+        ).status_code
+        == 400
+    )
+    assert (
+        api.client.post(
+            "/api/signup", json=signup_payload(email="invalid"), headers=api.headers
+        ).status_code
+        == 400
+    )
+    assert (
+        api.client.post(
+            "/api/signup", json=signup_payload(email="first@example.test"), headers=api.headers
+        ).status_code
+        == 409
+    )
+    assert db.get_user_by_username("New Teacher") is None
+
+
+def test_public_signup_is_rate_limited(api, monkeypatch):
+    from backend.core import rate_limit
+
+    api.state.pop("auth")
+    monkeypatch.setattr(rate_limit, "retry_after", lambda key: 60)
+    assert (
+        api.client.post("/api/signup", json=signup_payload(), headers=api.headers).status_code
+        == 429
+    )
+    assert db.get_user_by_username("New Teacher") is None
