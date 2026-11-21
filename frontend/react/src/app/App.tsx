@@ -1,16 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
-import {
-  Routes,
-  Route,
-  Navigate,
-  NavLink,
-  useLocation,
-} from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import {
   UsersRound,
   School,
   Menu,
-  X,
+  PanelLeftClose,
+  PanelLeftOpen,
   Box,
   Settings as SettingsIcon,
   History as HistoryIcon,
@@ -45,7 +40,8 @@ import { Audit } from "../pages/Audit/Audit";
 import { Settings } from "../pages/Settings/Settings";
 import { ModelRules } from "../pages/ModelRules/ModelRules";
 import { NotificationBell } from "../components/NotificationBell/NotificationBell";
-import { AccountMenu } from "../components/AccountMenu/AccountMenu";
+import { Sidebar } from "../components/Sidebar/Sidebar";
+import { useSmallScreen } from "../lib/useSmallScreen";
 import styles from "./App.module.css";
 const adminLinks = [
   ["Users", "/users", UsersRound],
@@ -72,10 +68,17 @@ export function App() {
   const [session, setSession] = useState<Session | null>(null),
     [error, setError] = useState(""),
     [drawer, setDrawer] = useState(false),
+    [collapsed, setCollapsed] = useState(
+      () => localStorage.getItem("velarora.sidebar.compact") === "true",
+    ),
     [logout, setLogout] = useState(false),
     [busy, setBusy] = useState(false),
     [message, setMessage] = useState<ToastMessage | null>(null);
+  const mobile = useSmallScreen();
   const location = useLocation();
+  useEffect(() => {
+    if (!mobile) setDrawer(false);
+  }, [mobile]);
   const notify: Notify = useCallback(
     (text, kind = "success") => setMessage({ id: Date.now(), text, kind }),
     [],
@@ -135,62 +138,60 @@ export function App() {
     }
   }
   return (
-    <div className={`${styles.app} ${!admin ? styles.teacher : ""}`}>
-      <aside className={`${styles.sidebar} ${drawer ? styles.open : ""}`}>
-        <div className={styles.sidebarTop}>
-          <NavLink to={home} className={styles.brand}>
-            Velarora<span>EXAM WORKSPACE</span>
-          </NavLink>
-          <Button
-            variant="ghost"
-            aria-label="Close menu"
-            onClick={() => setDrawer(false)}
-          >
-            <X size={20} />
-          </Button>
-        </div>
-        <p className={styles.caption}>
-          {admin ? "ADMINISTRATION" : "TEACHER WORKSPACE"}
-        </p>
-        <nav className={styles.navigation} aria-label="Main menu">
-          {links.map(([label, url, Icon]) => (
-            <NavLink
-              key={url}
-              to={url}
-              className={({ isActive }) => (isActive ? styles.active : "")}
-            >
-              <Icon size={18} />
-              {label}
-            </NavLink>
-          ))}
-        </nav>
-        <div className={styles.sidebarBottom}>
-          <span className={styles.online}>Local workspace online</span>
-          <AccountMenu
-            name={user.username}
-            role={user.role}
-            onLogout={() => {
-              setDrawer(false);
-              setLogout(true);
-            }}
-          />
-        </div>
-      </aside>
-      {drawer && (
-        <button
-          className={styles.scrim}
-          aria-label="Close navigation"
-          onClick={() => setDrawer(false)}
-        />
-      )}
+    <div
+      className={`${styles.app} ${!admin ? styles.teacher : ""} ${collapsed && !mobile ? styles.compact : ""}`}
+    >
+      <Sidebar
+        name={user.username}
+        role={user.role}
+        home={home}
+        links={links}
+        collapsed={collapsed && !mobile}
+        mobile={mobile}
+        open={drawer}
+        onClose={() => setDrawer(false)}
+        onLogout={() => {
+          setDrawer(false);
+          setLogout(true);
+        }}
+      />
       <div className={styles.workspace}>
         <header className={styles.topbar}>
           <Button
             variant="ghost"
-            aria-label="Open menu"
-            onClick={() => setDrawer((v) => !v)}
+            className={styles.sidebarToggle}
+            aria-label={
+              mobile
+                ? "Open menu"
+                : collapsed
+                  ? "Expand sidebar"
+                  : "Collapse sidebar"
+            }
+            title={
+              mobile
+                ? "Open menu"
+                : collapsed
+                  ? "Expand sidebar"
+                  : "Collapse sidebar"
+            }
+            aria-expanded={mobile ? drawer : !collapsed}
+            aria-controls="workspace-sidebar"
+            onClick={() => {
+              if (mobile) setDrawer((v) => !v);
+              else {
+                const next = !collapsed;
+                setCollapsed(next);
+                localStorage.setItem("velarora.sidebar.compact", String(next));
+              }
+            }}
           >
-            <Menu size={21} />
+            {mobile ? (
+              <Menu size={21} />
+            ) : collapsed ? (
+              <PanelLeftOpen size={19} />
+            ) : (
+              <PanelLeftClose size={19} />
+            )}
           </Button>
           <span>
             {admin ? "Administration" : "Teacher"}{" "}

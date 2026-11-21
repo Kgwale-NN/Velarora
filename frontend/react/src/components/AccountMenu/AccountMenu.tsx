@@ -3,8 +3,13 @@ import { createPortal } from "react-dom";
 import { Link, useLocation } from "react-router-dom";
 import { LogOut, UserRound } from "lucide-react";
 import styles from "./AccountMenu.module.css";
-type Props = { name: string; role: string; onLogout: () => void };
-export function AccountMenu({ name, role, onLogout }: Props) {
+type Props = {
+  name: string;
+  role: string;
+  compact?: boolean;
+  onLogout: () => void;
+};
+export function AccountMenu({ name, role, compact = false, onLogout }: Props) {
   const [open, setOpen] = useState(false),
     [position, setPosition] = useState<{
       left: number;
@@ -96,7 +101,7 @@ export function AccountMenu({ name, role, onLogout }: Props) {
         ref={trigger}
         id={id}
         type="button"
-        className={styles.trigger}
+        className={`${styles.trigger} ${compact ? styles.compact : ""}`}
         aria-label="Open account menu"
         aria-haspopup="menu"
         aria-expanded={open}

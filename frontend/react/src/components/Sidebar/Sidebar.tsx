@@ -1,0 +1,140 @@
+import { useEffect, useRef } from "react";
+import { NavLink } from "react-router-dom";
+import { X, type LucideIcon } from "lucide-react";
+import { Button } from "../Button/Button";
+import { AccountMenu } from "../AccountMenu/AccountMenu";
+import styles from "./Sidebar.module.css";
+type Props = {
+  name: string;
+  role: string;
+  home: string;
+  links: readonly (readonly [string, string, LucideIcon])[];
+  collapsed: boolean;
+  mobile: boolean;
+  open: boolean;
+  onClose: () => void;
+  onLogout: () => void;
+};
+export function Sidebar({
+  name,
+  role,
+  home,
+  links,
+  collapsed,
+  mobile,
+  open,
+  onClose,
+  onLogout,
+}: Props) {
+  const element = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (!mobile || !open) return;
+    const previous = document.activeElement as HTMLElement | null;
+    element.current
+      ?.querySelector<HTMLButtonElement>('button[aria-label="Close menu"]')
+      ?.focus();
+    return () => previous?.focus();
+  }, [mobile, open]);
+  return (
+    <>
+      <aside
+        ref={element}
+        id="workspace-sidebar"
+        className={`${styles.sidebar} ${role === "teacher" ? styles.light : ""} ${collapsed ? styles.collapsed : ""} ${open ? styles.open : ""}`}
+        aria-label="Workspace sidebar"
+        aria-hidden={mobile && !open ? true : undefined}
+        inert={mobile && !open}
+        onKeyDown={(event) => {
+          if (!mobile || !open) return;
+          if (event.key === "Escape") {
+            event.preventDefault();
+            onClose();
+          }
+          if (event.key === "Tab") {
+            const items = Array.from(
+              element.current?.querySelectorAll<HTMLElement>(
+                "a[href],button:not(:disabled)",
+              ) || [],
+            );
+            if (!items.length) return;
+            const first = items[0],
+              last = items[items.length - 1];
+            if (event.shiftKey && document.activeElement === first) {
+              event.preventDefault();
+              last.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+              event.preventDefault();
+              first.focus();
+            }
+          }
+        }}
+      >
+        <div className={styles.top}>
+          <NavLink
+            to={home}
+            className={styles.brand}
+            title="Velarora"
+            aria-label="Velarora home"
+          >
+            <span className={styles.brandFull}>
+              Velarora<small>EXAM WORKSPACE</small>
+            </span>
+            <span className={styles.brandMark} aria-hidden="true">
+              V
+            </span>
+          </NavLink>
+          <Button
+            className={styles.close}
+            variant="ghost"
+            aria-label="Close menu"
+            onClick={onClose}
+          >
+            <X size={20} />
+          </Button>
+        </div>
+        <p className={styles.caption}>
+          {role === "admin" ? "ADMINISTRATION" : "TEACHER WORKSPACE"}
+        </p>
+        <nav className={styles.navigation} aria-label="Main menu">
+          {links.map(([label, url, Icon]) => (
+            <NavLink
+              key={url}
+              to={url}
+              aria-label={label}
+              title={collapsed ? label : undefined}
+              className={({ isActive }) =>
+                `${styles.link} ${isActive ? styles.active : ""}`
+              }
+            >
+              <Icon size={18} aria-hidden="true" />
+              <span className={styles.label}>{label}</span>
+            </NavLink>
+          ))}
+        </nav>
+        <div className={styles.bottom}>
+          <span
+            className={styles.online}
+            title="Local workspace online"
+            aria-label="Local workspace online"
+          >
+            <span className={styles.dot} aria-hidden="true" />
+            <span className={styles.onlineLabel}>Local workspace online</span>
+          </span>
+          <AccountMenu
+            name={name}
+            role={role}
+            compact={collapsed}
+            onLogout={onLogout}
+          />
+        </div>
+      </aside>
+      {mobile && open && (
+        <button
+          className={styles.scrim}
+          aria-label="Close navigation"
+          onClick={onClose}
+        />
+      )}
+    </>
+  );
+}

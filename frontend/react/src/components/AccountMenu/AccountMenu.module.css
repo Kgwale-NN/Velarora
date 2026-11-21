@@ -165,3 +165,11 @@
     transition: none;
   }
 }
+
+.compact {
+  justify-content: center;
+  padding: 6px 3px;
+}
+.compact .name {
+  display: none;
+}
