@@ -15,10 +15,7 @@ export function AccountMenu({ name, role, onLogout }: Props) {
     popup = useRef<HTMLDivElement>(null);
   const id = useId(),
     location = useLocation();
-  const words = name.trim().split(/\s+/).filter(Boolean);
-  const initials =
-    (words[0]?.charAt(0) || "?") +
-    (words.length > 1 ? words[words.length - 1].charAt(0) : "");
+  const initials = name.trim().charAt(0).toUpperCase() || "?";
   const theme = `${styles.theme} ${role === "teacher" ? styles.light : ""}`;
   function close(restore = false) {
     setOpen(false);
@@ -94,7 +91,7 @@ export function AccountMenu({ name, role, onLogout }: Props) {
     items[next]?.focus();
   }
   return (
-    <div className={theme}>
+    <div className={`${theme} ${styles.root}`}>
       <button
         ref={trigger}
         id={id}
@@ -117,7 +114,10 @@ export function AccountMenu({ name, role, onLogout }: Props) {
           }
         }}
       >
-        <span aria-hidden="true">{initials.toUpperCase()}</span>
+        <span className={styles.avatar} aria-hidden="true">
+          {initials}
+        </span>
+        <span className={styles.name}>{name}</span>
       </button>
       {open &&
         createPortal(
@@ -136,7 +136,6 @@ export function AccountMenu({ name, role, onLogout }: Props) {
               </span>
               <div className={styles.identity}>
                 <strong>{name}</strong>
-                <small>{role === "admin" ? "Administrator" : "Teacher"}</small>
               </div>
             </div>
             <Link

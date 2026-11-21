@@ -16,7 +16,10 @@
   --account-hover: #00000006;
   --account-avatar: #e7e9ec;
 }
-.trigger,
+.root {
+  width: 100%;
+  min-width: 0;
+}
 .avatar {
   display: grid;
   place-items: center;
@@ -30,21 +33,38 @@
   box-sizing: border-box;
 }
 .trigger {
-  width: 36px;
-  height: 36px;
-  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  padding: 7px 8px;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  box-sizing: border-box;
+  background: transparent;
+  color: var(--account-text);
+  font: inherit;
   cursor: pointer;
-  box-shadow: inset 0 1px #ffffff50;
   transition:
     background 0.25s,
-    box-shadow 0.25s,
-    transform 0.25s;
+    border-color 0.25s;
 }
-.trigger:hover {
-  box-shadow:
-    inset 0 1px #ffffff70,
-    0 4px 14px #00000012;
-  transform: translateY(-1px);
+.trigger:hover,
+.trigger[aria-expanded="true"] {
+  background: var(--account-hover);
+  border-color: var(--account-border);
+}
+.name {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.5;
+  text-align: left;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .trigger:focus-visible {
   outline: 2px solid var(--account-text);
@@ -93,10 +113,6 @@
   font-weight: 600;
   line-height: 1.4;
   overflow-wrap: anywhere;
-}
-.identity small {
-  font-size: 11px;
-  color: var(--account-muted);
 }
 .item {
   display: flex;
@@ -147,8 +163,5 @@
   .trigger,
   .item {
     transition: none;
-  }
-  .trigger:hover {
-    transform: none;
   }
 }

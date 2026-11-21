@@ -197,15 +197,6 @@ export function App() {
             <span className={styles.slash}>/</span> {title}
           </span>
           {!admin && <NotificationBell notify={notify} />}
-          <NavLink to="/profile" className={styles.account}>
-            <span className={styles.avatar}>
-              {user.username.charAt(0).toUpperCase()}
-            </span>
-            <span>
-              {user.username}
-              <small>{admin ? "Administrator" : "Teacher"}</small>
-            </span>
-          </NavLink>
         </header>
         <main key={location.pathname} className={styles.main}>
           <Routes>
