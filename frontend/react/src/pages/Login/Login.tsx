@@ -7,7 +7,6 @@ import { Input } from "../../components/Input/Input";
 import { Button } from "../../components/Button/Button";
 import { Check } from "../../components/Check/Check";
 import { Modal } from "../../components/Modal/Modal";
-import { AuthProgress } from "../../components/AuthProgress/AuthProgress";
 import { AuthLayout } from "../../components/AuthLayout/AuthLayout";
 import { PasswordField } from "../../components/PasswordField/PasswordField";
 import styles from "./Login.module.css";
@@ -31,6 +30,7 @@ export function Login({
     );
   async function submit(e: FormEvent) {
     e.preventDefault();
+    if (busy) return;
     setBusy(true);
     setError("");
     try {
@@ -53,7 +53,6 @@ export function Login({
       onSubmit={submit}
       aside={
         <>
-          {busy && <AuthProgress label="Signing in..." />}
           {forgot && (
             <Modal title="Reset your password" onClose={() => setForgot(false)}>
               <p>

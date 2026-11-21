@@ -100,7 +100,7 @@ Sign-in and logout show an 18px loading spinner and progress text, with duplicat
 
 The dashboard focuses on live screens: the monitoring-activity log and permanent exam-alarm sidebar are removed. A shared ExamAlarmsProvider polls the owning teacher's alarms once across pages. New alarms open a persistent bottom-right notification with PC, app, classroom and Stop alarm. Dismissing that notification does not stop the workstation siren. The notification bell opens the active-alarm list; the full Notifications page includes the same controls. Stop commands retain the existing teacher-scoped backend endpoint and pending-acknowledgement state.
 
-The sidebar no longer shows the Profile navigation link or the Local workspace online label. Profile remains available in the bottom account menu. Sign-in and sign-out display a centred glass progress dialog with a 28px spinner for the actual request duration; no artificial delay is added. Administrator-specific tables, filters and page headings use the shared light theme and compact spacing.
+The sidebar no longer shows the Profile navigation link or the Local workspace online label. Profile remains available in the bottom account menu. Sign-in shows its spinner inside the disabled Sign in button; logout retains its progress dialog. No artificial delay is added. Administrator-specific tables, filters and page headings use the shared light theme and compact spacing.
 
 
 ## Consistent workspace page structure
@@ -115,3 +115,6 @@ PageSkeleton provides reusable, route-specific loading layouts for all workspace
 
 
 The login uses a split desktop layout: the form is centred in the left half and the clear computer-lab2 image fills the right half. On screens up to 800px, the image stacks below the form. Existing sign-in controls and authentication behaviour are retained.
+
+
+The login photo includes the caption "Every screen in view. Every exam protected." with a lower image gradient for readable white text. The caption stays within the photo on desktop and stacked phone layouts.
