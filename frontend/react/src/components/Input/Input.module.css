@@ -1,11 +1,11 @@
 .field {
   display: flex;
   flex-direction: column;
-  gap: 9px;
+  gap: var(--input-gap, 9px);
   min-width: 0;
 }
 .field label {
-  font-size: 16px;
+  font-size: var(--input-label-size, 16px);
   color: var(--input-label, #dedede);
 }
 .control {
@@ -18,8 +18,9 @@
     --input-background,
     linear-gradient(120deg, #ffffff0b, #ffffff03)
   );
+  box-shadow: var(--input-shadow, none);
   padding: 0 17px;
-  min-height: 48px;
+  min-height: var(--input-height, 48px);
   transition:
     border-color 0.25s,
     background 0.25s;
@@ -30,8 +31,8 @@
   box-shadow: 0 0 0 3px var(--input-focus-ring, #ffffff05);
 }
 .control svg {
-  width: 18px;
-  height: 18px;
+  width: var(--input-icon-size, 18px);
+  height: var(--input-icon-size, 18px);
   flex-shrink: 0;
   color: var(--input-icon, #bdbdbd);
 }
@@ -44,7 +45,7 @@
   outline: none;
   color: var(--input-text, #eee);
   font: inherit;
-  font-size: 17px;
+  font-size: var(--input-font-size, 17px);
 }
 .control input::placeholder {
   color: #7e7e7e;
@@ -59,7 +60,8 @@
 .control input:-webkit-autofill:hover,
 .control input:-webkit-autofill:focus {
   border-radius: 999px;
-  -webkit-box-shadow: 0 0 0 1000px var(--input-autofill-background, #202020) inset;
+  -webkit-box-shadow: 0 0 0 1000px var(--input-autofill-background, #202020)
+    inset;
   -webkit-text-fill-color: var(--input-text, #eee);
   caret-color: var(--input-text, #eee);
 }

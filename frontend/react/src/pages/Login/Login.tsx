@@ -104,6 +104,9 @@ export function Login({
             className={styles.google}
             href={"/auth/google?remember=" + remember}
           >
+            <span className={styles.googleMark} aria-hidden="true">
+              G
+            </span>
             Google
           </a>
         </>
