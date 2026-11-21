@@ -67,3 +67,8 @@ Training-Datasets/
 # Per-workstation bearer credentials stay off GitHub.
 workstation/*.json
 velarora-pc-*.json
+
+# React dependencies and reproducible build output
+frontend/react/node_modules/
+frontend/react/dist/
+frontend/react/*.tsbuildinfo

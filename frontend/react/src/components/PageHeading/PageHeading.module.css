@@ -1,0 +1,35 @@
+.heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+.eyebrow {
+  font:
+    10px/1.5 system-ui,
+    sans-serif;
+  letter-spacing: 2.5px;
+  color: #808080;
+  text-transform: uppercase;
+}
+.heading h1 {
+  font-weight: 400;
+  font-size: 44px;
+  line-height: 1.15;
+  margin: 10px 0 12px;
+  letter-spacing: -0.8px;
+}
+.heading p {
+  color: #969696;
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.5;
+  max-width: 580px;
+}
+@media (max-width: 600px) {
+  .heading h1 {
+    font-size: 36px;
+  }
+}

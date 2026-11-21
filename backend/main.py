@@ -36,6 +36,9 @@ log = logging.getLogger(__name__)
 from backend.core.agent_api import router as workstation_router
 nicegui_app.include_router(workstation_router)
 
+from backend.api.react_admin import register as register_react_admin
+register_react_admin(nicegui_app)
+
 # Register pages
 import frontend.pages.classroom_status
 import frontend.pages.workstations

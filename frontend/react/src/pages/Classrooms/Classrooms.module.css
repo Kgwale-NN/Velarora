@@ -1,0 +1,174 @@
+.page {
+  display: flex;
+  flex-direction: column;
+}
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.guide {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  border: 1px solid #ffffff18;
+  border-radius: 20px;
+  padding: 20px 24px;
+  background: #ffffff03;
+  color: #666;
+  font-size: 15px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+.guide strong {
+  font-weight: 400;
+  color: #aaa;
+  margin-left: 8px;
+}
+.guide i {
+  height: 1px;
+  background: #ffffff16;
+  flex: 1;
+  min-width: 20px;
+}
+.toolbar {
+  display: flex;
+  align-items: flex-end;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+.search {
+  flex: 1;
+  max-width: 410px;
+  margin-right: auto;
+}
+.identity {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  min-width: 180px;
+}
+.identity small {
+  display: block;
+  color: #777;
+  font-size: 14px;
+  margin-top: 5px;
+}
+.roomIcon {
+  border: 1px solid #ffffff22;
+  border-radius: 12px;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  background: #ffffff04;
+  flex-shrink: 0;
+  color: #aaa;
+}
+.count {
+  font-size: 23px;
+}
+.count span {
+  font-size: 14px;
+  color: #777;
+  margin-left: 4px;
+}
+.badge {
+  font-size: 13px;
+  border: 1px solid #ffffff20;
+  border-radius: 999px;
+  padding: 4px 11px;
+  color: #aaa;
+  white-space: nowrap;
+}
+.link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #bbb;
+  text-decoration: none;
+  font-size: 14px;
+  white-space: nowrap;
+}
+.link:hover {
+  color: #fff;
+}
+.actions {
+  display: flex;
+  gap: 2px;
+}
+.actions button {
+  padding: 8px;
+}
+.note {
+  color: #777;
+  font-size: 15px;
+  line-height: 1.5;
+  margin-top: 19px;
+}
+.choices {
+  max-height: 300px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.choices label {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  border: 1px solid #ffffff18;
+  border-radius: 16px;
+  padding: 14px;
+  cursor: pointer;
+  background: #ffffff03;
+}
+.choices label:has(input:checked) {
+  border-color: #ffffff50;
+  background: #ffffff09;
+}
+.choices input {
+  accent-color: #ddd;
+  width: 16px;
+  height: 16px;
+}
+.choices small {
+  display: block;
+  color: #777;
+  font:
+    11px system-ui,
+    sans-serif;
+  margin-top: 5px;
+}
+.error {
+  color: #ffcaca;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+@media (max-width: 900px) {
+  .stats {
+    grid-template-columns: 1fr;
+  }
+  .guide {
+    gap: 14px;
+    padding: 18px;
+  }
+  .guide i {
+    display: none;
+  }
+}
+@media (max-width: 600px) {
+  .toolbar {
+    flex-wrap: wrap;
+  }
+  .search {
+    flex-basis: 100%;
+    max-width: none;
+  }
+  .guide {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

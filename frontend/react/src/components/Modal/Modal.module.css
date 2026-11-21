@@ -1,0 +1,72 @@
+.dialog {
+  padding: 0;
+  border: 1px solid #ffffff30;
+  border-radius: 28px;
+  background: linear-gradient(135deg, #202020df, #090909f5);
+  backdrop-filter: blur(32px);
+  color: #eee;
+  width: min(530px, calc(100vw - 32px));
+  max-height: 88dvh;
+  box-shadow:
+    0 35px 100px #000b,
+    inset 0 1px #ffffff0b;
+  animation: arrive 0.32s ease both;
+}
+.dialog::backdrop {
+  background: #0009;
+  backdrop-filter: blur(6px);
+}
+.panel {
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.header h2 {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 500;
+}
+.panel form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.panel p {
+  margin: 0;
+  color: #aaa;
+  line-height: 1.5;
+}
+.panel footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+.panel [role="alert"] {
+  color: #ffc4c4;
+  font-size: 16px;
+  margin: 0;
+}
+@keyframes arrive {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dialog {
+    animation: none;
+  }
+}

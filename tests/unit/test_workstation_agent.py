@@ -32,7 +32,8 @@ def test_network_failure_never_silences_active_alarm(monkeypatch):
     def sleep(_):
         value=next(waits)
         if value:raise value
-    monkeypatch.setattr(agent.time,'sleep',sleep)
+    from types import SimpleNamespace
+    monkeypatch.setattr(agent,'time',SimpleNamespace(sleep=sleep))
     with pytest.raises(KeyboardInterrupt):agent.run_agent({'server_url':'https://school.example','token':'test-only'})
     player.set.assert_called_once_with(True)
 

@@ -31,6 +31,9 @@ def page_users() -> None:
     current = require_auth(required_role="admin")
     if current is None:
         return
+    from backend.api.react_admin import redirect_if_built
+    if redirect_if_built("users"):
+        return
     nav(current)
     admin = is_admin(current)
 

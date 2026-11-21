@@ -17,6 +17,9 @@ def page_groups():
     current = require_auth(required_role='admin')
     if current is None:
         return
+    from backend.api.react_admin import redirect_if_built
+    if redirect_if_built("classrooms"):
+        return
     nav(current)
     stylesheet('groups.css')
     busy = [False]
