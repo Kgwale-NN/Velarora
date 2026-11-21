@@ -152,6 +152,7 @@ def _env_bool(key: str, default: bool) -> bool:
 # browser shows a one-time warning, but session cookies and screen captures
 # stop crossing the LAN in plaintext. Point TLS_CERTFILE / TLS_KEYFILE at an
 # institution-issued cert to avoid the warning.
+OPEN_BROWSER: bool = _env_bool("OPEN_BROWSER", True)
 TLS_ENABLED: bool = _env_bool("TLS_ENABLED", False)
 _TLS_DIR = _ENV_PATH.parent / "data" / "tls"
 TLS_CERTFILE: str = os.environ.get("TLS_CERTFILE", "").strip() or str(_TLS_DIR / "cert.pem")

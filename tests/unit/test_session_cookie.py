@@ -29,3 +29,26 @@ def test_browser_close_and_sign_out():
         browser.get("/choice/false")
         browser.cookies.jar.clear_session_cookies()
         assert COOKIE not in browser.cookies
+
+
+def test_https_proxy_secures_cookies_without_changing_local_http():
+    app = FastAPI()
+    configure_login_cookie(app, "proxy-cookie-test", https_only=False)
+
+    @app.get("/demo")
+    def demo(request: Request):
+        from fastapi.responses import JSONResponse
+        request.session["remember"] = True
+        response = JSONResponse({"ok": True})
+        response.set_cookie("example", "not-a-secret", httponly=True)
+        return response
+
+    for base, secure in [("http://testserver", False), ("https://testserver", True)]:
+        with TestClient(app, base_url=base) as browser:
+            response = browser.get("/demo")
+            headers = response.headers.get_list("set-cookie")
+            assert len(headers) == 2
+            for header in headers:
+                attributes = {part.strip().lower() for part in header.split(";")[1:]}
+                assert ("secure" in attributes) is secure
+                assert "httponly" in attributes

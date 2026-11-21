@@ -11,12 +11,17 @@ class BrowserCookieLifetime:
 
     async def __call__(self, scope, receive, send):
         async def send_cookie(message):
-            if message["type"] == "http.response.start" and not scope.get("session", {}).get("remember"):
+            if message["type"] == "http.response.start":
                 headers = []
                 for key, value in message["headers"]:
-                    if key.lower() == b"set-cookie" and value.startswith(COOKIE.encode() + b"="):
+                    if (key.lower() == b"set-cookie" and value.startswith(COOKIE.encode() + b"=")
+                            and not scope.get("session", {}).get("remember")):
                         value = b"; ".join(part for part in value.split(b"; ")
                                            if not part.lower().startswith(b"max-age="))
+                    if key.lower() == b"set-cookie" and scope.get("scheme") == "https":
+                        attributes = {part.strip().lower() for part in value.split(b";")[1:]}
+                        if b"secure" not in attributes:
+                            value += b"; Secure"
                     headers.append((key, value))
                 message["headers"] = headers
             await send(message)

@@ -17,6 +17,7 @@ from backend.config import (
     INITIAL_ADMIN_PASSWORD,
     INITIAL_ADMIN_USERNAME,
     STORAGE_SECRET,
+    OPEN_BROWSER,
     get_ssl_kwargs,
 )
 from backend.db._core import _conn
@@ -130,7 +131,7 @@ ui.run(
     dark           = True,
     storage_secret = STORAGE_SECRET,
     favicon        = "🎓",
-    show           = True,
+    show           = OPEN_BROWSER,
     reload         = False,
     **_ssl,
 )

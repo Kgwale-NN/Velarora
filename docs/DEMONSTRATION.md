@@ -39,3 +39,20 @@ The existing Google callback is configured for the local address. Google sign-in
 7. View history, analytics and a downloaded report.
 
 A successful web request does not prove screen capture, physical audio or Google login. Perform these checks on each Windows PC you intend to present from, preferably before demonstration day. See CLASSROOM-SETUP.md for the agent setup.
+
+
+## Start and stop an approved public demo link
+
+After starting Velarora, run the following in a second terminal. This publishes the app through Cloudflare and displays its temporary HTTPS URL. The script verifies the official tunnel executable checksum when installing, reuses an already running link, and never starts a second Velarora server.
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Demo-Link.ps1
+```
+
+To remove public access while keeping Velarora running locally:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Demo-Link.ps1 -Action Stop
+```
+
+The stop action checks the saved process start time and executable before stopping it. Private process details, download metadata and URLs stay under ignored data folders. `OPEN_BROWSER=false` can be set in the server process environment for background startup without changing .env. HTTPS responses mark session cookies Secure while local HTTP behaviour remains supported.
