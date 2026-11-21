@@ -27,11 +27,17 @@ from backend.db.database import (
     init_db,
     seed_classes,
 )
-from backend.services.monitor_service import drain_worker
 from backend.services.retention_service import start_retention_worker
 from backend.services.schedule_service import start_scheduler
 
 log = logging.getLogger(__name__)
+CLOUD_DEMO = os.environ.get("VELARORA_CLOUD_DEMO") == "true"
+
+
+@nicegui_app.get("/healthz", include_in_schema=False)
+def healthz():
+    _conn().execute("SELECT 1").fetchone()
+    return {"status": "ok"}
 
 # Register the authenticated workstation channel.
 from backend.core.agent_api import router as workstation_router
@@ -105,8 +111,10 @@ def _startup() -> None:
     n_stale = finish_stale_runs()
     if n_stale:
         log.info("startup: marked %d stale monitoring run(s) as interrupted", n_stale)
-    threading.Thread(target=drain_worker, daemon=True, name="drain").start()
-    start_scheduler()
+    if not CLOUD_DEMO:
+        from backend.services.monitor_service import drain_worker
+        threading.Thread(target=drain_worker, daemon=True, name="drain").start()
+        start_scheduler()
     start_retention_worker()
 
 
@@ -120,7 +128,7 @@ if _ssl:
 
 from backend.core.session_cookie import configure_login_cookie
 
-configure_login_cookie(nicegui_app, STORAGE_SECRET, bool(_ssl))
+configure_login_cookie(nicegui_app, STORAGE_SECRET, bool(_ssl) or CLOUD_DEMO)
 
 ui.run(
     title          = "Velarora",

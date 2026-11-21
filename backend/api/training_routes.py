@@ -1,6 +1,7 @@
 """Administrator dataset, import and background training API."""
 
 import io
+import os
 import threading
 import uuid
 import zipfile
@@ -104,6 +105,8 @@ class Train(BaseModel):
 
 
 def begin(payload, actor):
+    if os.environ.get("VELARORA_CLOUD_DEMO") == "true":
+        raise ValueError("Training is disabled on the free cloud demo. Train locally and import trusted ONNX weights.")
     with lock:
         worker = state.training_worker
         if worker and worker._thread and worker._thread.is_alive():
@@ -178,6 +181,8 @@ def import_model(path, actor):
     if not source.is_file() or source.suffix.lower() not in (".onnx", ".pt"):
         raise ValueError("Select a trusted ONNX or PT model file.")
     if source.suffix.lower() == ".pt":
+        if os.environ.get("VELARORA_CLOUD_DEMO") == "true":
+            raise ValueError("The free cloud demo supports ONNX weights only. Export PT weights locally first.")
         from ultralytics import YOLO
 
         exported = YOLO(str(source)).export(format="onnx", imgsz=640, dynamic=True)
@@ -207,6 +212,8 @@ async def import_path(payload: ServerPath, actor: W):
 @router.post("/models/upload")
 async def upload_model(actor: W, file: Annotated[UploadFile, File()]):
     suffix = Path(file.filename or "").suffix.lower()
+    if os.environ.get("VELARORA_CLOUD_DEMO") == "true" and suffix != ".onnx":
+        raise HTTPException(400, "The free cloud demo accepts trusted ONNX weights only.")
     if suffix not in (".onnx", ".pt"):
         raise HTTPException(400, "Upload ONNX or PT weights from a trusted source.")
     content = await bounded_upload(file, 256 * 1024**2)

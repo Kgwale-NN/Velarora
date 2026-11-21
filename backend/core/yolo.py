@@ -5,8 +5,13 @@ Process-wide YOLO model singleton with thread-safe load / reset.
 """
 from __future__ import annotations
 import threading
-from typing import Optional
-from ultralytics import YOLO
+from typing import Any, Optional
+
+
+def YOLO(*args, **kwargs):
+    """Keep the desktop factory available without importing PyTorch on cloud startup."""
+    from ultralytics import YOLO as Detector
+    return Detector(*args, **kwargs)
 
 
 def onnx_static_batch_size(path: str) -> Optional[int]:
@@ -60,11 +65,11 @@ def read_model_class_names(path: str) -> Optional[list[str]]:
         return None
 
 
-_model:      Optional[YOLO] = None
+_model:      Optional[Any] = None
 _model_lock: threading.Lock = threading.Lock()
 
 
-def get_model(path: str) -> YOLO:
+def get_model(path: str) -> Any:
     """Load model once; return cached instance on subsequent calls."""
     global _model
     with _model_lock:

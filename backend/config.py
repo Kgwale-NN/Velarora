@@ -43,7 +43,7 @@ else:
     _ENV_PATH = Path(__file__).resolve().parent.parent / ".env"
 
 # Auto-create .env with a random secret if it doesn't exist yet.
-if not _ENV_PATH.exists():
+if not _ENV_PATH.exists() and not os.environ.get("STORAGE_SECRET"):
     _generated_secret = secrets.token_urlsafe(48)
     _ENV_PATH.write_text(
         "# Auto-generated on first run. Edit as needed.\n"
@@ -103,7 +103,7 @@ LOGIN_WINDOW_SEC:   int = _env_int("LOGIN_WINDOW_SEC",   300)
 # the server machine only (e.g. when fronting the app with a reverse proxy).
 BIND_HOST: str = os.environ.get("BIND_HOST", "0.0.0.0").strip() or "0.0.0.0"
 try:
-    BIND_PORT: int = int(os.environ.get("BIND_PORT", "8080").strip() or "8080")
+    BIND_PORT: int = int(os.environ.get("PORT", os.environ.get("BIND_PORT", "8080")).strip() or "8080")
 except ValueError:
     log.warning("BIND_PORT is not a number — falling back to 8080")
     BIND_PORT = 8080
