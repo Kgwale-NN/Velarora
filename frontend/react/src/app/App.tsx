@@ -11,7 +11,6 @@ import {
   School,
   Menu,
   X,
-  LogOut,
   Box,
   Settings as SettingsIcon,
   History as HistoryIcon,
@@ -46,6 +45,7 @@ import { Audit } from "../pages/Audit/Audit";
 import { Settings } from "../pages/Settings/Settings";
 import { ModelRules } from "../pages/ModelRules/ModelRules";
 import { NotificationBell } from "../components/NotificationBell/NotificationBell";
+import { AccountMenu } from "../components/AccountMenu/AccountMenu";
 import styles from "./App.module.css";
 const adminLinks = [
   ["Users", "/users", UsersRound],
@@ -166,10 +166,14 @@ export function App() {
         </nav>
         <div className={styles.sidebarBottom}>
           <span className={styles.online}>Local workspace online</span>
-          <Button variant="ghost" onClick={() => setLogout(true)}>
-            <LogOut size={18} />
-            Log out
-          </Button>
+          <AccountMenu
+            name={user.username}
+            role={user.role}
+            onLogout={() => {
+              setDrawer(false);
+              setLogout(true);
+            }}
+          />
         </div>
       </aside>
       {drawer && (
