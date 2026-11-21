@@ -112,3 +112,6 @@ The login uses the same compact black-and-white interface direction: a short hea
 
 
 PageSkeleton provides reusable, route-specific loading layouts for all workspace pages. Dashboard placeholders include controls, statistics and screen cards; list/table pages show matching structures; Profile shows two forms; Settings shows its sections; App Rules includes its large text area. Lazy route loading and initial API loading use the same layout. Existing content remains during normal polling, motion preferences are respected, and no artificial loading delay is added. ResourceState can use compact table, form or list variants for independent requests.
+
+
+The login uses a split desktop layout: the form is centred in the left half and the clear computer-lab2 image fills the right half. On screens up to 800px, the image stacks below the form. Existing sign-in controls and authentication behaviour are retained.

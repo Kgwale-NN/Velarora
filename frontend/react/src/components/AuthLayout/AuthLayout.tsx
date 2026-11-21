@@ -16,25 +16,29 @@ export function AuthLayout({
   const heading = useId();
   return (
     <main className={styles.page}>
-      <img
-        className={styles.background}
-        src="/design-assets/computer-lab2.jpg"
-        alt=""
-        aria-hidden="true"
-        fetchPriority="high"
-      />
-      <form
-        className={styles.card}
-        onSubmit={onSubmit}
-        aria-labelledby={heading}
-      >
-        <header className={styles.heading}>
-          <span className={styles.brand}>Velarora</span>
-          <h1 id={heading}>{title}</h1>
-          {description && <p>{description}</p>}
-        </header>
-        {children}
-      </form>
+      <section className={styles.formSide}>
+        <form
+          className={styles.card}
+          onSubmit={onSubmit}
+          aria-labelledby={heading}
+        >
+          <header className={styles.heading}>
+            <span className={styles.brand}>Velarora</span>
+            <h1 id={heading}>{title}</h1>
+            {description && <p>{description}</p>}
+          </header>
+          {children}
+        </form>
+      </section>
+      <div className={styles.visual} aria-hidden="true">
+        <img
+          className={styles.background}
+          src="/design-assets/computer-lab2.jpg"
+          alt=""
+          aria-hidden="true"
+          fetchPriority="high"
+        />
+      </div>
       {aside}
     </main>
   );
