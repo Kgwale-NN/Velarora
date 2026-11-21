@@ -6,15 +6,18 @@
 }
 .field label {
   font-size: 16px;
-  color: #dedede;
+  color: var(--input-label, #dedede);
 }
 .control {
   display: flex;
   align-items: center;
   gap: 12px;
-  border: 1px solid #ffffff32;
+  border: 1px solid var(--input-border, #ffffff32);
   border-radius: 999px;
-  background: linear-gradient(120deg, #ffffff0b, #ffffff03);
+  background: var(
+    --input-background,
+    linear-gradient(120deg, #ffffff0b, #ffffff03)
+  );
   padding: 0 17px;
   min-height: 48px;
   transition:
@@ -22,15 +25,15 @@
     background 0.25s;
 }
 .control:focus-within {
-  border-color: #ffffff9c;
-  background: #ffffff0c;
-  box-shadow: 0 0 0 3px #ffffff05;
+  border-color: var(--input-focus-border, #ffffff9c);
+  background: var(--input-focus-background, #ffffff0c);
+  box-shadow: 0 0 0 3px var(--input-focus-ring, #ffffff05);
 }
 .control svg {
   width: 18px;
   height: 18px;
   flex-shrink: 0;
-  color: #bdbdbd;
+  color: var(--input-icon, #bdbdbd);
 }
 .control input {
   min-width: 0;
@@ -39,7 +42,7 @@
   background: transparent;
   border: 0;
   outline: none;
-  color: #eee;
+  color: var(--input-text, #eee);
   font: inherit;
   font-size: 17px;
 }

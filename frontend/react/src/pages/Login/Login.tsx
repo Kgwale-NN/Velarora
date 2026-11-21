@@ -91,7 +91,12 @@ export function Login({
             {error}
           </p>
         )}
-        <Button variant="primary" type="submit" busy={busy}>
+        <Button
+          className={styles.signIn}
+          variant="primary"
+          type="submit"
+          busy={busy}
+        >
           Sign in
         </Button>
         {session.google && (
