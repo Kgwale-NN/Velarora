@@ -16,6 +16,7 @@ import { ImportModel } from "./ImportModel/ImportModel";
 import { TrainingForm } from "./TrainingForm/TrainingForm";
 import styles from "./Models.module.css";
 type Training = {
+  cloud_demo?: boolean;
   hardware: Row;
   bases: string[];
   job: {
@@ -63,10 +64,12 @@ export function Models({ notify }: { notify: Notify }) {
         description="Manage the AI that recognises applications in screenshots."
         action={
           <div className={styles.actions}>
-            <Button variant="primary" onClick={() => setShowTrain((v) => !v)}>
-              <Plus size={17} />
-              Train new model
-            </Button>
+            {!training.data?.cloud_demo && (
+              <Button variant="primary" onClick={() => setShowTrain((v) => !v)}>
+                <Plus size={17} />
+                Train new model
+              </Button>
+            )}
             <Button onClick={() => setImporting(true)}>
               <Upload size={17} />
               Import model
@@ -74,19 +77,29 @@ export function Models({ notify }: { notify: Notify }) {
           </div>
         }
       />
-      <Panel title="Training hardware">
-        <p>
-          {training.data?.hardware.cuda_ok
-            ? "NVIDIA GPU available"
-            : "CPU training"}{" "}
-          · {text(training.data?.hardware.torch_ver)}
-        </p>
-        <p>
-          {training.data?.hardware.cuda_ok
-            ? text(training.data.hardware.gpu_name)
-            : "Training uses your processor. It can take longer. Installing CUDA does not add an NVIDIA GPU to your PC."}
-        </p>
-      </Panel>
+      {training.data?.cloud_demo ? (
+        <Panel title="Cloud demonstration">
+          <p>
+            Import your trained ONNX model, activate it, then enable its model
+            alert rule. Training runs on your desktop. Free hosting can lose
+            uploaded models and records after a restart.
+          </p>
+        </Panel>
+      ) : (
+        <Panel title="Training hardware">
+          <p>
+            {training.data?.hardware.cuda_ok
+              ? "NVIDIA GPU available"
+              : "CPU training"}{" "}
+            · {text(training.data?.hardware.torch_ver)}
+          </p>
+          <p>
+            {training.data?.hardware.cuda_ok
+              ? text(training.data.hardware.gpu_name)
+              : "Training uses your processor. It can take longer. Installing CUDA does not add an NVIDIA GPU to your PC."}
+          </p>
+        </Panel>
+      )}
       <ResourceState {...r} retry={r.reload} />
       {r.data && (
         <RecordTable

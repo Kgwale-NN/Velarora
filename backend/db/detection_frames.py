@@ -25,21 +25,12 @@ def get_event_frame_annotated_b64(event_id: int) -> Optional[str]:
     and return the result as a base64 JPEG data-URL.
     Returns None if no frame is stored or if the frame cannot be decoded.
     """
-    import cv2 as _cv2
-    import numpy as _np
-    from backend.core.colors import hex_to_bgr
-
     c = _conn()
     scope, params = event_scope()
     row = c.execute(
         f"SELECT frame_blob FROM detection_event WHERE id = ? AND {scope}", [event_id]+params
     ).fetchone()
     if not row or not row["frame_blob"]:
-        return None
-
-    arr = _np.frombuffer(bytes(row["frame_blob"]), dtype=_np.uint8)
-    img = _cv2.imdecode(arr, _cv2.IMREAD_COLOR)
-    if img is None:
         return None
 
     dets = c.execute("""
@@ -49,6 +40,19 @@ def get_event_frame_annotated_b64(event_id: int) -> Optional[str]:
         JOIN   detection_class dc ON dc.id = d.class_id
         WHERE  d.event_id = ?
     """, (event_id,)).fetchall()
+
+    import os
+    if os.environ.get('VELARORA_CLOUD_DEMO') == 'true':
+        from backend.core.frame_annotations import annotate_jpeg
+        return annotate_jpeg(bytes(row['frame_blob']), dets)
+
+    import cv2 as _cv2
+    import numpy as _np
+    from backend.core.colors import hex_to_bgr
+    arr = _np.frombuffer(bytes(row["frame_blob"]), dtype=_np.uint8)
+    img = _cv2.imdecode(arr, _cv2.IMREAD_COLOR)
+    if img is None:
+        return None
 
     for x1, y1, x2, y2, color_hex, label, conf in dets:
         color = hex_to_bgr(color_hex)

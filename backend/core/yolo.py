@@ -49,7 +49,10 @@ def read_model_class_names(path: str) -> Optional[list[str]]:
         if p.endswith(".onnx"):
             import ast
             import onnxruntime as ort
-            sess = ort.InferenceSession(path, providers=["CPUExecutionProvider"])
+            options = ort.SessionOptions()
+            options.intra_op_num_threads = options.inter_op_num_threads = 1
+            options.enable_cpu_mem_arena = False
+            sess = ort.InferenceSession(path, options, providers=["CPUExecutionProvider"])
             raw = sess.get_modelmeta().custom_metadata_map.get("names")
             names = ast.literal_eval(raw) if raw else None
         else:

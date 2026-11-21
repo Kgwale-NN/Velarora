@@ -25,6 +25,7 @@ lock = threading.Lock()
 async def status(actor: A):
     worker = state.training_worker
     return {
+        "cloud_demo": os.environ.get("VELARORA_CLOUD_DEMO") == "true",
         "hardware": await perform(training.get_torch_info),
         "bases": training.BASE_MODELS,
         "job": {
@@ -216,7 +217,8 @@ async def upload_model(actor: W, file: Annotated[UploadFile, File()]):
         raise HTTPException(400, "The free cloud demo accepts trusted ONNX weights only.")
     if suffix not in (".onnx", ".pt"):
         raise HTTPException(400, "Upload ONNX or PT weights from a trusted source.")
-    content = await bounded_upload(file, 256 * 1024**2)
+    limit = 32 if os.environ.get("VELARORA_CLOUD_DEMO") == "true" else 256
+    content = await bounded_upload(file, limit * 1024**2)
 
     def save():
         folder = training.MODELS_DIR / ("import_" + uuid.uuid4().hex)

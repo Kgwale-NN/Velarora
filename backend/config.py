@@ -248,7 +248,7 @@ def get_settings() -> dict:
     receive a plain dict and don't have to know where the secret lives.
     """
     merged = {**DEFAULTS, **app.storage.general.get("settings", {})}
-    merged["logon_password"] = _keyring_get_logon_password()
+    merged["logon_password"] = "" if os.environ.get("VELARORA_CLOUD_DEMO") == "true" else _keyring_get_logon_password()
     return merged
 
 
