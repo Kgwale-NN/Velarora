@@ -25,3 +25,12 @@ export interface Session {
   csrf: string;
 }
 export type Notify = (message: string, kind?: "success" | "error") => void;
+
+export interface LiveFrame {
+  id: number;
+  name: string;
+  raw: string;
+  annotated: string;
+  online: boolean;
+  detections: unknown[];
+}

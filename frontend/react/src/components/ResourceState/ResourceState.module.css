@@ -1,11 +1,9 @@
 .skeleton {
   height: 160px;
   border-radius: 24px;
-  background: linear-gradient(
-    110deg,
-    #ffffff04 20%,
-    #ffffff0e 45%,
-    #ffffff04 70%
+  background: var(
+    --ui-skeleton,
+    linear-gradient(110deg, #ffffff04 20%, #ffffff0e 45%, #ffffff04 70%)
   );
   background-size: 220% 100%;
   animation: shimmer 1.8s ease-in-out infinite;
@@ -17,7 +15,7 @@
   display: flex;
   justify-content: space-between;
   gap: 20px;
-  color: #e8b4b4;
+  color: var(--ui-error, #e8b4b4);
 }
 @keyframes shimmer {
   to {

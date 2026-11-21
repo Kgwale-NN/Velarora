@@ -1,10 +1,13 @@
 .dialog {
   padding: 0;
-  border: 1px solid #ffffff30;
+  border: 1px solid var(--ui-border, #ffffff30);
   border-radius: 28px;
-  background: linear-gradient(135deg, #202020df, #090909f5);
+  background: var(
+    --ui-dialog-bg,
+    linear-gradient(135deg, #202020df, #090909f5)
+  );
   backdrop-filter: blur(32px);
-  color: #eee;
+  color: var(--ui-text, #eee);
   width: min(530px, calc(100vw - 32px));
   max-height: 88dvh;
   box-shadow:
@@ -30,7 +33,7 @@
 }
 .header h2 {
   margin: 0;
-  font-size: 30px;
+  font-size: var(--modal-heading-size, 30px);
   font-weight: 500;
 }
 .panel form {
@@ -40,7 +43,7 @@
 }
 .panel p {
   margin: 0;
-  color: #aaa;
+  color: var(--ui-muted, #aaa);
   line-height: 1.5;
 }
 .panel footer {
@@ -69,4 +72,8 @@
   .dialog {
     animation: none;
   }
+}
+
+.wide {
+  width: min(1100px, calc(100vw - 32px));
 }

@@ -4,10 +4,10 @@
   gap: 12px;
   min-height: 40px;
   cursor: pointer;
-  color: #d5d9df;
+  color: var(--ui-text, #d5d9df);
 }
 .check input {
-  accent-color: #a8c9ed;
+  accent-color: var(--ui-accent, #a8c9ed);
   width: 17px;
   height: 17px;
 }

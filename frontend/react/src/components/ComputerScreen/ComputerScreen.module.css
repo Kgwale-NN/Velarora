@@ -1,0 +1,116 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.name {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ui-text, #eee);
+  overflow-wrap: anywhere;
+}
+.name svg {
+  color: var(--ui-icon, #888);
+  flex-shrink: 0;
+}
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  border: 1px solid var(--ui-border, #ffffff20);
+  background: var(--ui-hover, #ffffff08);
+  padding: 4px 7px;
+  border-radius: 20px;
+  color: var(--ui-muted, #a1aab6);
+  white-space: nowrap;
+}
+.status:before {
+  content: "";
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.status[data-online="true"] {
+  color: var(--ui-text, #eee);
+}
+.preview {
+  display: block;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/10;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--ui-border, #ffffff20);
+  border-radius: 12px;
+  background: var(--ui-hover, #101010);
+  cursor: zoom-in;
+}
+.preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  background: #0d0d0e;
+}
+.preview:disabled {
+  cursor: default;
+}
+.preview:focus-visible {
+  outline: 2px solid var(--ui-text, #eee);
+  outline-offset: 4px;
+}
+.expand {
+  position: absolute;
+  right: 9px;
+  bottom: 9px;
+  display: grid;
+  place-items: center;
+  padding: 6px;
+  border: 1px solid #ffffff50;
+  border-radius: 9px;
+  background: #11111180;
+  color: white;
+  backdrop-filter: blur(12px);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.preview:hover .expand,
+.preview:focus-visible .expand {
+  opacity: 1;
+}
+.waiting {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: var(--ui-muted, #a1aab6);
+  font-size: 12px;
+}
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  font-size: 10px;
+  color: var(--ui-muted, #a1aab6);
+}
+.footer > span:first-child {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+@media (prefers-reduced-motion: reduce) {
+  .expand {
+    transition: none;
+  }
+}

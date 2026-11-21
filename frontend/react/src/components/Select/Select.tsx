@@ -7,8 +7,8 @@ type Props = SelectHTMLAttributes<HTMLSelectElement> & {
 export function Select({ label, options, ...props }: Props) {
   const id = useId();
   return (
-    <label className={styles.field} htmlFor={id}>
-      {label}
+    <div className={styles.field}>
+      <label htmlFor={id}>{label}</label>
       <select id={id} {...props}>
         {options.map((o) => (
           <option key={o.value} value={o.value}>
@@ -16,6 +16,6 @@ export function Select({ label, options, ...props }: Props) {
           </option>
         ))}
       </select>
-    </label>
+    </div>
   );
 }
