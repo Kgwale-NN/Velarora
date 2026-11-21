@@ -2,7 +2,7 @@
 
 from typing import Annotated
 from fastapi import APIRouter, Depends, Request, HTTPException, Response
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field
 from nicegui import run
 from backend.api.admin_security import csrf_token, browser_state
 from backend.api.staff_security import staff, write_staff, check_csrf
@@ -20,43 +20,6 @@ class Login(BaseModel):
     email: str = Field(max_length=254)
     password: str = Field(max_length=512)
     remember: bool = False
-
-
-class Signup(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-    username: str = Field(min_length=1, max_length=100)
-    email: str = Field(min_length=3, max_length=254)
-    password: str = Field(min_length=12, max_length=128)
-    confirm_password: str = Field(min_length=1, max_length=128)
-
-
-def create_teacher_account(payload):
-    from backend.db._core import _conn
-    from backend.db.user_create import create_user
-    from backend.db.staff_email import normalize_email
-
-    name = payload.username.strip()
-    if not name:
-        raise ValueError("Enter your full name.")
-    if payload.password != payload.confirm_password:
-        raise ValueError("Your passwords do not match.")
-    email = normalize_email(payload.email)
-    with _conn():
-        return create_user(name, payload.password, "teacher", email=email)
-
-
-@router.post("/signup", status_code=201)
-async def signup(payload: Signup, request: Request, response: Response):
-    check_csrf(request.headers.get("X-CSRF-Token", ""))
-    if get_session_user():
-        raise HTTPException(409, "Log out before creating another account.")
-    key = "signup:" + (request.client.host if request.client else "unknown")
-    if rate_limit.retry_after(key) > 0:
-        raise HTTPException(429, "Too many sign-up attempts. Please try again later.")
-    rate_limit.record_failure(key)
-    await perform(create_teacher_account, payload)
-    response.headers["Cache-Control"] = "no-store"
-    return {"ok": True, "message": "Your teacher account is ready. Sign in to continue."}
 
 
 class Profile(BaseModel):

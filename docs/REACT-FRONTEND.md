@@ -4,13 +4,14 @@ All active browser pages use React and TypeScript. The Python backend retains au
 
 ## Pages
 
-- Welcome: a wide classroom photo, a dark readability fade, and links to log in or create a teacher account. Guests opening the app land here; signed-in staff still go to their own dashboard.
 
 - Sign-in: email/password, remember me, Google sign-in and password-reset guidance.
-- Teacher sign-up: public registration with full name, email, strong password and confirmation. New accounts can sign in as teachers; administrator roles cannot be selected. Email verification is not configured yet.
+- Account creation: administrators add teachers from Users → Add user. Public sign-up is disabled.
 - Administrator: Users, Classrooms, Workstations, Classroom overview, Models and training, Model alert rules, Audit log, Profile and Settings.
 - Teacher: Dashboard, History, Analytics, Reports, Schedules, App rules, Notifications and Profile.
 - Students remain monitoring records and have no website sign-in access.
+
+The app opens at login for signed-out visitors. Old welcome/sign-up links return to login.
 
 Historical bookmarks such as `/login`, `/users`, `/groups`, `/history` and `/models` redirect to the React app. The existing SPA base is `/admin/` for both staff roles; this URL prefix grants no administrator permissions. The sidebar and backend independently enforce roles.
 
@@ -22,9 +23,7 @@ frontend/react/src/
   components/           # Reusable Button, Input, Select, Modal, tables,
                         # panels, notifications, snapshots and charts
   pages/
-    Welcome/
     Login/
-    Signup/
     Users/
     Classrooms/
     Dashboard/
@@ -65,7 +64,7 @@ Build output and `node_modules` are ignored by Git. Source files and the lockfil
 
 ## Backend contracts
 
-- `/api/session`, `/api/login`, `/api/signup`, `/api/logout`, `/api/profile`: staff account operations.
+- `/api/session`, `/api/login`, `/api/logout`, `/api/profile`: staff account operations.
 - `/api/admin/*`: live administrator role checks on every request.
 - `/api/teacher/*`: teacher-owned history, reports, schedules, rules, notifications, alarms and exam controls.
 - `/api/classrooms/*`: shared classroom selection; screen data is visible to the owning teacher or an administrator.

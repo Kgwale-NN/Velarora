@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { Mail } from "lucide-react";
 import { api, json, errorText } from "../../lib/api";
 import type { Session } from "../../lib/types";
@@ -18,11 +18,7 @@ export function Login({
   onLogin: (s: Session) => void;
 }) {
   const location = useLocation();
-  const registeredEmail =
-    typeof location.state?.registeredEmail === "string"
-      ? location.state.registeredEmail
-      : "";
-  const [email, setEmail] = useState(registeredEmail),
+  const [email, setEmail] = useState(""),
     [password, setPassword] = useState(""),
     [remember, setRemember] = useState(false),
     [busy, setBusy] = useState(false),
@@ -65,11 +61,6 @@ export function Login({
         )
       }
     >
-      {registeredEmail && (
-        <p className={styles.success} role="status">
-          Your teacher account is ready. Sign in to continue.
-        </p>
-      )}
       <Input
         label="Email address"
         placeholder="Email address"
@@ -117,9 +108,6 @@ export function Login({
           </a>
         </>
       )}
-      <p className={styles.signup}>
-        Don't have an account? <Link to="/signup">Sign up</Link>
-      </p>
     </AuthLayout>
   );
 }
