@@ -1,0 +1,14 @@
+.page {
+  display: grid;
+  gap: 24px;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+@media (max-width: 760px) {
+}

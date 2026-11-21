@@ -1,0 +1,16 @@
+.check {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 40px;
+  cursor: pointer;
+  color: #d5d9df;
+}
+.check input {
+  accent-color: #a8c9ed;
+  width: 17px;
+  height: 17px;
+}
+.check:has(input:disabled) {
+  opacity: 0.55;
+}

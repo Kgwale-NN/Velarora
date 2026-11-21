@@ -1,0 +1,22 @@
+.bell {
+  position: relative;
+  display: flex;
+  color: #d0d9e4;
+  margin-left: auto;
+  padding: 12px;
+  border-radius: 50%;
+  transition: background 0.3s;
+}
+.bell:hover {
+  background: #ffffff0a;
+}
+.bell span {
+  position: absolute;
+  right: 0;
+  top: 0;
+  padding: 2px 5px;
+  background: #c3d8ee;
+  color: #10151b;
+  border-radius: 20px;
+  font: 10px system-ui;
+}

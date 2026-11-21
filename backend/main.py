@@ -39,24 +39,7 @@ nicegui_app.include_router(workstation_router)
 from backend.api.react_admin import register as register_react_admin
 register_react_admin(nicegui_app)
 
-# Register pages
-import frontend.pages.classroom_status
-import frontend.pages.workstations
-import frontend.pages.application_rules
-import frontend.pages.admin_profile  # noqa: F401
-import frontend.pages.teacher_profile  # noqa: F401
-import frontend.pages.login      # noqa: F401
-import frontend.pages.dashboard  # noqa: F401
-import frontend.pages.history    # noqa: F401
-import frontend.pages.analytics  # noqa: F401
-import frontend.pages.alerts     # noqa: F401
-import frontend.pages.reports    # noqa: F401
-import frontend.pages.groups     # noqa: F401
-import frontend.pages.schedules  # noqa: F401
-import frontend.pages.models     # noqa: F401
-import frontend.pages.audit      # noqa: F401
-import frontend.pages.settings   # noqa: F401
-import frontend.pages.users      # noqa: F401
+# All browser pages are served by React; NiceGUI supplies storage and the ASGI server.
 
 
 def _bootstrap_admin() -> None:

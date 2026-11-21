@@ -11,11 +11,13 @@ export async function api<T>(
   path: string,
   options: RequestInit = {},
 ): Promise<T> {
-  const response = await fetch("/api/admin" + path, {
+  const response = await fetch("/api" + path, {
     ...options,
     credentials: "same-origin",
     headers: {
-      "Content-Type": "application/json",
+      ...(options.body instanceof FormData
+        ? {}
+        : { "Content-Type": "application/json" }),
       ...(options.method && options.method !== "GET"
         ? { "X-CSRF-Token": csrf }
         : {}),
@@ -32,10 +34,30 @@ export async function api<T>(
         ? data.detail
         : "Please check the form and try again.",
     );
-  if (path === "/session") csrf = data.csrf;
+  if (data.csrf) csrf = data.csrf;
   return data;
 }
 export const errorText = (error: unknown) =>
   error instanceof Error
     ? error.message
     : "Something went wrong. Please try again.";
+
+export const adminApi = <T>(path: string, options: RequestInit = {}) =>
+  api<T>("/admin" + path, options);
+export const json = (method: string, value: unknown = {}) => ({
+  method,
+  body: JSON.stringify(value),
+});
+export async function download(path: string, name: string) {
+  const response = await fetch("/api" + path, { credentials: "same-origin" });
+  if (!response.ok) throw new Error("The download could not be completed.");
+  saveBlob(await response.blob(), name);
+}
+export function saveBlob(blob: Blob, name: string) {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = name;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}

@@ -11,7 +11,7 @@ import {
   Mail,
   LockKeyhole,
 } from "lucide-react";
-import { api, errorText } from "../../lib/api";
+import { adminApi as api, errorText } from "../../lib/api";
 import type { User, Notify } from "../../lib/types";
 import { Button } from "../../components/Button/Button";
 import { Input } from "../../components/Input/Input";
@@ -33,6 +33,7 @@ export function Users({
     [query, setQuery] = useState(""),
     [role, setRole] = useState("all"),
     [create, setCreate] = useState(false),
+    [reset, setReset] = useState<User | null>(null),
     [deleting, setDeleting] = useState<User | null>(null),
     [busy, setBusy] = useState(false),
     [error, setError] = useState("");
@@ -254,16 +255,30 @@ export function Users({
             label: "Manage",
             render: (u) =>
               u.role !== "admin" && (
-                <Button
-                  variant="ghost"
-                  aria-label={"Delete " + u.username}
-                  onClick={() => {
-                    setDeleting(u);
-                    setError("");
-                  }}
-                >
-                  <Trash2 size={17} />
-                </Button>
+                <div>
+                  {u.role === "teacher" && (
+                    <Button
+                      variant="ghost"
+                      aria-label={"Reset password for " + u.username}
+                      onClick={() => {
+                        setReset(u);
+                        setError("");
+                      }}
+                    >
+                      <LockKeyhole size={17} />
+                    </Button>
+                  )}
+                  <Button
+                    variant="ghost"
+                    aria-label={"Delete " + u.username}
+                    onClick={() => {
+                      setDeleting(u);
+                      setError("");
+                    }}
+                  >
+                    <Trash2 size={17} />
+                  </Button>
+                </div>
               ),
           },
         ]}
@@ -273,6 +288,59 @@ export function Users({
         Only administrators can manage accounts. Student records never provide
         website access.
       </p>
+      {reset && (
+        <Modal
+          title="Reset teacher password"
+          onClose={() => setReset(null)}
+          busy={busy}
+        >
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              const data = new FormData(e.currentTarget);
+              setBusy(true);
+              setError("");
+              try {
+                await api("/users/" + reset.id + "/password", {
+                  method: "PUT",
+                  body: JSON.stringify({ password: data.get("password") }),
+                });
+                notify("Password reset. Share it with the teacher privately.");
+                setReset(null);
+              } catch (e) {
+                setError(errorText(e));
+              } finally {
+                setBusy(false);
+              }
+            }}
+          >
+            <p>{reset.username}</p>
+            <Input
+              label="New temporary password"
+              placeholder="New temporary password"
+              name="password"
+              type="password"
+              autoComplete="new-password"
+              minLength={12}
+              required
+              hint="At least 12 characters. Start with a capital letter and include a number and symbol."
+            />
+            {error && <p role="alert">{error}</p>}
+            <footer>
+              <Button
+                type="button"
+                onClick={() => setReset(null)}
+                disabled={busy}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" busy={busy}>
+                Reset password
+              </Button>
+            </footer>
+          </form>
+        </Modal>
+      )}
       {create && (
         <Modal
           title="Create teacher account"

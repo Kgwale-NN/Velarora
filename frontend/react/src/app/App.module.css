@@ -302,3 +302,19 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.account {
+  text-decoration: none;
+  color: inherit;
+}
+.notification {
+  display: flex;
+  color: #d0d9e4;
+  margin-left: auto;
+  padding: 12px;
+  border-radius: 50%;
+  transition: background 0.3s;
+}
+.notification:hover {
+  background: #ffffff0a;
+}

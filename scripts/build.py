@@ -30,7 +30,9 @@ def collect_add_data() -> list[str]:
     add_data: list[str] = []
 
     # Backend and frontend source packages
-    add_data.extend([f"{ROOT / 'backend'}{SEP}backend", f"{ROOT / 'frontend'}{SEP}frontend"])
+    add_data.append(f"{ROOT / 'backend'}{SEP}backend")
+    for relative in ('assets', 'locales', 'react/dist'):
+        add_data.append(f"{ROOT / 'frontend' / relative}{SEP}frontend/{relative}")
 
     # NiceGUI static frontend files (JS/CSS/fonts bundled with the package)
     try:
@@ -65,17 +67,6 @@ def collect_add_data() -> list[str]:
 
 def collect_hidden_imports() -> list[str]:
     return [
-        # Page modules — imported for @ui.page side-effects, invisible to analysis
-        "frontend.pages.login",
-        "frontend.pages.dashboard",
-        "frontend.pages.history",
-        "frontend.pages.analytics",
-        "frontend.pages.alerts",
-        "frontend.pages.models",
-        "frontend.pages.settings",
-        "frontend.pages.users",
-        "frontend.pages._nav",
-        "frontend.pages._snapshot",
         # Auth / DB
         "bcrypt",
         "bcrypt._bcrypt",
@@ -100,6 +91,12 @@ def collect_hidden_imports() -> list[str]:
 
 
 def main() -> None:
+    npm = shutil.which('npm.cmd' if sys.platform == 'win32' else 'npm')
+    if not npm:
+        raise RuntimeError('Install Node.js 22.12+ before building Velarora.')
+    frontend = ROOT / 'frontend' / 'react'
+    subprocess.run([npm, 'ci'], cwd=frontend, check=True)
+    subprocess.run([npm, 'run', 'build'], cwd=frontend, check=True)
     # ── 1. Clean previous build ───────────────────────────────────────────────
     for d in ("build", "__pycache__"):
         shutil.rmtree(ROOT / d, ignore_errors=True)

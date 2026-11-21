@@ -1,0 +1,26 @@
+.form {
+  display: grid;
+  gap: 20px;
+}
+
+.split {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+.actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.muted {
+  color: #9ca6b3;
+  line-height: 1.6;
+}
+
+@media (max-width: 760px) {
+  .split {
+    grid-template-columns: 1fr;
+  }
+}

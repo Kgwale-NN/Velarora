@@ -1,0 +1,30 @@
+.page {
+  display: grid;
+  gap: 24px;
+}
+
+.form {
+  display: grid;
+  gap: 20px;
+}
+
+.muted {
+  color: #9ca6b3;
+  line-height: 1.6;
+}
+
+.fieldarea {
+  width: 100%;
+  min-height: 160px;
+  resize: vertical;
+  padding: 18px;
+  border: 1px solid #ffffff30;
+  border-radius: 20px;
+  color: #e9edf2;
+  background: #ffffff05;
+  font: inherit;
+  box-sizing: border-box;
+}
+
+@media (max-width: 760px) {
+}

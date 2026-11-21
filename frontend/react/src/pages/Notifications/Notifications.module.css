@@ -1,0 +1,46 @@
+.page {
+  display: grid;
+  gap: 24px;
+}
+.heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+.heading h1 {
+  font-size: 36px;
+  font-weight: 500;
+  margin: 0;
+}
+.heading p {
+  color: #a5adb8;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.muted {
+  color: #9ca6b3;
+  line-height: 1.6;
+}
+
+.item {
+  padding: 16px 0;
+  border-bottom: 1px solid #ffffff18;
+}
+.empty {
+  text-align: center;
+  padding: 36px;
+  color: #a1aab6;
+}
+
+@media (max-width: 760px) {
+  .heading h1 {
+    font-size: 30px;
+  }
+}

@@ -13,20 +13,61 @@ import {
   X,
   LogOut,
   Box,
-  Settings,
-  History,
+  Settings as SettingsIcon,
+  History as HistoryIcon,
   UserRound,
   Monitor,
-  ArrowUpRight,
+  Bell,
+  Calendar,
+  ChartColumn,
+  FileText,
+  Shield,
 } from "lucide-react";
-import { api, ApiError, errorText } from "../lib/api";
+import { api, json, errorText } from "../lib/api";
 import type { Session, Notify } from "../lib/types";
 import { Button } from "../components/Button/Button";
 import { Modal } from "../components/Modal/Modal";
 import { Toast, type ToastMessage } from "../components/Toast/Toast";
+import { ResourceState } from "../components/ResourceState/ResourceState";
 import { Users } from "../pages/Users/Users";
 import { Classrooms } from "../pages/Classrooms/Classrooms";
+import { Login } from "../pages/Login/Login";
+import { Dashboard } from "../pages/Dashboard/Dashboard";
+import { History } from "../pages/History/History";
+import { Analytics } from "../pages/Analytics/Analytics";
+import { Reports } from "../pages/Reports/Reports";
+import { Schedules } from "../pages/Schedules/Schedules";
+import { AppRules } from "../pages/AppRules/AppRules";
+import { Profile } from "../pages/Profile/Profile";
+import { Notifications } from "../pages/Notifications/Notifications";
+import { Workstations } from "../pages/Workstations/Workstations";
+import { Models } from "../pages/Models/Models";
+import { Audit } from "../pages/Audit/Audit";
+import { Settings } from "../pages/Settings/Settings";
+import { ModelRules } from "../pages/ModelRules/ModelRules";
+import { NotificationBell } from "../components/NotificationBell/NotificationBell";
 import styles from "./App.module.css";
+const adminLinks = [
+  ["Users", "/users", UsersRound],
+  ["Classrooms", "/classrooms", School],
+  ["Workstations", "/workstations", Monitor],
+  ["Classroom overview", "/classroom-overview", Monitor],
+  ["Models", "/models", Box],
+  ["Model alert rules", "/model-alert-rules", Shield],
+  ["Audit log", "/audit", HistoryIcon],
+  ["Profile", "/profile", UserRound],
+  ["Settings", "/settings", SettingsIcon],
+] as const;
+const teacherLinks = [
+  ["Dashboard", "/dashboard", Monitor],
+  ["History", "/history", HistoryIcon],
+  ["Analytics", "/analytics", ChartColumn],
+  ["Reports", "/reports", FileText],
+  ["Schedules", "/schedules", Calendar],
+  ["App rules", "/app-rules", Shield],
+  ["Notifications", "/notifications", Bell],
+  ["Profile", "/profile", UserRound],
+] as const;
 export function App() {
   const [session, setSession] = useState<Session | null>(null),
     [error, setError] = useState(""),
@@ -40,55 +81,62 @@ export function App() {
     [],
   );
   const dismiss = useCallback(() => setMessage(null), []);
-  const load = () => {
+  const load = useCallback(() => {
     setError("");
     api<Session>("/session")
       .then(setSession)
-      .catch((err) => {
-        setError(
-          err instanceof ApiError && err.status === 401
-            ? "Sign in with your administrator account to continue."
-            : errorText(err),
-        );
-      });
-  };
-  useEffect(load, []);
+      .catch((e) => setError(errorText(e)));
+  }, []);
+  useEffect(load, [load]);
   useEffect(() => {
     setDrawer(false);
-  }, [location.pathname]);
-  async function signOut() {
-    setBusy(true);
-    try {
-      await api("/logout", { method: "POST", body: "{}" });
-      window.location.assign("/login");
-    } catch (err) {
-      notify(errorText(err), "error");
-      setBusy(false);
-    }
-  }
+    const room = new URLSearchParams(location.search).get("classroom");
+    if (room && /^\d+$/.test(room))
+      localStorage.setItem("velarora.classroom", room);
+  }, [location.pathname, location.search]);
   if (!session)
     return (
       <div className={styles.app}>
         <div className={styles.gate}>
           <span className={styles.brand}>Velarora</span>
-          <h1>{error ? "Administration" : "Opening your workspace…"}</h1>
-          <p role="status">{error || "Preparing your admin dashboard."}</p>
-          {error && (
-            <>
-              <a href="/login">Go to sign in</a>
-              <Button onClick={load}>Try again</Button>
-            </>
-          )}
+          <h1>Opening your workspace</h1>
+          <ResourceState loading={!error} error={error} retry={load} />
         </div>
       </div>
     );
+  if (!session.user)
+    return (
+      <>
+        <Login session={session} onLogin={setSession} />
+        <Toast message={message} onDismiss={dismiss} />
+      </>
+    );
+  const user = session.user,
+    admin = user.role === "admin",
+    links = admin ? adminLinks : teacherLinks,
+    home = admin ? "/users" : "/dashboard";
+  const title =
+    links.find((l) => l[1] === location.pathname)?.[0] || "Workspace";
+  async function signOut() {
+    setBusy(true);
+    try {
+      await api("/logout", json("POST"));
+      setLogout(false);
+      setSession(null);
+      load();
+    } catch (e) {
+      notify(errorText(e), "error");
+    } finally {
+      setBusy(false);
+    }
+  }
   return (
     <div className={styles.app}>
       <aside className={`${styles.sidebar} ${drawer ? styles.open : ""}`}>
         <div className={styles.sidebarTop}>
-          <a href="/admin/users" className={styles.brand}>
+          <NavLink to={home} className={styles.brand}>
             Velarora<span>EXAM WORKSPACE</span>
-          </a>
+          </NavLink>
           <Button
             variant="ghost"
             aria-label="Close menu"
@@ -97,41 +145,20 @@ export function App() {
             <X size={20} />
           </Button>
         </div>
-        <p className={styles.caption}>ADMINISTRATION</p>
-        <nav className={styles.navigation} aria-label="Administration">
-          <NavLink
-            to="/users"
-            className={({ isActive }) => (isActive ? styles.active : "")}
-          >
-            <UsersRound size={18} />
-            Users
-          </NavLink>
-          <NavLink
-            to="/classrooms"
-            className={({ isActive }) => (isActive ? styles.active : "")}
-          >
-            <School size={18} />
-            Classrooms
-          </NavLink>
-          <span className={styles.caption}>MANAGEMENT</span>
-          {[
-            ["Workstations", "/workstations", Monitor],
-            ["Classroom overview", "/classroom-status", Monitor],
-            ["Models", "/models", Box],
-            ["Model alert rules", "/model-alert-rules", Box],
-            ["Audit Log", "/audit", History],
-            ["Admin Profile", "/profile", UserRound],
-            ["Settings", "/settings", Settings],
-          ].map(([label, url, Icon]) => {
-            const Component = Icon as typeof Monitor;
-            return (
-              <a key={String(url)} href={String(url)}>
-                <Component size={18} />
-                {String(label)}
-                <ArrowUpRight size={12} />
-              </a>
-            );
-          })}
+        <p className={styles.caption}>
+          {admin ? "ADMINISTRATION" : "TEACHER WORKSPACE"}
+        </p>
+        <nav className={styles.navigation} aria-label="Main menu">
+          {links.map(([label, url, Icon]) => (
+            <NavLink
+              key={url}
+              to={url}
+              className={({ isActive }) => (isActive ? styles.active : "")}
+            >
+              <Icon size={18} />
+              {label}
+            </NavLink>
+          ))}
         </nav>
         <div className={styles.sidebarBottom}>
           <span className={styles.online}>Local workspace online</span>
@@ -158,30 +185,79 @@ export function App() {
             <Menu size={21} />
           </Button>
           <span>
-            Administration <span className={styles.slash}>/</span>{" "}
-            {location.pathname.includes("classrooms") ? "Classrooms" : "Users"}
+            {admin ? "Administration" : "Teacher"}{" "}
+            <span className={styles.slash}>/</span> {title}
           </span>
-          <div className={styles.account}>
+          {!admin && <NotificationBell notify={notify} />}
+          <NavLink to="/profile" className={styles.account}>
             <span className={styles.avatar}>
-              {session.user.username.charAt(0).toUpperCase()}
+              {user.username.charAt(0).toUpperCase()}
             </span>
             <span>
-              {session.user.username}
-              <small>Administrator</small>
+              {user.username}
+              <small>{admin ? "Administrator" : "Teacher"}</small>
             </span>
-          </div>
+          </NavLink>
         </header>
         <main key={location.pathname} className={styles.main}>
           <Routes>
+            {admin ? (
+              <>
+                <Route
+                  path="/users"
+                  element={<Users notify={notify} currentId={user.id} />}
+                />
+                <Route
+                  path="/classrooms"
+                  element={<Classrooms notify={notify} />}
+                />
+                <Route
+                  path="/workstations"
+                  element={<Workstations notify={notify} />}
+                />
+                <Route
+                  path="/classroom-overview"
+                  element={<Dashboard notify={notify} overview />}
+                />
+                <Route path="/models" element={<Models notify={notify} />} />
+                <Route
+                  path="/model-alert-rules"
+                  element={<ModelRules notify={notify} />}
+                />
+                <Route path="/audit" element={<Audit />} />
+                <Route
+                  path="/settings"
+                  element={<Settings notify={notify} />}
+                />
+              </>
+            ) : (
+              <>
+                <Route
+                  path="/dashboard"
+                  element={<Dashboard notify={notify} />}
+                />
+                <Route path="/history" element={<History />} />
+                <Route path="/analytics" element={<Analytics />} />
+                <Route path="/reports" element={<Reports notify={notify} />} />
+                <Route
+                  path="/schedules"
+                  element={<Schedules notify={notify} />}
+                />
+                <Route
+                  path="/app-rules"
+                  element={<AppRules notify={notify} />}
+                />
+                <Route
+                  path="/notifications"
+                  element={<Notifications notify={notify} />}
+                />
+              </>
+            )}
             <Route
-              path="/users"
-              element={<Users notify={notify} currentId={session.user.id} />}
+              path="/profile"
+              element={<Profile notify={notify} onUpdated={load} />}
             />
-            <Route
-              path="/classrooms"
-              element={<Classrooms notify={notify} />}
-            />
-            <Route path="*" element={<Navigate to="/users" replace />} />
+            <Route path="*" element={<Navigate to={home} replace />} />
           </Routes>
           <footer className={styles.footer}>
             Velarora <span>Classrooms connected. Exams protected.</span>

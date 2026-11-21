@@ -1,0 +1,40 @@
+.page {
+  display: grid;
+  gap: 24px;
+}
+.heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+.heading h1 {
+  font-size: 36px;
+  font-weight: 500;
+  margin: 0;
+}
+.heading p {
+  color: #a5adb8;
+}
+
+.form {
+  display: grid;
+  gap: 20px;
+}
+
+.muted {
+  color: #9ca6b3;
+  line-height: 1.6;
+}
+
+.link {
+  color: #c7ddf6;
+  text-decoration: none;
+}
+
+@media (max-width: 760px) {
+  .heading h1 {
+    font-size: 30px;
+  }
+}

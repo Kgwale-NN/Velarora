@@ -1,0 +1,12 @@
+.page {
+  display: grid;
+  gap: 24px;
+}
+
+.muted {
+  color: #9ca6b3;
+  line-height: 1.6;
+}
+
+@media (max-width: 760px) {
+}

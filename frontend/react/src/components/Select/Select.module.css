@@ -1,0 +1,29 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 180px;
+  flex: 1;
+  color: #dbdce1;
+}
+.field select {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid #ffffff30;
+  border-radius: 26px;
+  background: #ffffff07;
+  color: inherit;
+  padding: 10px 18px;
+  font: inherit;
+  outline: none;
+  transition:
+    background 0.3s,
+    border 0.3s;
+}
+.field select:focus {
+  border-color: #c8d9ef;
+}
+.field option {
+  background: #17191c;
+  color: #eee;
+}

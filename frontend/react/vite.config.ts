@@ -5,6 +5,7 @@ export default defineConfig({
   base: "/admin/",
   server: {
     proxy: {
+      "/auth": "http://127.0.0.1:8080",
       "/api": "http://127.0.0.1:8080",
       "/design-assets": "http://127.0.0.1:8080",
     },

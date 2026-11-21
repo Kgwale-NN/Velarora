@@ -9,7 +9,7 @@ export function StatCard({
   label: string;
   value: number | string;
   icon: ReactNode;
-  note: string;
+  note?: string;
 }) {
   return (
     <article className={styles.card}>

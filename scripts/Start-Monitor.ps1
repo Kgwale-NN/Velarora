@@ -13,6 +13,7 @@ if (Test-LocalPort 8080) {
     Write-Host 'Port 8080 is already in use. If the monitor is running, open http://127.0.0.1:8080 .'
     exit 0
 }
+& (Join-Path $PSScriptRoot 'Build-Frontend.ps1')
 $env:YOLO_CONFIG_DIR = Join-Path $projectRoot 'data\ultralytics'
 $env:MPLCONFIGDIR = Join-Path $projectRoot 'data\matplotlib'
 New-Item -ItemType Directory -Force -Path $env:YOLO_CONFIG_DIR,$env:MPLCONFIGDIR | Out-Null

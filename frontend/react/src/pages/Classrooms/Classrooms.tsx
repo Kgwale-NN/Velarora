@@ -11,7 +11,7 @@ import {
   Check,
   ArrowUpRight,
 } from "lucide-react";
-import { api, errorText } from "../../lib/api";
+import { adminApi as api, errorText } from "../../lib/api";
 import type { Classroom, Computer, Notify } from "../../lib/types";
 import { Button } from "../../components/Button/Button";
 import { Input } from "../../components/Input/Input";

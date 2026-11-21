@@ -1,0 +1,45 @@
+.page {
+  display: grid;
+  gap: 24px;
+}
+.heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+.heading h1 {
+  font-size: 36px;
+  font-weight: 500;
+  margin: 0;
+}
+.heading p {
+  color: #a5adb8;
+}
+.toolbar {
+  display: flex;
+  gap: 16px;
+  align-items: end;
+  flex-wrap: wrap;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.muted {
+  color: #9ca6b3;
+  line-height: 1.6;
+}
+
+@media (max-width: 760px) {
+  .heading h1 {
+    font-size: 30px;
+  }
+  .toolbar > * {
+    width: 100%;
+  }
+}

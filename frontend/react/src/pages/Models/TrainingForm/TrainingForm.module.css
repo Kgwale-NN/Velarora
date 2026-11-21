@@ -1,0 +1,26 @@
+.toolbar {
+  display: flex;
+  gap: 16px;
+  align-items: end;
+  flex-wrap: wrap;
+}
+.form {
+  display: grid;
+  gap: 20px;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.muted {
+  color: #9ca6b3;
+  line-height: 1.6;
+}
+
+@media (max-width: 760px) {
+  .toolbar > * {
+    width: 100%;
+  }
+}

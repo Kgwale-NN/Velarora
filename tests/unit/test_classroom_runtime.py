@@ -125,7 +125,7 @@ def test_real_monitor_workers_record_separate_owned_runs(setup,monkeypatch):
             if db.count_query_events()>=2:break
             time.sleep(.05)
         assert db.count_query_events()==2
-        for owner,cid,room in zip((a,b),(pa,pb),workspaces):
+        for owner,_cid,room in zip((a,b),(pa,pb),workspaces):
             with as_teacher(owner):
                 rows=db.query_events();assert len(rows)==1
                 assert rows[0]['foreground_app']=='notepad.exe'

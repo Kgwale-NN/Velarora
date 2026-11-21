@@ -1,0 +1,30 @@
+.page {
+  display: grid;
+  gap: 24px;
+}
+
+.form {
+  display: grid;
+  gap: 20px;
+}
+
+.split {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.badge {
+  display: inline-flex;
+  border: 1px solid #adc9ed40;
+  border-radius: 20px;
+  padding: 4px 10px;
+  background: #a8caff0a;
+  color: #d0dff0;
+}
+
+@media (max-width: 760px) {
+  .split {
+    grid-template-columns: 1fr;
+  }
+}
