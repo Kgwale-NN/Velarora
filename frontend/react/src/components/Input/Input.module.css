@@ -49,6 +49,20 @@
 .control input::placeholder {
   color: #7e7e7e;
 }
+.control input:autofill {
+  border-radius: 999px;
+  box-shadow: 0 0 0 1000px var(--input-autofill-background, #202020) inset;
+  -webkit-text-fill-color: var(--input-text, #eee);
+  caret-color: var(--input-text, #eee);
+}
+.control input:-webkit-autofill,
+.control input:-webkit-autofill:hover,
+.control input:-webkit-autofill:focus {
+  border-radius: 999px;
+  -webkit-box-shadow: 0 0 0 1000px var(--input-autofill-background, #202020) inset;
+  -webkit-text-fill-color: var(--input-text, #eee);
+  caret-color: var(--input-text, #eee);
+}
 .field small {
   font-size: 14px;
   line-height: 1.4;
