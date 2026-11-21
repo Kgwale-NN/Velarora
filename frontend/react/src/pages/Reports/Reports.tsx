@@ -1,3 +1,4 @@
+import { PageSkeleton } from "../../components/PageSkeleton/PageSkeleton";
 import { PageHeading } from "../../components/PageHeading/PageHeading";
 import { useState } from "react";
 import { FileDown, Eye, ArrowLeft } from "lucide-react";
@@ -14,6 +15,7 @@ export function Reports({ notify }: { notify: Notify }) {
   const r = useResource<Row[]>("/teacher/reports");
   const [selected, setSelected] = useState<number | null>(null),
     [shot, setShot] = useState<number | null>(null);
+  if (r.loading && !r.data) return <PageSkeleton />;
   return (
     <div className={styles.page}>
       <PageHeading

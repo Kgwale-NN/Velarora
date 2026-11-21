@@ -1,3 +1,4 @@
+import { PageSkeleton } from "../../components/PageSkeleton/PageSkeleton";
 import { PageHeading } from "../../components/PageHeading/PageHeading";
 import { AlarmList } from "../../components/ExamAlarms/AlarmList";
 import { useState } from "react";
@@ -23,6 +24,7 @@ export function Notifications({ notify }: { notify: Notify }) {
       notify(errorText(e), "error");
     }
   }
+  if (r.loading && !r.data) return <PageSkeleton />;
   return (
     <div className={styles.page}>
       <PageHeading

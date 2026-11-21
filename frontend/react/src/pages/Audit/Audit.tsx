@@ -1,3 +1,4 @@
+import { PageSkeleton } from "../../components/PageSkeleton/PageSkeleton";
 import { PageHeading } from "../../components/PageHeading/PageHeading";
 import { useState } from "react";
 import { useResource, type Row } from "../../lib/useResource";
@@ -12,6 +13,7 @@ export function Audit() {
     [action, setAction] = useState(""),
     [query, setQuery] = useState("limit=200");
   const r = useResource<Row[]>("/admin/audit?" + query);
+  if (r.loading && !r.data) return <PageSkeleton />;
   return (
     <div className={styles.page}>
       <PageHeading

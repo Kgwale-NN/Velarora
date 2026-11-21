@@ -1,4 +1,5 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { PageSkeleton } from "../../components/PageSkeleton/PageSkeleton";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import {
   School,
   Monitor,
@@ -20,6 +21,7 @@ import { DataTable } from "../../components/DataTable/DataTable";
 import { PageHeading } from "../../components/PageHeading/PageHeading";
 import styles from "./Classrooms.module.css";
 export function Classrooms({ notify }: { notify: Notify }) {
+  const initialized = useRef(false);
   const [rooms, setRooms] = useState<Classroom[]>([]),
     [computers, setComputers] = useState<Computer[]>([]),
     [loading, setLoading] = useState(true),
@@ -47,6 +49,7 @@ export function Classrooms({ notify }: { notify: Notify }) {
     } catch (err) {
       setFailure(errorText(err));
     } finally {
+      initialized.current = true;
       setLoading(false);
     }
   }
@@ -149,6 +152,7 @@ export function Classrooms({ notify }: { notify: Notify }) {
       .toLowerCase()
       .includes(query.toLowerCase()),
   );
+  if (loading && !initialized.current) return <PageSkeleton />;
   return (
     <section className={styles.page}>
       <PageHeading

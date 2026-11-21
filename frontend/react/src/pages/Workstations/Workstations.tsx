@@ -1,3 +1,4 @@
+import { PageSkeleton } from "../../components/PageSkeleton/PageSkeleton";
 import { PageHeading } from "../../components/PageHeading/PageHeading";
 import { useState } from "react";
 import { Download } from "lucide-react";
@@ -19,6 +20,7 @@ export function Workstations({ notify }: { notify: Notify }) {
   const [pc, setPc] = useState(""),
     [url, setUrl] = useState(location.origin),
     [busy, setBusy] = useState(false);
+  if (r.loading && !r.data) return <PageSkeleton />;
   return (
     <div className={styles.page}>
       <PageHeading

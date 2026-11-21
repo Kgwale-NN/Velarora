@@ -1,3 +1,4 @@
+import { PageSkeleton } from "../../components/PageSkeleton/PageSkeleton";
 import { FormActions } from "../../components/FormActions/FormActions";
 import { PageHeading } from "../../components/PageHeading/PageHeading";
 import { useEffect, useState, type FormEvent } from "react";
@@ -54,6 +55,7 @@ export function Profile({
       setBusy(false);
     }
   }
+  if (r.loading && !r.data) return <PageSkeleton />;
   return (
     <div className={styles.page}>
       <PageHeading

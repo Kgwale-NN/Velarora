@@ -1,3 +1,4 @@
+import { PageSkeleton } from "../../components/PageSkeleton/PageSkeleton";
 import { PageHeading } from "../../components/PageHeading/PageHeading";
 import { useEffect, useState } from "react";
 import { Plus, Upload, Play, Pencil, Trash2, RefreshCw } from "lucide-react";
@@ -53,6 +54,8 @@ export function Models({ notify }: { notify: Notify }) {
   useEffect(() => {
     if (job?.model_id) r.reload();
   }, [job?.model_id, r.reload]);
+  if ((r.loading && !r.data) || (training.loading && !training.data))
+    return <PageSkeleton />;
   return (
     <div className={styles.page}>
       <PageHeading

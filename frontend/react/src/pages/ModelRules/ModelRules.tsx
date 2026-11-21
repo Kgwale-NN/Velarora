@@ -1,3 +1,4 @@
+import { PageSkeleton } from "../../components/PageSkeleton/PageSkeleton";
 import { PageHeading } from "../../components/PageHeading/PageHeading";
 import { useState } from "react";
 import { useResource, text, type Row } from "../../lib/useResource";
@@ -13,6 +14,7 @@ export function ModelRules({ notify }: { notify: Notify }) {
   );
   const [busy, setBusy] = useState<number | null>(null);
   const names = r.data?.model?.class_names as string[] | undefined;
+  if (r.loading && !r.data) return <PageSkeleton />;
   return (
     <div className={styles.page}>
       <PageHeading

@@ -109,3 +109,6 @@ All 17 teacher and administrator workspace routes use the shared PageHeading for
 
 
 The login uses the same compact black-and-white interface direction: a short heading and description, labelled 40px fields, 10px field corners, 8px button corners, a flat black primary action and an outlined Google action. The lab image remains as a subdued decorative background. Authentication, Remember me, password visibility, administrator reset guidance and sign-in progress remain unchanged. Desktop and phone widths are verified with mock authentication requests.
+
+
+PageSkeleton provides reusable, route-specific loading layouts for all workspace pages. Dashboard placeholders include controls, statistics and screen cards; list/table pages show matching structures; Profile shows two forms; Settings shows its sections; App Rules includes its large text area. Lazy route loading and initial API loading use the same layout. Existing content remains during normal polling, motion preferences are respected, and no artificial loading delay is added. ResourceState can use compact table, form or list variants for independent requests.

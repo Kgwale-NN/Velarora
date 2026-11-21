@@ -1,4 +1,5 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { PageSkeleton } from "../../components/PageSkeleton/PageSkeleton";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import {
   UsersRound,
   UserCheck,
@@ -26,6 +27,7 @@ export function Users({
   notify: Notify;
   currentId: number;
 }) {
+  const initialized = useRef(false);
   const [users, setUsers] = useState<User[]>([]),
     [loading, setLoading] = useState(true),
     [failure, setFailure] = useState(""),
@@ -44,6 +46,7 @@ export function Users({
     } catch (err) {
       setFailure(errorText(err));
     } finally {
+      initialized.current = true;
       setLoading(false);
     }
   }
@@ -92,6 +95,7 @@ export function Users({
         .toLowerCase()
         .includes(query.toLowerCase()),
   );
+  if (loading && !initialized.current) return <PageSkeleton />;
   return (
     <section className={styles.page}>
       <PageHeading

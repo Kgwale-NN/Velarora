@@ -1,3 +1,4 @@
+import { PageSkeleton } from "../components/PageSkeleton/PageSkeleton";
 import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import {
@@ -223,11 +224,7 @@ export function App() {
             </WorkspaceNavbar>
             <WorkspaceScroll>
               <main key={location.pathname} className={styles.main}>
-                <Suspense
-                  fallback={
-                    <ResourceState loading={true} error="" retry={load} />
-                  }
-                >
+                <Suspense fallback={<PageSkeleton />}>
                   <Routes>
                     {admin ? (
                       <>

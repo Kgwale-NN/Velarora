@@ -1,3 +1,4 @@
+import { PageSkeleton } from "../../components/PageSkeleton/PageSkeleton";
 import { PageHeading } from "../../components/PageHeading/PageHeading";
 import { useState } from "react";
 import { Activity, Users, ScanEye } from "lucide-react";
@@ -30,6 +31,7 @@ export function Analytics() {
     { value: "", label: "All" },
     ...rows.map((v) => ({ value: Number(v.id), label: text(v[key]) })),
   ];
+  if (r.loading && !r.data) return <PageSkeleton />;
   return (
     <div className={styles.page}>
       <PageHeading

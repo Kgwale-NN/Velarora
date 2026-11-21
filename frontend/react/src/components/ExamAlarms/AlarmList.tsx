@@ -9,6 +9,7 @@ export function AlarmList() {
   return (
     <div className={styles.list}>
       <ResourceState
+        variant="list"
         loading={alarms.loading}
         error={alarms.error}
         retry={alarms.reload}

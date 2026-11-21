@@ -1,3 +1,4 @@
+import { PageSkeleton } from "../../components/PageSkeleton/PageSkeleton";
 import { PageHeading } from "../../components/PageHeading/PageHeading";
 import { useRef, useState } from "react";
 import { Monitor, Play, Square, Wifi, Bell, Expand } from "lucide-react";
@@ -107,6 +108,8 @@ export function Dashboard({
       notify(errorText(e), "error");
     }
   }
+  if (rooms.loading || (!!selected && live.loading && !live.data))
+    return <PageSkeleton />;
   return (
     <div className={styles.page}>
       <PageHeading

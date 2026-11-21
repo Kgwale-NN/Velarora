@@ -1,3 +1,4 @@
+import { PageSkeleton } from "../../components/PageSkeleton/PageSkeleton";
 import { PageHeading } from "../../components/PageHeading/PageHeading";
 import { useState } from "react";
 import { Plus, Pencil, Trash2 } from "lucide-react";
@@ -28,6 +29,7 @@ export function Schedules({ notify }: { notify: Notify }) {
       setBusy(false);
     }
   }
+  if (r.loading && !r.data) return <PageSkeleton />;
   return (
     <div className={styles.page}>
       <PageHeading
