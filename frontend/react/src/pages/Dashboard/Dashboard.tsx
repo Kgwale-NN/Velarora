@@ -1,3 +1,4 @@
+import { PageHeading } from "../../components/PageHeading/PageHeading";
 import { useRef, useState } from "react";
 import { Monitor, Play, Square, Wifi, Bell, Expand } from "lucide-react";
 import { useExamAlarms } from "../../components/ExamAlarms/ExamAlarmsProvider";
@@ -108,17 +109,15 @@ export function Dashboard({
   }
   return (
     <div className={styles.page}>
-      <header className={styles.heading}>
-        <div>
-          <p className={styles.eyebrow}>CLASSROOM WORKSPACE</p>
-          <h1>{overview ? "Classroom overview" : "Exam dashboard"}</h1>
-          <p className={styles.subtitle}>
-            {overview
-              ? "A live view of classroom monitoring across your school."
-              : "Choose a classroom, start your exam, and keep every screen in view."}
-          </p>
-        </div>
-      </header>
+      <PageHeading
+        eyebrow="CLASSROOM WORKSPACE"
+        title={overview ? "Classroom overview" : "Exam dashboard"}
+        description={
+          overview
+            ? "A live view of classroom monitoring across your school."
+            : "Choose a classroom, start your exam, and keep every screen in view."
+        }
+      />
       <Panel>
         <div className={styles.toolbar}>
           <div className={styles.classroom}>

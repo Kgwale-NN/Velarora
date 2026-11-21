@@ -1,3 +1,4 @@
+import { PageHeading } from "../../components/PageHeading/PageHeading";
 import { AlarmList } from "../../components/ExamAlarms/AlarmList";
 import { useState } from "react";
 import { useResource, type Row, text } from "../../lib/useResource";
@@ -24,13 +25,11 @@ export function Notifications({ notify }: { notify: Notify }) {
   }
   return (
     <div className={styles.page}>
-      <header className={styles.heading}>
-        <div>
-          <h1>Notifications</h1>
-          <p>{r.data?.status.unread || 0} unread alert(s)</p>
-        </div>
-        <Button onClick={() => read()}>Mark all as read</Button>
-      </header>
+      <PageHeading
+        title="Notifications"
+        description={`${r.data?.status.unread || 0} unread alerts. Review exam alarms and recent activity.`}
+        action={<Button onClick={() => read()}>Mark all as read</Button>}
+      />
       <ResourceState {...r} retry={r.reload} />
       <Panel title="Active exam alarms">
         <AlarmList />

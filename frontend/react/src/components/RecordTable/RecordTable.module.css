@@ -1,7 +1,7 @@
 .scroll {
   overflow: auto;
   border: 1px solid var(--ui-border, #ffffff20);
-  border-radius: 20px;
+  border-radius: 12px;
   background: var(--ui-surface, #ffffff03);
 }
 .scroll table {
@@ -31,4 +31,17 @@
   padding: 24px;
   text-align: center;
   color: var(--ui-muted, #a7afbb);
+}
+
+.scroll td button {
+  min-height: 32px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+}
+.scroll tbody tr:last-child td {
+  border-bottom: 0;
+}
+.scroll td {
+  vertical-align: middle;
 }

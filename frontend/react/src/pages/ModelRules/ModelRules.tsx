@@ -1,3 +1,4 @@
+import { PageHeading } from "../../components/PageHeading/PageHeading";
 import { useState } from "react";
 import { useResource, text, type Row } from "../../lib/useResource";
 import { api, json, errorText } from "../../lib/api";
@@ -14,11 +15,10 @@ export function ModelRules({ notify }: { notify: Notify }) {
   const names = r.data?.model?.class_names as string[] | undefined;
   return (
     <div className={styles.page}>
-      <h1>Model alert rules</h1>
-      <p className={styles.muted}>
-        Choose detected classes that should raise an alert. Allowed classes
-        still appear in history. An exam schedule can override these defaults.
-      </p>
+      <PageHeading
+        title="Model alert rules"
+        description="Choose detected classes that raise an alert. Allowed classes still appear in history. Exam schedules can override these defaults."
+      />
       <ResourceState {...r} retry={r.reload} />
       <Panel
         title={r.data?.model ? text(r.data.model.name) : "Detection classes"}

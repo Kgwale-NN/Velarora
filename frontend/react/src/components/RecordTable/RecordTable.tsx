@@ -1,3 +1,4 @@
+import { EmptyState } from "../EmptyState/EmptyState";
 import type { ReactNode } from "react";
 import styles from "./RecordTable.module.css";
 import { text, type Row } from "../../lib/useResource";
@@ -21,7 +22,9 @@ export function RecordTable({
         <thead>
           <tr>
             {columns.map((c) => (
-              <th key={c.key}>{c.label}</th>
+              <th key={c.key} scope="col">
+                {c.label}
+              </th>
             ))}
           </tr>
         </thead>
@@ -37,7 +40,7 @@ export function RecordTable({
           ))}
         </tbody>
       </table>
-      {!rows.length && <p className={styles.empty}>No records yet.</p>}
+      {!rows.length && <EmptyState />}
     </div>
   );
 }

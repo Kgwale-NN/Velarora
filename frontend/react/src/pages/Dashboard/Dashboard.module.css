@@ -1,16 +1,16 @@
 .page {
   --panel-padding: 20px;
   --select-label-size: 11px;
-  --panel-radius: 18px;
+  --panel-radius: 12px;
   --panel-heading-size: 15px;
-  --stat-padding: 20px;
+  --stat-padding: 18px;
   --stat-label-size: 12px;
   --stat-note-size: 11px;
-  --stat-value-size: 34px;
+  --stat-value-size: 30px;
   --stat-value-weight: 600;
   --stat-lift: -3px;
   display: grid;
-  gap: 16px;
+  gap: 20px;
   min-width: 0;
 }
 .heading {

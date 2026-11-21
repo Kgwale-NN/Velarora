@@ -1,7 +1,7 @@
 .dialog {
   padding: 0;
   border: 1px solid var(--ui-border, #ffffff30);
-  border-radius: 28px;
+  border-radius: var(--modal-radius, 28px);
   background: var(
     --ui-dialog-bg,
     linear-gradient(135deg, #202020df, #090909f5)
@@ -10,17 +10,15 @@
   color: var(--ui-text, #eee);
   width: min(530px, calc(100vw - 32px));
   max-height: 88dvh;
-  box-shadow:
-    0 35px 100px #000b,
-    inset 0 1px #ffffff0b;
+  box-shadow: var(--modal-shadow, 0 35px 100px #000b);
   animation: arrive 0.32s ease both;
 }
 .dialog::backdrop {
-  background: #0009;
+  background: var(--modal-backdrop, #0009);
   backdrop-filter: blur(6px);
 }
 .panel {
-  padding: 28px;
+  padding: var(--modal-padding, 28px);
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -55,7 +53,7 @@
 }
 .panel [role="alert"] {
   color: var(--ui-error, #ffc4c4);
-  font-size: 16px;
+  font-size: 13px;
   margin: 0;
 }
 @keyframes arrive {
@@ -76,4 +74,11 @@
 
 .wide {
   width: min(1100px, calc(100vw - 32px));
+}
+
+.header > button {
+  width: 32px;
+  min-height: 32px;
+  padding: 5px;
+  border-radius: 8px;
 }

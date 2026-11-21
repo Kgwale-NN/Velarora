@@ -87,7 +87,7 @@
   padding: 10px 12px;
   box-sizing: border-box;
   border: 1px solid transparent;
-  border-radius: 12px;
+  border-radius: 9px;
   color: var(--ui-muted, #999);
   font-size: 13px;
   text-decoration: none;

@@ -1,3 +1,4 @@
+import { PageHeading } from "../../components/PageHeading/PageHeading";
 import { useState } from "react";
 import { Image, Search } from "lucide-react";
 import { useResource, type Row, text } from "../../lib/useResource";
@@ -31,12 +32,10 @@ export function History() {
   ];
   return (
     <div className={styles.page}>
-      <header className={styles.heading}>
-        <h1>Detection history</h1>
-        <p className={styles.muted}>
-          Your exam activity and saved screenshots.
-        </p>
-      </header>
+      <PageHeading
+        title="Detection history"
+        description="Your exam activity and saved screenshots."
+      />
       <Panel>
         <form
           className={styles.toolbar}

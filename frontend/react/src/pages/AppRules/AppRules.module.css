@@ -1,6 +1,6 @@
 .page {
   display: grid;
-  gap: 24px;
+  gap: 20px;
 }
 
 .form {
@@ -17,9 +17,9 @@
   width: 100%;
   min-height: 160px;
   resize: vertical;
-  padding: 18px;
+  padding: 12px;
   border: 1px solid var(--ui-border, #ffffff30);
-  border-radius: 20px;
+  border-radius: 10px;
   color: var(--ui-text, #e9edf2);
   background: var(--ui-surface, #ffffff05);
   font: inherit;
@@ -32,4 +32,8 @@
 .fieldarea:focus-visible {
   outline: 2px solid var(--ui-text, #eee);
   outline-offset: 3px;
+}
+
+.form {
+  max-width: 760px;
 }

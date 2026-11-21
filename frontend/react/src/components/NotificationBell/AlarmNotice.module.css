@@ -1,5 +1,9 @@
 .notice {
   --ui-text: #202124;
+  --button-radius: 8px;
+  --button-elevation: none;
+  --button-hover-elevation: none;
+  --button-hover-lift: 0px;
   --ui-border: #e6e7e9;
   --ui-hover: #f0f1f3;
   --button-primary-bg: #202124;
@@ -14,7 +18,7 @@
   padding: 16px;
   box-sizing: border-box;
   border: 1px solid #dfe0e3;
-  border-radius: 16px;
+  border-radius: 12px;
   background: #fffffff0;
   backdrop-filter: blur(24px);
   color: #202124;

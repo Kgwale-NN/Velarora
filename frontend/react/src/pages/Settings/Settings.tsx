@@ -1,3 +1,5 @@
+import { FormActions } from "../../components/FormActions/FormActions";
+import { PageHeading } from "../../components/PageHeading/PageHeading";
 import { useEffect, useState } from "react";
 import { Save } from "lucide-react";
 import { useResource, text } from "../../lib/useResource";
@@ -77,11 +79,10 @@ export function Settings({ notify }: { notify: Notify }) {
     setForm({ ...form, [key]: value });
   return (
     <div className={styles.page}>
-      <h1>Settings</h1>
-      <p className={styles.muted}>
-        Changes apply the next time monitoring starts. Activate a model on
-        Models to set the model path and inference size.
-      </p>
+      <PageHeading
+        title="Settings"
+        description="Changes apply the next time monitoring starts. Activate a model on Models to set the model path and inference size."
+      />
       <ResourceState {...r} retry={r.reload} />
       {r.data && (
         <form
@@ -154,10 +155,12 @@ export function Settings({ notify }: { notify: Notify }) {
               </div>
             </Panel>
           ))}
-          <Button variant="primary" busy={busy} type="submit">
-            <Save size={18} />
-            Save settings
-          </Button>
+          <FormActions>
+            <Button variant="primary" busy={busy} type="submit">
+              <Save size={18} />
+              Save settings
+            </Button>
+          </FormActions>
         </form>
       )}
     </div>

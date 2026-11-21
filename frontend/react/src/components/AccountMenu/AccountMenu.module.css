@@ -79,7 +79,7 @@
   box-sizing: border-box;
   padding: 8px;
   border: 1px solid var(--account-border);
-  border-radius: 20px;
+  border-radius: 14px;
   background: var(--account-background);
   backdrop-filter: blur(26px) saturate(1.2);
   -webkit-backdrop-filter: blur(26px) saturate(1.2);
@@ -123,7 +123,7 @@
   padding: 10px 12px;
   box-sizing: border-box;
   border: 0;
-  border-radius: 12px;
+  border-radius: 8px;
   background: transparent;
   color: var(--account-text);
   font: inherit;

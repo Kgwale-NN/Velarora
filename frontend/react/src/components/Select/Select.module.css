@@ -34,7 +34,7 @@
   padding: 10px 15px;
   box-sizing: border-box;
   border: 1px solid var(--ui-border, #ffffff30);
-  border-radius: 14px;
+  border-radius: var(--input-radius, 14px);
   background: var(--button-background, #ffffff07);
   color: inherit;
   font: inherit;

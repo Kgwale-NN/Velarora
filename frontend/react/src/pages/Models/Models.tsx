@@ -1,3 +1,4 @@
+import { PageHeading } from "../../components/PageHeading/PageHeading";
 import { useEffect, useState } from "react";
 import { Plus, Upload, Play, Pencil, Trash2, RefreshCw } from "lucide-react";
 import { useResource, text, type Row } from "../../lib/useResource";
@@ -54,24 +55,22 @@ export function Models({ notify }: { notify: Notify }) {
   }, [job?.model_id, r.reload]);
   return (
     <div className={styles.page}>
-      <header className={styles.heading}>
-        <div>
-          <h1>Model library</h1>
-          <p className={styles.muted}>
-            Manage the AI that recognises applications in screenshots.
-          </p>
-        </div>
-        <div className={styles.actions}>
-          <Button onClick={() => setShowTrain((v) => !v)}>
-            <Plus size={17} />
-            Train new model
-          </Button>
-          <Button onClick={() => setImporting(true)}>
-            <Upload size={17} />
-            Import model
-          </Button>
-        </div>
-      </header>
+      <PageHeading
+        title="Model library"
+        description="Manage the AI that recognises applications in screenshots."
+        action={
+          <div className={styles.actions}>
+            <Button variant="primary" onClick={() => setShowTrain((v) => !v)}>
+              <Plus size={17} />
+              Train new model
+            </Button>
+            <Button onClick={() => setImporting(true)}>
+              <Upload size={17} />
+              Import model
+            </Button>
+          </div>
+        }
+      />
       <Panel title="Training hardware">
         <p>
           {training.data?.hardware.cuda_ok

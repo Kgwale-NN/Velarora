@@ -1,3 +1,4 @@
+import { PageHeading } from "../../components/PageHeading/PageHeading";
 import { useState } from "react";
 import { FileDown, Eye, ArrowLeft } from "lucide-react";
 import { useResource, text, type Row } from "../../lib/useResource";
@@ -15,7 +16,10 @@ export function Reports({ notify }: { notify: Notify }) {
     [shot, setShot] = useState<number | null>(null);
   return (
     <div className={styles.page}>
-      <h1>Exam reports</h1>
+      <PageHeading
+        title="Exam reports"
+        description="Review completed exams and download their reports."
+      />
       {selected !== null ? (
         <Details
           id={selected}

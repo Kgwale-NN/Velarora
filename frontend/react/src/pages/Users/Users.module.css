@@ -1,19 +1,20 @@
 .page {
-  display: flex;
-  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+  display: grid;
 }
 .stats {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 16px;
-  margin-bottom: 24px;
+  margin-bottom: 0;
 }
 .sectionTitle {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 19px;
+  margin-bottom: 0;
 }
 .sectionTitle h2 {
   font-size: 16px;
@@ -28,7 +29,7 @@
   display: flex;
   align-items: flex-end;
   gap: 20px;
-  padding: 0 0 20px;
+  padding: 0;
 }
 .search {
   max-width: 350px;
@@ -156,7 +157,7 @@
     gap: 10px;
   }
   .sectionTitle h2 {
-    font-size: 22px;
+    font-size: 16px;
   }
   .note {
     align-items: flex-start;

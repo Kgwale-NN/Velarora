@@ -1,35 +1,53 @@
 .heading {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
-  gap: 24px;
+  gap: 16px;
   flex-wrap: wrap;
-  margin-bottom: 24px;
+  min-width: 0;
+}
+.heading > div:first-child {
+  min-width: 0;
 }
 .eyebrow {
-  font:
-    10px/1.5 system-ui,
-    sans-serif;
-  letter-spacing: 2.5px;
+  display: block;
+  font-size: 10px;
+  line-height: 1.5;
+  font-weight: 500;
+  letter-spacing: 1.4px;
   color: var(--ui-muted);
-  text-transform: uppercase;
+  margin-bottom: 7px;
 }
 .heading h1 {
+  margin: 0;
+  font-size: 24px;
+  line-height: 1.3;
   font-weight: 600;
-  font-size: 25px;
-  line-height: 1.15;
-  margin: 8px 0;
-  letter-spacing: -0.8px;
+  letter-spacing: -0.6px;
+  color: var(--ui-text);
 }
 .heading p {
   color: var(--ui-muted);
-  margin: 0;
+  margin: 7px 0 0;
   font-size: 13px;
   line-height: 1.5;
-  max-width: 580px;
+  max-width: 720px;
+}
+.action {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
 }
 @media (max-width: 600px) {
+  .heading {
+    align-items: flex-start;
+  }
+  .action {
+    max-width: 100%;
+  }
   .heading h1 {
-    font-size: 25px;
+    font-size: 22px;
   }
 }

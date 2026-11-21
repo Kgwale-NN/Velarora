@@ -1,3 +1,4 @@
+import { PageHeading } from "../../components/PageHeading/PageHeading";
 import { useState } from "react";
 import { useResource, type Row } from "../../lib/useResource";
 import { Input } from "../../components/Input/Input";
@@ -13,10 +14,10 @@ export function Audit() {
   const r = useResource<Row[]>("/admin/audit?" + query);
   return (
     <div className={styles.page}>
-      <h1>Audit log</h1>
-      <p className={styles.muted}>
-        A record of account, model, classroom and system changes.
-      </p>
+      <PageHeading
+        title="Audit log"
+        description="A record of account, model, classroom and system changes."
+      />
       <Panel>
         <form
           className={styles.toolbar}

@@ -1,3 +1,5 @@
+import { FormActions } from "../../components/FormActions/FormActions";
+import { PageHeading } from "../../components/PageHeading/PageHeading";
 import { useEffect, useState, type FormEvent } from "react";
 import { api, json, errorText } from "../../lib/api";
 import type { Notify } from "../../lib/types";
@@ -43,11 +45,10 @@ export function AppRules({ notify }: { notify: Notify }) {
   }
   return (
     <div className={styles.page}>
-      <h1>Application rules</h1>
-      <p className={styles.muted}>
-        These rules belong to you and apply to your exams. The workstation agent
-        reports the app used on each PC.
-      </p>
+      <PageHeading
+        title="Application rules"
+        description="Choose which applications are allowed during your exams."
+      />
       <ResourceState {...r} retry={r.reload} />
       {r.data && (
         <Panel title="Your exam policy">
@@ -74,9 +75,11 @@ export function AppRules({ notify }: { notify: Notify }) {
               forbidden app starts a continuous alarm on that student PC. Only
               you can stop your exam alarms from the dashboard.
             </p>
-            <Button type="submit" busy={busy}>
-              Save rules
-            </Button>
+            <FormActions>
+              <Button type="submit" busy={busy}>
+                Save rules
+              </Button>
+            </FormActions>
           </form>
         </Panel>
       )}

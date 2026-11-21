@@ -41,7 +41,7 @@
   right: 0;
   width: min(380px, calc(100vw - 32px));
   border: 1px solid #e0e1e4;
-  border-radius: 16px;
+  border-radius: 12px;
   background: #fffffff2;
   color: #202124;
   backdrop-filter: blur(24px);

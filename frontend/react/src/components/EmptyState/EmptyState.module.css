@@ -1,0 +1,30 @@
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--ui-muted);
+}
+.icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  background: var(--ui-hover);
+  border: 1px solid var(--ui-border);
+  border-radius: 12px;
+}
+.empty strong {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ui-text);
+}
+.empty p {
+  font-size: 12px;
+  line-height: 1.5;
+  margin: 0;
+  max-width: 320px;
+}

@@ -1,3 +1,4 @@
+import { PageHeading } from "../../components/PageHeading/PageHeading";
 import { useState } from "react";
 import { Download } from "lucide-react";
 import { useResource, text, type Row } from "../../lib/useResource";
@@ -20,9 +21,10 @@ export function Workstations({ notify }: { notify: Notify }) {
     [busy, setBusy] = useState(false);
   return (
     <div className={styles.page}>
-      <header className={styles.heading}>
-        <h1>Workstation setup</h1>
-      </header>
+      <PageHeading
+        title="Workstation setup"
+        description="Connect classroom PCs and manage their workstation agents."
+      />
       <ResourceState {...r} retry={r.reload} />
       <Panel title="Connect a student PC">
         <p>

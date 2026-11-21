@@ -13,7 +13,7 @@
   align-items: center;
   gap: 12px;
   border: 1px solid var(--input-border, #ffffff32);
-  border-radius: 999px;
+  border-radius: var(--input-radius, 999px);
   background: var(
     --input-background,
     linear-gradient(120deg, #ffffff0b, #ffffff03)
@@ -39,7 +39,7 @@
 .control input {
   min-width: 0;
   width: 100%;
-  padding: 13px 0;
+  padding: var(--input-padding-y, 13px) 0;
   background: transparent;
   border: 0;
   outline: none;
@@ -51,7 +51,7 @@
   color: var(--input-placeholder, #7e7e7e);
 }
 .control input:autofill {
-  border-radius: 999px;
+  border-radius: var(--input-radius, 999px);
   box-shadow: 0 0 0 1000px var(--input-autofill-background, #202020) inset;
   -webkit-text-fill-color: var(--input-text, #eee);
   caret-color: var(--input-text, #eee);
@@ -59,15 +59,15 @@
 .control input:-webkit-autofill,
 .control input:-webkit-autofill:hover,
 .control input:-webkit-autofill:focus {
-  border-radius: 999px;
+  border-radius: var(--input-radius, 999px);
   -webkit-box-shadow: 0 0 0 1000px var(--input-autofill-background, #202020)
     inset;
   -webkit-text-fill-color: var(--input-text, #eee);
   caret-color: var(--input-text, #eee);
 }
 .field small {
-  font-size: 14px;
-  line-height: 1.4;
+  font-size: 12px;
+  line-height: 1.5;
   color: var(--ui-muted, #999);
 }
 .control input:disabled {

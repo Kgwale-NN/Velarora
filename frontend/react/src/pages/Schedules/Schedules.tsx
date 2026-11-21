@@ -1,3 +1,4 @@
+import { PageHeading } from "../../components/PageHeading/PageHeading";
 import { useState } from "react";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { useResource, type Row, text } from "../../lib/useResource";
@@ -29,13 +30,16 @@ export function Schedules({ notify }: { notify: Notify }) {
   }
   return (
     <div className={styles.page}>
-      <header className={styles.heading}>
-        <h1>Your exam schedules</h1>
-        <Button variant="primary" onClick={() => setEdit(null)}>
-          <Plus size={17} />
-          Add schedule
-        </Button>
-      </header>
+      <PageHeading
+        title="Your exam schedules"
+        description="Plan when classroom monitoring starts and stops."
+        action={
+          <Button variant="primary" onClick={() => setEdit(null)}>
+            <Plus size={17} />
+            Add schedule
+          </Button>
+        }
+      />
       <ResourceState {...r} retry={r.reload} />
       {r.data && (
         <RecordTable

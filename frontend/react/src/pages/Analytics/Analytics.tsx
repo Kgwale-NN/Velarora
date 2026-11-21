@@ -1,3 +1,4 @@
+import { PageHeading } from "../../components/PageHeading/PageHeading";
 import { useState } from "react";
 import { Activity, Users, ScanEye } from "lucide-react";
 import { useResource, text, type Row } from "../../lib/useResource";
@@ -31,7 +32,10 @@ export function Analytics() {
   ];
   return (
     <div className={styles.page}>
-      <h1>Your analytics</h1>
+      <PageHeading
+        title="Your analytics"
+        description="Review captures and detections across your exams."
+      />
       <Panel>
         <form
           className={styles.toolbar}

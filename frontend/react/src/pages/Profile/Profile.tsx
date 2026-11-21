@@ -1,3 +1,5 @@
+import { FormActions } from "../../components/FormActions/FormActions";
+import { PageHeading } from "../../components/PageHeading/PageHeading";
 import { useEffect, useState, type FormEvent } from "react";
 import { api, json, errorText } from "../../lib/api";
 import type { Notify } from "../../lib/types";
@@ -54,7 +56,10 @@ export function Profile({
   }
   return (
     <div className={styles.page}>
-      <h1>Your profile</h1>
+      <PageHeading
+        title="Your profile"
+        description="Manage your display name and password."
+      />
       <ResourceState {...r} retry={r.reload} />
       {r.data && (
         <div className={styles.split}>
@@ -78,9 +83,11 @@ export function Profile({
               <span className={styles.badge}>
                 {r.data.role === "admin" ? "Administrator" : "Teacher"}
               </span>
-              <Button type="submit" busy={busy}>
-                Save profile
-              </Button>
+              <FormActions>
+                <Button type="submit" busy={busy}>
+                  Save profile
+                </Button>
+              </FormActions>
             </form>
           </Panel>
           <Panel title="Change password">
@@ -114,9 +121,11 @@ export function Profile({
                 onChange={(e) => setConfirm(e.target.value)}
                 required
               />
-              <Button type="submit" busy={busy}>
-                Update password
-              </Button>
+              <FormActions>
+                <Button type="submit" busy={busy}>
+                  Update password
+                </Button>
+              </FormActions>
             </form>
           </Panel>
         </div>

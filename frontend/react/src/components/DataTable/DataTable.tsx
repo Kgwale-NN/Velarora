@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Inbox } from "lucide-react";
+import { EmptyState } from "../EmptyState/EmptyState";
 import styles from "./DataTable.module.css";
 export interface Column<T> {
   label: string;
@@ -20,7 +20,7 @@ export function DataTable<T extends { id: number }>({
   return (
     <div className={styles.frame} aria-busy={busy}>
       <div className={styles.scroll}>
-        <table className={styles.table}>
+        <table className={styles.table} aria-label="Workspace records">
           <thead>
             <tr>
               {columns.map((column) => (
@@ -52,11 +52,10 @@ export function DataTable<T extends { id: number }>({
         </table>
       </div>
       {!busy && !rows.length && (
-        <div className={styles.empty}>
-          <Inbox size={30} />
-          <strong>{empty}</strong>
-          <span>Try another search or add your first record.</span>
-        </div>
+        <EmptyState
+          title={empty}
+          description="Try another search or add your first record."
+        />
       )}
     </div>
   );
