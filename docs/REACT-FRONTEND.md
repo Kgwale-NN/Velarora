@@ -4,6 +4,8 @@ All active browser pages use React and TypeScript. The Python backend retains au
 
 ## Pages
 
+- Welcome: a wide classroom photo, a dark readability fade, and links to log in or create a teacher account. Guests opening the app land here; signed-in staff still go to their own dashboard.
+
 - Sign-in: email/password, remember me, Google sign-in and password-reset guidance.
 - Teacher sign-up: public registration with full name, email, strong password and confirmation. New accounts can sign in as teachers; administrator roles cannot be selected. Email verification is not configured yet.
 - Administrator: Users, Classrooms, Workstations, Classroom overview, Models and training, Model alert rules, Audit log, Profile and Settings.
@@ -20,6 +22,7 @@ frontend/react/src/
   components/           # Reusable Button, Input, Select, Modal, tables,
                         # panels, notifications, snapshots and charts
   pages/
+    Welcome/
     Login/
     Signup/
     Users/

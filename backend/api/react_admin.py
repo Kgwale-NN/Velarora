@@ -38,7 +38,8 @@ def register(app):
     from fastapi.responses import RedirectResponse
 
     routes = {
-        "/": "dashboard",
+        "/": "welcome",
+        "/welcome": "welcome",
         "/login": "login",
         "/signup": "signup",
         "/users": "users",
