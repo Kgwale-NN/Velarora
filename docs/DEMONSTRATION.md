@@ -40,6 +40,10 @@ The existing Google callback is configured for the local address. Google sign-in
 
 A successful web request does not prove screen capture, physical audio or Google login. Perform these checks on each Windows PC you intend to present from, preferably before demonstration day. See CLASSROOM-SETUP.md for the agent setup.
 
+## A stopped alarm still blocks the next exam
+
+The teacher's Stop alarm records the command. The workstation agent must then connect and report that its sound is off. If the agent was closed or forcibly stopped while sounding, its last saved sound report can remain active. Reconnect the agent on that classroom PC using its private configuration and wait for its next heartbeat. The start control distinguishes this missing confirmation from an alarm that still needs its teacher's stop command. A stale timestamp alone does not prove a remote PC is silent, so the alarm check is not bypassed automatically.
+
 
 ## Start and stop an approved public demo link
 

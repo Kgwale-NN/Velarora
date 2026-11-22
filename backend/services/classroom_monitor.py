@@ -39,9 +39,13 @@ def start_classroom(room_id,owner_id,schedule_id=None,controller_factory=None):
             raise ValueError('Another exam is already running in this classroom. Its teacher must end it first.')
         wanted={r['id'] for r in rows}
         placeholders=','.join('?' for _ in wanted)
-        pending=_conn().execute(f'SELECT 1 FROM workstation_alarm a LEFT JOIN computer_agent ca ON ca.computer_id=a.computer_id '
-            f'WHERE a.computer_id IN ({placeholders}) AND (a.stopped_at IS NULL OR ca.audio_active=1) LIMIT 1',list(wanted)).fetchone()
+        pending=_conn().execute(f'SELECT a.stopped_at FROM workstation_alarm a LEFT JOIN computer_agent ca ON ca.computer_id=a.computer_id '
+            f'WHERE a.computer_id IN ({placeholders}) AND (a.stopped_at IS NULL OR ca.audio_active=1) '
+            'ORDER BY (a.stopped_at IS NULL) DESC LIMIT 1',list(wanted)).fetchone()
         if pending:
+            if pending['stopped_at'] is not None:
+                raise ValueError('The previous alarm was stopped, but its classroom PC has not confirmed silence. '
+                    'Reconnect the workstation agent on that PC, then try again.')
             raise ValueError('A previous exam has an active or unacknowledged alarm on a classroom PC. Its teacher must stop it before a new exam starts.')
         hosts={pc['host'].lower() for pc in computers}
         if any((room.monitor or room.stopping) and (wanted.intersection(room.computer_ids.values()) or hosts.intersection(pc['host'].lower() for pc in room.computers)) for room in rooms.values()):

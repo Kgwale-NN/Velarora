@@ -136,3 +136,32 @@ def test_real_monitor_workers_record_separate_owned_runs(setup,monkeypatch):
     finally:
         for mc in controllers:mc.stop()
     assert all(db.get_run(mc.run_id)['status']=='finished' for mc in controllers)
+
+
+def test_stopped_alarm_waits_for_real_agent_silence_acknowledgement(setup):
+    from backend.db.agent_heartbeat import heartbeat
+    from backend.db.workstation_alarms import raise_alarm, stop_alarm
+    a,_b,ga,_gb,pa,_pb,factory=setup
+    rid=db.create_run(started_by=a)
+    with _core._conn() as c:
+        c.execute('INSERT INTO computer_agent(computer_id,token_hash,audio_active) VALUES (?,?,1)',(pa,'test-hash'))
+        raise_alarm(c,rid,pa,None,'notepad.exe')
+    aid=_core._conn().execute('SELECT id FROM workstation_alarm WHERE run_id=?',(rid,)).fetchone()[0]
+    stop_alarm(a,aid)
+    db.finish_run(rid)
+    with pytest.raises(ValueError,match='PC has not confirmed silence'):
+        manager.start_classroom(ga,a,controller_factory=factory)
+    assert heartbeat(pa,'chrome.exe',False)['alarm'] is False
+    assert manager.start_classroom(ga,a,controller_factory=factory).owner_id==a
+
+
+def test_active_alarm_stays_blocked_even_if_audio_report_is_false(setup):
+    from backend.db.workstation_alarms import raise_alarm
+    a,_b,ga,_gb,pa,_pb,factory=setup
+    rid=db.create_run(started_by=a)
+    with _core._conn() as c:
+        c.execute('INSERT INTO computer_agent(computer_id,token_hash,audio_active) VALUES (?,?,0)',(pa,'test-hash'))
+        raise_alarm(c,rid,pa,None,'notepad.exe')
+    db.finish_run(rid)
+    with pytest.raises(ValueError,match='teacher must stop'):
+        manager.start_classroom(ga,a,controller_factory=factory)
