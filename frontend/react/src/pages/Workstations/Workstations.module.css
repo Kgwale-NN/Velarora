@@ -29,7 +29,7 @@
 }
 
 .link {
-  color: #c7ddf6;
+  color: var(--ui-text);
   text-decoration: none;
 }
 

@@ -86,7 +86,20 @@ async def provision(payload: Provision, actor: W):
 
         raise HTTPException(400, "Use HTTPS for classroom-network connections.")
     token = await perform(provision_agent, actor["id"], payload.computer_id)
-    return {"server_url": payload.server_url.rstrip("/"), "token": token}
+    pc = _conn().execute('SELECT name,host_address FROM computer WHERE id=?', (payload.computer_id,)).fetchone()
+    return {"server_url": payload.server_url.rstrip("/"), "token": token,
+            'computer_name': pc['name'], 'screen_capture': pc['host_address'].startswith('agent:')}
+
+
+class AgentComputer(BaseModel):
+    name: str = Field(min_length=1, max_length=100)
+    classroom_id: int
+
+
+@router.post('/workstations/computers', status_code=201)
+async def add_agent_computer(payload: AgentComputer, actor: W):
+    from backend.db.agent_registration import register
+    return await perform(register, actor['id'], payload.name, payload.classroom_id)
 
 
 def settings_data():

@@ -20,6 +20,8 @@ export function Workstations({ notify }: { notify: Notify }) {
   const [pc, setPc] = useState(""),
     [url, setUrl] = useState(location.origin),
     [busy, setBusy] = useState(false);
+  const [name, setName] = useState(""), [classroom, setClassroom] = useState(""),
+    [registering, setRegistering] = useState(false);
   if (r.loading && !r.data) return <PageSkeleton />;
   return (
     <div className={styles.page}>
@@ -28,10 +30,33 @@ export function Workstations({ notify }: { notify: Notify }) {
         description="Connect classroom PCs and manage their workstation agents."
       />
       <ResourceState {...r} retry={r.reload} />
-      <Panel title="Connect a student PC">
+      <Panel title="Add a campus PC">
+        <p className={styles.muted}>
+          For a PC at another location, use the portable Windows agent. It sends
+          that PC’s screens over HTTPS to this server. Your home desktop must stay on.
+        </p>
+        <form className={styles.form} onSubmit={async (e) => {
+          e.preventDefault(); setRegistering(true);
+          try {
+            const added = await api<{id: number}>("/admin/workstations/computers",
+              json("POST", {name, classroom_id: Number(classroom)}));
+            await r.reload(); setPc(String(added.id)); setName("");
+            notify("PC added. Download its configuration below.");
+          } catch (error) { notify(errorText(error), "error"); }
+          finally { setRegistering(false); }
+        }}>
+          <Input label="PC name" placeholder="Campus Demo PC" value={name}
+            onChange={(e) => setName(e.target.value)} required maxLength={100} />
+          <Select label="Classroom" value={classroom} onChange={setClassroom} required
+            options={[{value: "", label: "Choose a classroom"}, ...(r.data?.groups || []).map(g =>
+              ({value: Number(g.id), label: text(g.name)}))]} />
+          <Button type="submit" busy={registering}>Add campus PC</Button>
+        </form>
+      </Panel>
+      <Panel title="Download a PC configuration">
         <p>
-          Veyon captures the screen. The Windows workstation agent reports
-          application names and plays the continuous alarm.
+          Campus PCs use the portable agent for screen capture, app names and alarms.
+          Existing Veyon PCs keep their current screen capture connection.
         </p>
         <form
           className={styles.form}
@@ -49,7 +74,7 @@ export function Workstations({ notify }: { notify: Notify }) {
                 }),
                 `velarora-pc-${pc}.json`,
               );
-              notify("Configuration downloaded.");
+              notify("Configuration downloaded. Copy it beside the portable app and rename it agent.json.");
               r.reload();
             } catch (e) {
               notify(errorText(e), "error");

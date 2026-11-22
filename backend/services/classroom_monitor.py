@@ -13,8 +13,6 @@ def start_classroom(room_id,owner_id,schedule_id=None,controller_factory=None):
     from backend.config import collect_cfg
     from backend.services.monitor_service import MonitorController
     cfg=collect_cfg()
-    if cfg.get("auth_method","key")=="key" and not cfg.get("key_data"):
-        raise ValueError("Veyon authentication key is missing. Ask your administrator to check Settings.")
     model=get_active_model()
     if schedule_id:
         schedule=_conn().execute('SELECT * FROM schedule WHERE id=? AND created_by=? AND group_id=?',(schedule_id,owner_id,room_id)).fetchone()
@@ -31,6 +29,8 @@ def start_classroom(room_id,owner_id,schedule_id=None,controller_factory=None):
     rows=list_computers_in_group(room_id)
     if not rows:
         raise ValueError('This classroom has no registered computers. Ask your administrator.')
+    if any(not r['host_address'].startswith('agent:') for r in rows) and cfg.get('auth_method','key')=='key' and not cfg.get('key_data'):
+        raise ValueError('Veyon authentication key is missing. Ask your administrator to check Settings.')
     group=_conn().execute('SELECT name FROM computer_group WHERE id=?',(room_id,)).fetchone()
     computers=[{'name':r['name'],'host':r['host_address']} for r in rows]
     with registry_lock:

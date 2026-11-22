@@ -146,6 +146,8 @@ class MonitorController:
             if worker is not threading.current_thread():
                 worker.join(max(0,deadline-time.monotonic()))
         if self.run_id is not None:
+            from backend.core.agent_frames import clear_run
+            clear_run(self.run_id)
             try:
                 finish_run(self.run_id)
             except Exception as e:
@@ -170,18 +172,19 @@ class MonitorController:
 
     def _run(self) -> None:
         cfg = self.cfg
+        agent_only = bool(self._computers) and all(c['host'].startswith('agent:') for c in self._computers)
 
         # Validate auth config up-front
-        if cfg.get("auth_method", "key") == "key" and not cfg.get("key_data"):
+        if not agent_only and cfg.get("auth_method", "key") == "key" and not cfg.get("key_data"):
             self._log("❌ Key file missing or empty — check Settings")
             return
-        if cfg.get("auth_method") == "logon" and not cfg.get("logon_username"):
+        if not agent_only and cfg.get("auth_method") == "logon" and not cfg.get("logon_username"):
             self._log("❌ Logon username is empty — check Settings")
             return
 
         base_url = WEBAPI_BASE_TPL.format(host=cfg["host"], port=cfg["port"])
 
-        if cfg["auto_start"]:
+        if not agent_only and cfg["auto_start"]:
             if veyon.is_port_open(cfg["host"], cfg["port"]):
                 self._log("✅ WebAPI already running")
             else:
@@ -280,6 +283,10 @@ class MonitorController:
         seconds — it costs an HTTP /user call + a DB query, and the logged-in
         user almost never changes between consecutive frames.
         """
+        if host.startswith('agent:'):
+            from backend.services.agent_capture_io import run
+            run(self, name)
+            return
         USER_REFRESH_SEC = 30.0
 
         cfg      = self.cfg
