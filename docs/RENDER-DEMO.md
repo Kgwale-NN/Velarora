@@ -8,6 +8,8 @@ The React teacher dashboard includes **Share screen**. It requests the browser's
 
 Use desktop Chrome or Edge and select **Entire screen** to detect applications outside the browser. Browsers cannot silently read process names, force unmutable sound or keep capturing after a person closes the sharing page. Keep the teacher dashboard tab open while switching to Notepad. Ending sharing, browser permission revocation or leaving the dashboard releases the screen and sound. The Windows agent remains the option for a protected classroom alarm.
 
+The latest screenshot stays hidden during monitoring so the model does not repeatedly detect applications inside its own preview. **View latest capture** pauses frame submission before showing the picture. **Resume monitoring** hides it and waits for the shared display to update before taking fresh pictures. Pause does not silence an already latched alarm; use **Stop browser alarm** for that. Close other old screenshot previews during the demonstration too: a visual model recognises pictures, not Windows process activity.
+
 ## Free limitations
 
 Render's free web service has 512 MB RAM, sleeps after 15 minutes without inbound traffic, and loses local changes on restart/redeploy/sleep. Accounts, sessions, uploads, models and exam records on this disposable instance can be lost. Download reports before stopping a demonstration. Keep your working desktop installation as your original copy. This mode disables scheduled Windows exams and does not include model training or CUDA installation. AI inference memory and speed must be tested, not assumed.

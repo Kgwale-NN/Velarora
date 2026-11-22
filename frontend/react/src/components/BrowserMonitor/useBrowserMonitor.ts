@@ -22,6 +22,9 @@ export function useBrowserMonitor(notify: Notify) {
   const active = useRef<Active | null>(null);
   const generation = useRef(0);
   const starting = useRef(false);
+  const inspecting = useRef(false);
+  const resumeAfter = useRef(0);
+  const [preview, setPreview] = useState(false);
   const [running, setRunning] = useState(false),
     [busy, setBusy] = useState(false);
   const [alarm, setAlarm] = useState(false),
@@ -57,6 +60,8 @@ export function useBrowserMonitor(notify: Notify) {
         setAlarm(false);
         setBusy(false);
         setStatus("Not sharing");
+        inspecting.current = false;
+        setPreview(false);
       }
     };
     window.addEventListener("pagehide", teardown);
@@ -74,6 +79,8 @@ export function useBrowserMonitor(notify: Notify) {
     setAlarm(false);
     setBusy(false);
     setStatus("Sharing stopped");
+    inspecting.current = false;
+    setPreview(false);
     if (current) {
       try {
         await api(`/teacher/browser/${current.id}/stop`, json("POST"));
@@ -134,13 +141,20 @@ export function useBrowserMonitor(notify: Notify) {
         { once: true },
       );
       setModel(session.model);
+      inspecting.current = false;
+      setPreview(false);
       setResult(null);
       setRunning(true);
       setStatus("Sharing · waiting for the first result");
       const next = async () => {
         if (active.current !== current) return;
+        if (inspecting.current || performance.now() < resumeAfter.current) {
+          current.timer = window.setTimeout(next, 1000);
+          return;
+        }
         try {
-          const jpeg = canvas.current && capture(video, canvas.current);
+          const frame = document.createElement("canvas");
+          const jpeg = capture(video, frame);
           if (jpeg) {
             current.request = new AbortController();
             const response = await api<FrameResult>(
@@ -151,7 +165,16 @@ export function useBrowserMonitor(notify: Notify) {
               },
             );
             if (active.current !== current) return;
-            if (canvas.current) annotate(canvas.current, response.detections);
+            if (inspecting.current) {
+              current.timer = window.setTimeout(next, 1000);
+              return;
+            }
+            if (canvas.current) {
+              canvas.current.width = frame.width;
+              canvas.current.height = frame.height;
+              canvas.current.getContext("2d")!.drawImage(frame, 0, 0);
+              annotate(canvas.current, response.detections);
+            }
             current.siren.set(response.alarm);
             if (response.alarm && !current.lastAlarm)
               notify(
@@ -165,7 +188,7 @@ export function useBrowserMonitor(notify: Notify) {
           }
         } catch (error) {
           if (active.current !== current) return;
-          setStatus(errorText(error));
+          if (!inspecting.current) setStatus(errorText(error));
           if (error instanceof ApiError && [401, 403].includes(error.status)) {
             void stop();
             return;
@@ -187,6 +210,18 @@ export function useBrowserMonitor(notify: Notify) {
     } finally {
       starting.current = false;
       if (generation.current === attempt) setBusy(false);
+    }
+  }
+  function togglePreview() {
+    inspecting.current = !inspecting.current;
+    setPreview(inspecting.current);
+    if (inspecting.current) {
+      active.current?.request?.abort();
+      setStatus("Monitoring paused · reviewing the latest capture");
+    } else {
+      // Let the shared display update after the old screenshot is hidden.
+      resumeAfter.current = performance.now() + 1500;
+      setStatus("Resuming monitoring · waiting for a fresh capture");
     }
   }
   async function silence() {
@@ -219,5 +254,7 @@ export function useBrowserMonitor(notify: Notify) {
     status,
     result,
     model,
+    preview,
+    togglePreview,
   };
 }

@@ -1,4 +1,4 @@
-import { MonitorUp, Square, BellOff } from "lucide-react";
+import { MonitorUp, Square, BellOff, Eye, Play } from "lucide-react";
 import type { Notify } from "../../lib/types";
 import { Button } from "../Button/Button";
 import { Panel } from "../Panel/Panel";
@@ -29,6 +29,15 @@ export function BrowserMonitor({ notify }: { notify: Notify }) {
               <Square size={16} /> End sharing
             </Button>
           )}
+          {monitor.running && monitor.result && (
+            <Button
+              aria-expanded={monitor.preview}
+              onClick={monitor.togglePreview}
+            >
+              {monitor.preview ? <Play size={16} /> : <Eye size={16} />}
+              {monitor.preview ? "Resume monitoring" : "View latest capture"}
+            </Button>
+          )}
           {monitor.alarm && (
             <Button
               variant="danger"
@@ -45,10 +54,16 @@ export function BrowserMonitor({ notify }: { notify: Notify }) {
         </p>
         <canvas
           ref={monitor.canvas}
-          hidden={!monitor.running}
+          hidden={!monitor.running || !monitor.preview}
           className={styles.screen}
           aria-label="Shared screen with AI detection boxes"
         />
+        {monitor.preview && (
+          <p className={styles.note}>
+            Detection is paused while this picture is visible. Click Resume
+            monitoring to hide it and check fresh screens.
+          </p>
+        )}
         {monitor.result && monitor.running && (
           <p className={styles.result}>
             {monitor.result.detections.length
