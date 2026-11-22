@@ -11,9 +11,6 @@ def start_classroom(room_id,owner_id,schedule_id=None,controller_factory=None):
     if not teacher or not teacher['is_active'] or teacher['role']!='teacher':
         raise PermissionError('An active teacher account is required.')
     from backend.config import collect_cfg
-    import os
-    if os.environ.get("VELARORA_CLOUD_DEMO") == "true":
-        raise ValueError("Windows classroom capture is unavailable in the cloud demo. Browser screen sharing must be used instead.")
     from backend.services.monitor_service import MonitorController
     cfg=collect_cfg()
     if cfg.get("auth_method","key")=="key" and not cfg.get("key_data"):

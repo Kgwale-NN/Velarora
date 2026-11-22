@@ -18,8 +18,6 @@ def init_db() -> None:
     _migrate(c)
     from backend.db.schema_classrooms import migrate
     migrate(c)
-    from backend.db.browser_sessions import SQL as BROWSER_SQL
-    c.executescript(BROWSER_SQL)
     # Seed roles idempotently after CREATE TABLE IF NOT EXISTS
     c.executemany(
         "INSERT OR IGNORE INTO role (name) VALUES (?)",

@@ -1,6 +1,5 @@
 """React password sign-in and account self service; Google retains its OIDC backend."""
 
-import os
 from typing import Annotated
 from fastapi import APIRouter, Depends, Request, HTTPException, Response
 from pydantic import BaseModel, Field
@@ -47,7 +46,6 @@ def session(request: Request, response: Response):
         "user": public_user(user),
         "csrf": csrf_token(),
         "google": google_login.google is not None,
-        "cloud_demo": os.environ.get('VELARORA_CLOUD_DEMO') == 'true',
         "classroom_id": browser_state().get("classroom_id"),
     }
 
@@ -65,8 +63,7 @@ async def login(payload: Login, request: Request):
     rate_limit.record_login_success(ip, payload.email)
     set_session_user(user, payload.remember)
     request.session["remember"] = payload.remember
-    return {"user": public_user(user), "csrf": csrf_token(),
-            "cloud_demo": os.environ.get('VELARORA_CLOUD_DEMO') == 'true'}
+    return {"user": public_user(user), "csrf": csrf_token()}
 
 
 @router.post("/logout")

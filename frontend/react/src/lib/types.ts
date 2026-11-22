@@ -21,7 +21,6 @@ export interface Computer {
 export interface Session {
   user: Pick<User, "id" | "username" | "email" | "role"> | null;
   google?: boolean;
-  cloud_demo?: boolean;
   classroom_id?: number | null;
   csrf: string;
 }

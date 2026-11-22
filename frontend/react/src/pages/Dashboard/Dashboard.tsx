@@ -18,7 +18,6 @@ import {
 } from "../../components/ComputerScreen/ComputerScreen";
 import { ResourceState } from "../../components/ResourceState/ResourceState";
 import styles from "./Dashboard.module.css";
-import { BrowserMonitor } from "../../components/BrowserMonitor/BrowserMonitor";
 type Live = {
   running: boolean;
   owned: boolean;
@@ -30,11 +29,9 @@ type Live = {
 export function Dashboard({
   notify,
   overview = false,
-  cloudDemo = false,
 }: {
   notify: Notify;
   overview?: boolean;
-  cloudDemo?: boolean;
 }) {
   const rooms = useResource<Row[]>("/classrooms");
   const [room, setRoom] = useState(
@@ -121,190 +118,179 @@ export function Dashboard({
         description={
           overview
             ? "A live view of classroom monitoring across your school."
-            : cloudDemo
-              ? "Share this PC’s screen and check it with your trained AI model."
-              : "Choose a classroom, start your exam, and keep every screen in view."
+            : "Choose a classroom, start your exam, and keep every screen in view."
         }
       />
-      {!overview && cloudDemo && <BrowserMonitor notify={notify} />}
-      {!cloudDemo && (
-        <>
-          <Panel>
-            <div className={styles.toolbar}>
-              <div className={styles.classroom}>
-                <Select
-                  label="Classroom"
-                  value={selected}
-                  disabled={busy || rooms.loading || !rooms.data?.length}
-                  onChange={(value) => {
-                    setRoom(value);
-                    setOpened(null);
-                    localStorage.setItem("velarora.classroom", value);
-                  }}
-                  options={
-                    rooms.data?.length
-                      ? rooms.data.map((r) => ({
-                          value: Number(r.id),
-                          label: text(r.name),
-                        }))
-                      : [
-                          {
-                            value: "",
-                            label: rooms.loading
-                              ? "Loading classrooms…"
-                              : "No classrooms available",
-                          },
-                        ]
-                  }
-                />
-              </div>
-              <span
-                className={styles.status}
-                data-running={!!live.data?.running}
-                role="status"
-              >
-                <span />
-                {live.loading ? "Checking status" : status}
-              </span>
-              {!overview && (
-                <div className={styles.examControls}>
-                  <Button
-                    variant="primary"
-                    disabled={
-                      !selected ||
-                      !classroom?.computer_count ||
-                      live.loading ||
-                      !!live.error ||
-                      !!live.data?.running
-                    }
-                    busy={busy}
-                    onClick={() =>
-                      command("/teacher/exam/start", {
-                        classroom_id: Number(selected),
-                      })
-                    }
-                  >
-                    <Play size={14} />
-                    Start exam
-                  </Button>
-                  <Button
-                    disabled={
-                      !live.data?.running ||
-                      !live.data?.owned ||
-                      !!live.data?.stopping
-                    }
-                    busy={busy}
-                    onClick={() =>
-                      command("/teacher/exam/stop", {
-                        classroom_id: Number(selected),
-                      })
-                    }
-                  >
-                    <Square size={14} />
-                    Stop exam
-                  </Button>
-                </div>
-              )}
-            </div>
-          </Panel>
-          <div className={styles.stats}>
-            <StatCard
-              label="Classroom PCs"
-              value={classroom ? Number(classroom.computer_count) : "—"}
-              icon={<Monitor />}
-              note={classroom ? text(classroom.name) : "Choose a classroom"}
-            />
-            <StatCard
-              label="Online PCs"
-              value={visible ? online : "—"}
-              icon={<Wifi />}
-              note={
-                visible ? "Recent screen captures" : "Checked during an exam"
-              }
-            />
-            <StatCard
-              label={overview ? "Screen previews" : "Active alarms"}
-              value={
-                overview
-                  ? frames.length
-                  : alarms.loading || alarms.error
-                    ? "—"
-                    : activeAlarms.length
-              }
-              icon={overview ? <Monitor /> : <Bell />}
-              note={
-                overview ? "Captured classroom screens" : "Across your exams"
+      <Panel>
+        <div className={styles.toolbar}>
+          <div className={styles.classroom}>
+            <Select
+              label="Classroom"
+              value={selected}
+              disabled={busy || rooms.loading || !rooms.data?.length}
+              onChange={(value) => {
+                setRoom(value);
+                setOpened(null);
+                localStorage.setItem("velarora.classroom", value);
+              }}
+              options={
+                rooms.data?.length
+                  ? rooms.data.map((r) => ({
+                      value: Number(r.id),
+                      label: text(r.name),
+                    }))
+                  : [
+                      {
+                        value: "",
+                        label: rooms.loading
+                          ? "Loading classrooms…"
+                          : "No classrooms available",
+                      },
+                    ]
               }
             />
           </div>
-          <ResourceState
-            loading={rooms.loading || live.loading}
-            error={rooms.error || live.error}
-            retry={refresh}
-          />
-          <div className={styles.content}>
-            <div className={styles.screens}>
-              <div className={styles.sectionHeading}>
-                <div>
-                  <h2>
-                    Live screens <span>{names.length}</span>
-                  </h2>
+          <span
+            className={styles.status}
+            data-running={!!live.data?.running}
+            role="status"
+          >
+            <span />
+            {live.loading ? "Checking status" : status}
+          </span>
+          {!overview && (
+            <div className={styles.examControls}>
+              <Button
+                variant="primary"
+                disabled={
+                  !selected ||
+                  !classroom?.computer_count ||
+                  live.loading ||
+                  !!live.error ||
+                  !!live.data?.running
+                }
+                busy={busy}
+                onClick={() =>
+                  command("/teacher/exam/start", {
+                    classroom_id: Number(selected),
+                  })
+                }
+              >
+                <Play size={14} />
+                Start exam
+              </Button>
+              <Button
+                disabled={
+                  !live.data?.running ||
+                  !live.data?.owned ||
+                  !!live.data?.stopping
+                }
+                busy={busy}
+                onClick={() =>
+                  command("/teacher/exam/stop", {
+                    classroom_id: Number(selected),
+                  })
+                }
+              >
+                <Square size={14} />
+                Stop exam
+              </Button>
+            </div>
+          )}
+        </div>
+      </Panel>
+      <div className={styles.stats}>
+        <StatCard
+          label="Classroom PCs"
+          value={classroom ? Number(classroom.computer_count) : "—"}
+          icon={<Monitor />}
+          note={classroom ? text(classroom.name) : "Choose a classroom"}
+        />
+        <StatCard
+          label="Online PCs"
+          value={visible ? online : "—"}
+          icon={<Wifi />}
+          note={visible ? "Recent screen captures" : "Checked during an exam"}
+        />
+        <StatCard
+          label={overview ? "Screen previews" : "Active alarms"}
+          value={
+            overview
+              ? frames.length
+              : alarms.loading || alarms.error
+                ? "—"
+                : activeAlarms.length
+          }
+          icon={overview ? <Monitor /> : <Bell />}
+          note={overview ? "Captured classroom screens" : "Across your exams"}
+        />
+      </div>
+      <ResourceState
+        loading={rooms.loading || live.loading}
+        error={rooms.error || live.error}
+        retry={refresh}
+      />
+      <div className={styles.content}>
+        <div className={styles.screens}>
+          <div className={styles.sectionHeading}>
+            <div>
+              <h2>
+                Live screens <span>{names.length}</span>
+              </h2>
+              <p>
+                {visible
+                  ? "Select a screen for a closer look."
+                  : "Screen previews appear when monitoring begins."}
+              </p>
+            </div>
+            <Check
+              label="Show detections"
+              checked={annotations}
+              onChange={(e) => setAnnotations(e.target.checked)}
+            />
+          </div>
+          {names.length > 0 ? (
+            <div className={styles.grid}>
+              {names.map((name) => (
+                <ComputerScreen
+                  key={name}
+                  name={name}
+                  frame={frames.find((f) => f.name === name)}
+                  annotations={annotations}
+                  onOpen={() => setOpened(name)}
+                />
+              ))}
+            </div>
+          ) : (
+            !live.loading &&
+            !rooms.loading && (
+              <Panel>
+                <div className={styles.empty}>
+                  <span className={styles.emptyIcon}>
+                    <Monitor size={28} strokeWidth={1.5} />
+                  </span>
+                  <h3>
+                    {live.data?.running
+                      ? "Waiting for screen captures"
+                      : selected
+                        ? "Ready when you are"
+                        : "Choose your classroom"}
+                  </h3>
                   <p>
-                    {visible
-                      ? "Select a screen for a closer look."
-                      : "Screen previews appear when monitoring begins."}
+                    {live.data?.running && !live.data.owned && !overview
+                      ? "Another teacher is monitoring this classroom."
+                      : classroom && !classroom.computer_count
+                        ? "This classroom has no PCs yet. Ask your administrator to add them."
+                        : !rooms.data?.length
+                          ? "Ask your administrator to set up a classroom and its PCs."
+                          : "Start your exam to see the student computers here."}
                   </p>
                 </div>
-                <Check
-                  label="Show detections"
-                  checked={annotations}
-                  onChange={(e) => setAnnotations(e.target.checked)}
-                />
-              </div>
-              {names.length > 0 ? (
-                <div className={styles.grid}>
-                  {names.map((name) => (
-                    <ComputerScreen
-                      key={name}
-                      name={name}
-                      frame={frames.find((f) => f.name === name)}
-                      annotations={annotations}
-                      onOpen={() => setOpened(name)}
-                    />
-                  ))}
-                </div>
-              ) : (
-                !live.loading &&
-                !rooms.loading && (
-                  <Panel>
-                    <div className={styles.empty}>
-                      <span className={styles.emptyIcon}>
-                        <Monitor size={28} strokeWidth={1.5} />
-                      </span>
-                      <h3>
-                        {live.data?.running
-                          ? "Waiting for screen captures"
-                          : selected
-                            ? "Ready when you are"
-                            : "Choose your classroom"}
-                      </h3>
-                      <p>
-                        {live.data?.running && !live.data.owned && !overview
-                          ? "Another teacher is monitoring this classroom."
-                          : classroom && !classroom.computer_count
-                            ? "This classroom has no PCs yet. Ask your administrator to add them."
-                            : !rooms.data?.length
-                              ? "Ask your administrator to set up a classroom and its PCs."
-                              : "Start your exam to see the student computers here."}
-                      </p>
-                    </div>
-                  </Panel>
-                )
-              )}
-            </div>
-          </div>
-        </>
-      )}
+              </Panel>
+            )
+          )}
+        </div>
+      </div>
       {expanded && (
         <Modal title={expanded.name} wide onClose={() => setOpened(null)}>
           <div className={styles.previewToolbar}>

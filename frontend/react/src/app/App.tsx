@@ -264,12 +264,7 @@ export function App() {
                       <>
                         <Route
                           path="/dashboard"
-                          element={
-                            <Dashboard
-                              notify={notify}
-                              cloudDemo={session.cloud_demo}
-                            />
-                          }
+                          element={<Dashboard notify={notify} />}
                         />
                         <Route path="/history" element={<History />} />
                         <Route path="/analytics" element={<Analytics />} />

@@ -18,7 +18,6 @@ def register(app):
         classroom_routes,
         management_routes,
         training_routes,
-        browser_routes,
     )
     from backend.core.google_login import router as google_router
 
@@ -28,7 +27,6 @@ def register(app):
         classroom_routes,
         management_routes,
         training_routes,
-        browser_routes,
     ):
         app.include_router(module.router)
     app.include_router(google_router)
