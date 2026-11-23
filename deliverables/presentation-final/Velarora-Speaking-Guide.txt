@@ -1,0 +1,146 @@
+VELARORA: WHAT TO SAY DURING YOUR PRESENTATION
+Separate study guide. These speeches are not on the slides.
+
+Practise the ideas rather than memorising every word. Aim for about 9–12 minutes before the demonstration. Speak slowly and point to the part of each diagram you are explaining.
+
+SLIDE 1 — INTRODUCTION
+
+Good day. My project is called Velarora. It helps teachers supervise computer exams. It brings classroom screens together, checks for apps that are not allowed, and warns the teacher when a rule is broken. The warning identifies the computer involved. A small program on that computer can also play an alarm. I will explain the problem, how the system works, and the tools I used.
+
+An invigilator is the person who supervises an exam.
+
+SLIDE 2 — THE PROBLEM AND WHO EXPERIENCES IT
+
+Imagine a room full of students, each using a computer. The invigilator can see their screens on one big display. That is useful, but the invigilator also needs to walk around and help people. They cannot look at every screen every second. A student may open an unapproved app during that gap. Teachers and invigilators face this supervision problem. Honest students are affected too, because assessment should be fair for everyone.
+
+SLIDE 3 — THE PREVIOUS APPROACH AND EVIDENCE
+
+At my school, the approach I observed relied on a person watching live computer screens. My concern was what happens when that person looks away. A student could switch windows while the invigilator is helping someone else. This observation gave me a reason to build Velarora. I have not measured how often this happens, so I am not claiming a percentage. A formal study could collect anonymous incident records and feedback from invigilators.
+
+Only describe incidents you actually observed. Do not invent survey results or say that all other monitoring systems lack alarms.
+
+SLIDE 4 — PROJECT AIM
+
+My overall aim is to help teachers notice unapproved computer use during exams. Velarora combines the live view with automatic warnings and saved records. For example, if Notepad is forbidden in this exam, the teacher should receive a warning that identifies the PC when the system detects the rule violation. The teacher still checks what happened and decides how to respond.
+
+SLIDE 5 — FUNCTIONAL REQUIREMENTS
+
+Functional requirements are the jobs the system must do. The administrator manages staff accounts, classrooms, computers and models. The teacher chooses a classroom, sets exam rules, and starts an exam or schedules one. The system checks screenshots and Windows app information. If a prohibited app triggers a rule, it creates a notification and sends an alarm command to the affected computer. The teacher can stop that alarm and review their own history, analytics and reports. Students do not need Velarora website accounts.
+
+A schedule means the teacher chooses when monitoring should start and end.
+
+SLIDE 6 — NON-FUNCTIONAL REQUIREMENTS
+
+Non-functional requirements explain how well the system should do its jobs. Security means staff get only the access their role allows, and each teacher’s exam records stay separate. Usability means the screens are clear and controls are easy to find. Performance means the app stays responsive while checking connected PCs. Reliability means it handles connection problems clearly and keeps useful records. We must measure these things on real equipment. A successful login alone does not prove that monitoring and sound work.
+
+SLIDE 7 — SYSTEM ARCHITECTURE
+
+Architecture means the main parts of the system and how they connect. Start on the left: this is the monitored PC. Its agent sends screenshots and app information to the Velarora server. The server runs the AI model and applies the exam rules. It sends results to the teacher’s browser and stores records in SQLite. When the teacher presses Stop alarm, the server sends that command back to the PC. The agent reports whether the sound is off. In my portable demonstration, the server, monitored PC and browser can all run on one laptop.
+
+Point left to right across the diagram, then point to the database and the return command. The PC must have a configured capture connection. Opening a website alone cannot read every app on a computer.
+
+SLIDE 8 — WORKFLOW
+
+A workflow is the order in which things happen. First, the teacher starts an exam. Second, the connected PC sends its activity. Third, the server checks the model and the rules. If there is a prohibited-app event, it warns the teacher and tells that PC to sound. The teacher investigates and stops the alarm. The event stays in the records for review. An AI prediction can be wrong, so an alert is a reason to investigate. It is not automatic proof of cheating.
+
+The numbered arrows run across the top row, down the right, and back across the bottom row.
+
+SLIDE 9 — USE-CASE DIAGRAM
+
+A use-case diagram shows who uses a system and what they can do. The people or roles are called actors. Here, the actors are the administrator and the teacher. Both can sign in. The administrator manages accounts, classroom computers and AI models. The teacher starts or schedules exams, chooses rules, stops their alarms and reviews their records. The ovals are actions. The large boundary marks the Velarora system. Students use the monitored computers, but they do not sign in to this website.
+
+The labelled actor boxes represent roles. The diagram focuses on their main actions rather than every settings screen.
+
+SLIDE 10 — APP AND SCREEN TECHNOLOGIES
+
+Python runs the main application and monitoring work. It fits the AI tools already used by the project. NiceGUI provides the existing Python web application foundation. React builds the pages people interact with. TypeScript checks types while we develop, which helps catch some coding mistakes. Reusable components let the same button or input design appear on many pages. CSS Modules keep styles close to their components. HeroUI supplies selected interface controls. SQLite stores the records in a local database file, which suits the current demonstration setup.
+
+The frontend is what users see. The backend does the work behind those screens. A database is organised storage that the app can read and update.
+
+SLIDE 11 — DETECTION AND ALARM TECHNOLOGIES
+
+YOLO is an image detection model. PyTorch supports training it using labelled screenshots. A label tells the model where the target app appears in a training picture. ONNX Runtime runs an exported model inside the application. The Windows agent provides another kind of evidence: information about actual Windows apps. psutil helps read process information. Pillow prepares screen images, and winsound plays the Windows alarm. Veyon WebAPI is another supported way to capture configured classroom PCs. The agent capture route can send screenshots without using Veyon for that PC.
+
+Do not say YOLO, PyTorch and ONNX are the same thing. Training teaches the model from examples. Inference means using the trained model to make a prediction.
+
+SLIDE 12 — DEVELOPMENT AND SUPPORT TOOLS
+
+I use VS Code to edit and run the project. Git tracks code changes, and GitHub keeps the remote source-code copy. Cloudflare Tunnel provides an optional public link to a running local server. It is useful for remote access, but the server must stay on. bcrypt hashes passwords, so the database does not need to store the original password text. Authlib supports Google sign-in through OAuth. OAuth lets Google confirm a user’s identity without the app asking for their Google password.
+
+Velarora builds on the open-source Veyon-detection project. My work extends that foundation with classroom and teacher workflows, app rules, workstation alarms and the redesigned React interface. Acknowledge the original project rather than claiming every part was written from scratch.
+
+SLIDE 13 — CHECKS AND LIMITATIONS
+
+One saved test shows that the MOB316D schedule started at 17:05:04 and ended at 17:07:00 on 23 November 2026. That run recorded two alarms. This is evidence of a specific functional test. It is not a measurement of the AI model’s accuracy. We still need broader checks for false alerts, missed detections, response delay and several PCs working together. We must also repeat screen capture and physical speaker tests whenever we move the demonstration to another computer.
+
+If laptop tests have passed by presentation time, you may say exactly what you tested, for example: “On this laptop, I tested screen capture, opening Notepad, hearing the alarm and stopping it from the teacher dashboard.” Do not say this until you have actually completed those checks.
+
+SLIDE 14 — LIVE DEMONSTRATION AND CLOSING
+
+I will now show one controlled example. Notepad is blocked for this demonstration. First, I will show the selected classroom and the laptop’s live screen. Then I will open Notepad. We should see the warning and hear the alarm. I will stop it from the teacher dashboard and show the saved event. Velarora supports the invigilator by drawing attention to a computer that needs checking. The teacher remains responsible for investigating the situation. Thank you.
+
+Before the presentation, practise the whole demonstration once. Confirm that Notepad is closed at the start, the correct PC is selected, the agent is connected, and the speakers are audible. End the exam and stop all alarms afterwards. Keep a short recording or screenshots as a clearly labelled backup if you have them.
+
+LIKELY QUESTIONS AND SIMPLE ANSWERS
+
+1. What makes this useful compared with only watching screens?
+The feature I am focusing on is an automatic warning that identifies the PC and can sound on that PC. The teacher can be alerted even while looking elsewhere in the room. I have not benchmarked Velarora against every competing product.
+
+2. Does it prevent every kind of cheating?
+No. It checks the configured apps and visual classes. It helps supervision but cannot identify every possible cheating method.
+
+3. Why use AI if you can read the app name?
+An executable name tells us which program is active. It does not always explain what appears inside it. For example, chrome.exe can show an allowed website or an unapproved interface. A trained visual model can help recognise the interface, but only for classes it has learned and been tested on.
+
+4. What does “75% confidence” mean?
+It is the model’s confidence score for its prediction. It is not proof that the app is open and it is not the model’s overall accuracy.
+
+5. What is a false positive?
+The system reports a target when it should not. A false negative means it misses a target that is present. Both matter during testing.
+
+6. How do you improve the model?
+Collect varied, correctly labelled screenshots, including negative examples without the target. Train on one set and evaluate on separate images the model did not train on. Measure false alerts and missed detections. Changing the confidence threshold alone does not fix poor training data.
+
+7. Why does the alarm continue after the student closes the app?
+The incident requires the teacher’s attention. Closing the app does not automatically clear the alarm. The owning teacher sends the stop command, and the connected agent acknowledges it.
+
+8. Can a student stop or mute it?
+The teacher controls the website stop action. A normal Windows user may still be able to mute sound or terminate a process unless school computer policies restrict those actions. The demonstration agent is not tamper-proof.
+
+9. Does it need internet?
+A same-laptop demonstration can use the local address after installation. A classroom needs a working connection between its server and PCs. Public Cloudflare access and Google sign-in need internet. A public link does not automatically monitor the computer that opens it.
+
+10. How do you protect privacy?
+Limit access by role, protect agent credentials, and keep teacher records scoped to their owners. Use HTTPS for classroom-network connections. Apply the school’s monitoring policy, limit what is collected and who can view it, and set appropriate retention rules.
+
+11. How many PCs can it support?
+That depends on server resources, image size, model, capture interval and network conditions. I need a measured multi-PC test before claiming a supported classroom size.
+
+12. Is the alarm an AI feature?
+The alarm is an action triggered by a prohibited event. That event can come from a native app rule or a visual model rule. The sound itself is played by the Windows agent.
+
+DESIGN AND PLAYBACK
+
+The deck uses white, near-black (#090909), light grey and Arial. Lab photographs match the project’s classroom theme. Architecture, workflow and use cases remain editable PowerPoint objects.
+
+Slides advance when you click. Native PowerPoint fade transitions and a gentle title entrance are included. Open the PPTX in desktop PowerPoint and press F5 to rehearse. Some previewers and other presentation apps may display animation differently. Playback has not been physically tested in PowerPoint on the presentation laptop.
+
+OPTIONAL PEXELS SEARCH PHRASES
+
+The deck already uses your two existing lab photographs. If you want different photos later, copy one of these phrases into Pexels search:
+
+  computer laboratory rows of desktop computers wide angle
+  teacher supervising students computer classroom
+  close up computer keyboard classroom natural light
+
+Choose landscape pictures with clear space for text. Avoid readable student details or photos that imply actual Velarora use unless they show your real authorised test. Check the image’s usage terms and keep its photographer/source information. A photo illustrates the problem; it does not prove that an incident happened.
+
+SOURCE AND CREDIT NOTES
+
+Project source: https://github.com/Kgwale-NN/Velarora
+Original project credited in the repository: https://github.com/vainmari/Veyon-detection
+Implementation evidence: pyproject.toml; frontend/react/package.json; backend/main.py; backend/db; backend/services; workstation/agent.py; workstation/screens.py; docs/CLASSROOM-SETUP.md; docs/DEMONSTRATION.md.
+Need evidence: the project owner’s school observation, described in this conversation. No independent survey or competitor study was provided.
+Historical schedule evidence: saved run id 64, MOB316D, checked read-only earlier in this conversation.
+Photos: frontend/assets/computer-lab.jpg and computer-lab2.jpg, existing project assets. Their original photographer details were not available in the inspected asset folder.
+The supplied Canva edit link was inaccessible during preparation. This deck follows Velarora’s black-and-white direction rather than claiming an exact copy of that template.
