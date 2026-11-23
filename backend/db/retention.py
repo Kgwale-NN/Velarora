@@ -37,21 +37,21 @@ def purge_old_events(days: int, batch_size: int = 500) -> int:
     c = _conn()
     total = 0
     while True:
-        cur = c.execute(
-            "DELETE FROM detection_event WHERE id IN ("
-            "  SELECT id FROM detection_event WHERE detected_at < ? LIMIT ?"
-            ")",
-            (cutoff, batch_size),
-        )
-        c.commit()
+        with c:
+            cur = c.execute(
+                "DELETE FROM detection_event WHERE id IN ("
+                "  SELECT id FROM detection_event WHERE detected_at < ? LIMIT ?"
+                ")",
+                (cutoff, batch_size),
+            )
         total += cur.rowcount
         if cur.rowcount < batch_size:
             break
     if total:
         from backend.db.audit import _insert_audit
-        _insert_audit(
-            c, "system.retention_purge",
-            detail=f"deleted {total} event(s) older than {days} day(s)",
-        )
-        c.commit()
+        with c:
+            _insert_audit(
+                c, "system.retention_purge",
+                detail=f"deleted {total} event(s) older than {days} day(s)",
+            )
     return total

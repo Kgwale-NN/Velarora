@@ -15,8 +15,8 @@ def _batched_update(sql: str, params: tuple, batch_size: int) -> int:
     c = _conn()
     total = 0
     while True:
-        cur = c.execute(sql, params)
-        c.commit()
+        with c:
+            cur = c.execute(sql, params)
         n = cur.rowcount
         total += n
         if n < batch_size:

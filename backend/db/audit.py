@@ -59,8 +59,8 @@ def log_action(
 ) -> int:
     """Standalone audit write: insert + commit in one call."""
     c = _conn()
-    audit_id = _insert_audit(c, action, user_id, entity, entity_id, detail)
-    c.commit()
+    with c:
+        audit_id = _insert_audit(c, action, user_id, entity, entity_id, detail)
     return audit_id
 
 

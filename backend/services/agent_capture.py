@@ -15,7 +15,11 @@ def accept(computer_id, run_id, content, process='', username=''):
         raise ValueError('Invalid workstation identity fields.')
     process = normalize_process(process) if process else ''
     try:
-        with Image.open(io.BytesIO(content)) as image:
+        # Reject other formats before Pillow/Ultralytics can attempt to install
+        # an optional decoder for an invalid or unrelated upload.
+        if not content.startswith(b'\xff\xd8\xff'):
+            raise ValueError('Screenshot must be a JPEG.')
+        with Image.open(io.BytesIO(content), formats=['JPEG']) as image:
             if image.format != 'JPEG' or not (1 <= image.width <= 1920 and 1 <= image.height <= 1080):
                 raise ValueError('Screenshot must be a JPEG no larger than 1920 by 1080.')
             image.verify()

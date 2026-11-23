@@ -24,6 +24,83 @@ def headers(client):
     return {'X-CSRF-Token':client.get('/api/admin/session').json()['csrf']}
 
 
+def test_failed_write_does_not_lock_other_requests_or_exam_start(api,monkeypatch):
+    import sqlite3
+    from backend.api import classroom_routes,staff_security
+    client,state,admin,teacher=api
+    client.app.include_router(classroom_routes.router)
+    monkeypatch.setattr(staff_security,'get_session_user',lambda:state.get('auth'))
+    monkeypatch.setattr(staff_security,'browser_state',lambda:state)
+    monkeypatch.setattr(classroom_routes,'browser_state',lambda:state)
+    csrf=headers(client)
+    payload={'name':'Duplicate classroom'}
+    created=client.post('/api/admin/classrooms',json=payload,headers=csrf)
+    assert created.status_code==201
+    assert client.post('/api/admin/classrooms',json=payload,headers=csrf).status_code==409
+    # A separate connection catches leaked writer locks even when the executor
+    # happens to reuse its original thread for the following API request.
+    with sqlite3.connect(_core.DB_PATH,timeout=.2) as independent:
+        independent.execute('BEGIN IMMEDIATE')
+        independent.rollback()
+    def start_exam(gid,owner):
+        db.log_action('classroom.exam_start',user_id=owner,entity='computer_group',entity_id=gid)
+        db.create_run(started_by=owner,group_name='Regression exam')
+    monkeypatch.setattr(classroom_routes,'start_classroom',start_exam)
+    state['auth']={'id':teacher,'role':'teacher'}
+    started=client.post('/api/teacher/exam/start',json={'classroom_id':created.json()['id']},headers=csrf)
+    assert started.status_code==200
+    for run in db.list_runs():db.finish_run(run['id'])
+    state['auth']={'id':admin,'role':'admin'}
+    assert client.delete('/api/admin/users/'+str(teacher),headers=csrf).status_code==200
+
+
+def test_failed_operation_rolls_back_partial_writes(api):
+    from backend.api.admin_routes import _perform_transaction
+    import sqlite3
+    def fail():
+        _core._conn().execute("INSERT INTO computer_group(name,created_at) VALUES ('Not committed','now')")
+        raise ValueError('rejected')
+    with pytest.raises(ValueError):_perform_transaction(fail)
+    assert not _core._conn().in_transaction
+    assert not _core._conn().execute("SELECT 1 FROM computer_group WHERE name='Not committed'").fetchone()
+    with sqlite3.connect(_core.DB_PATH,timeout=.2) as independent:
+        independent.execute('BEGIN IMMEDIATE')
+        independent.rollback()
+
+
+def test_database_contention_returns_a_retryable_response(api,monkeypatch):
+    import sqlite3
+    from backend.api import admin_service
+    client,_,_,teacher=api
+    csrf=headers(client)
+    def busy(*args):raise sqlite3.OperationalError('database is locked')
+    monkeypatch.setattr(admin_service,'delete_user',busy)
+    response=client.delete('/api/admin/users/'+str(teacher),headers=csrf)
+    assert response.status_code==503 and response.headers['Retry-After']=='2'
+    assert db.get_user_by_id(teacher)
+
+
+def test_deleting_user_keeps_large_history_and_uses_small_batches(api,monkeypatch):
+    from backend.db import user_updates
+    client,_,_,teacher=api
+    pc=db.upsert_computer('Evidence PC','localhost')
+    run=db.create_run(started_by=teacher)
+    for i in range(53):
+        db.insert_event(pc,[],user_id=teacher,run_id=run,frame_bytes=b'saved screenshot',os_username='Learner')
+    db.finish_run(run)
+    detached=[]
+    original=user_updates.nullify_user_events
+    def detach(uid,batch_size):
+        detached.append(batch_size)
+        return original(uid,batch_size)
+    monkeypatch.setattr(user_updates,'nullify_user_events',detach)
+    assert client.delete('/api/admin/users/'+str(teacher),headers=headers(client)).status_code==200
+    assert detached==[50]
+    rows=_core._conn().execute('SELECT user_id,frame_blob,os_username FROM detection_event WHERE run_id=?',(run,)).fetchall()
+    assert len(rows)==53
+    assert all(r['user_id'] is None and r['frame_blob']==b'saved screenshot' and r['os_username']=='Learner' for r in rows)
+
+
 def test_rejects_unauthenticated_teacher_and_missing_csrf(api):
     client,state,_,tid=api
     assert client.post('/api/admin/classrooms',json={'name':'Lab A'}).status_code==403

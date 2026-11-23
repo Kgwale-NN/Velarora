@@ -30,14 +30,31 @@ class Members(BaseModel):
 
 async def perform(function,*args):
     try:
-        return await run.io_bound(function,*args)
+        # The connection belongs to the executor thread. Roll back there, not
+        # on the event loop's unrelated thread-local connection.
+        return await run.io_bound(_perform_transaction,function,*args)
     except sqlite3.IntegrityError as exc:
         raise HTTPException(409,'That name or email is already in use.') from exc
     except (ValueError,PermissionError) as exc:
         raise HTTPException(400,str(exc)) from exc
+    except sqlite3.OperationalError as exc:
+        code=getattr(exc,'sqlite_errorcode',0) & 255
+        if code==sqlite3.SQLITE_FULL or 'disk is full' in str(exc).lower():
+            raise HTTPException(507,'The server drive is full. Free some space, then try again.') from exc
+        if code in (sqlite3.SQLITE_BUSY,sqlite3.SQLITE_LOCKED) or 'locked' in str(exc).lower():
+            raise HTTPException(503,'The database is busy. Please try again in a moment.',
+                                headers={'Retry-After':'2'}) from exc
+        logging.getLogger(__name__).exception('Database operation failed')
+        raise HTTPException(500,'The change could not be completed. Please try again.') from exc
     except Exception as exc:
         logging.getLogger(__name__).exception('Admin operation failed')
         raise HTTPException(500,'The change could not be completed. Please try again.') from exc
+
+
+def _perform_transaction(function,*args):
+    from backend.db._core import _conn
+    with _conn():
+        return function(*args)
 
 
 @router.get('/session')

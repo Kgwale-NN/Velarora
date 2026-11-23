@@ -59,9 +59,16 @@ def start_classroom(room_id,owner_id,schedule_id=None,controller_factory=None):
         factory=controller_factory or MonitorController
         room.monitor=factory(cfg,computers=computers,model_id=model['id'],schedule_id=schedule_id,
             started_by=owner_id,group_name=group['name'],workspace=room)
-        rooms[room_id]=room
-        room.monitor.start()
+        # Finish the database write before launching workers. If it fails,
+        # the request must not leave an exam running behind an error message.
         log_action('classroom.exam_start',user_id=owner_id,entity='computer_group',entity_id=room_id)
+        rooms[room_id]=room
+        try:
+            room.monitor.start()
+        except Exception:
+            rooms.pop(room_id,None)
+            room.monitor=None
+            raise
         return room
 
 
@@ -87,3 +94,10 @@ def stop_classroom(room_id,owner_id,manual=True):
             room.schedule_triggered=False
             room.latest_frames.clear()
     log_action('classroom.exam_stop',user_id=owner_id,entity='computer_group',entity_id=room_id)
+    from backend.db.maintenance import checkpoint_if_idle
+    try:
+        checkpoint_if_idle()
+    except Exception:
+        # Cleanup is optional; a busy database must not turn a successful Stop
+        # into an error. Startup/hourly maintenance will try again.
+        pass

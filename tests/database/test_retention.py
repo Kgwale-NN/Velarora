@@ -51,6 +51,20 @@ def _count(db, table: str) -> int:
     return _conn().execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
 
 
+def test_idle_wal_cleanup_preserves_saved_records(db,monkeypatch):
+    from backend.db import maintenance
+    from backend.db._core import _conn
+    monkeypatch.setattr(maintenance,'MIN_WAL_BYTES',1)
+    pc=db.upsert_computer('Saved PC','localhost')
+    event=db.insert_event(pc,[],frame_bytes=b'saved image')
+    assert maintenance.checkpoint_if_idle()
+    assert _conn().execute('SELECT frame_blob FROM detection_event WHERE id=?',(event,)).fetchone()[0]==b'saved image'
+    run=db.create_run()
+    assert maintenance.checkpoint_if_idle() is False
+    db.finish_run(run)
+    assert maintenance.checkpoint_if_idle()
+
+
 # ── purge_old_events ──────────────────────────────────────────────────────────
 
 class TestPurgeOldEvents:

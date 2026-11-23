@@ -27,6 +27,12 @@ def _tick() -> None:
     """One enforcement pass — safe to call from any thread."""
     from backend.config import get_settings
     from backend.db.retention import purge_old_events
+    from backend.db.maintenance import checkpoint_if_idle
+
+    try:
+        checkpoint_if_idle()
+    except Exception as exc:
+        log.warning('Idle database log cleanup deferred: %s',type(exc).__name__)
 
     try:
         days = int(str(get_settings().get("retention_days", "0")).strip() or 0)

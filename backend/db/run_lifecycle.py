@@ -12,14 +12,14 @@ def create_run(
     started_by:   Optional[int]  = None,
 ) -> int:
     c = _conn()
-    cur = c.execute(
-        "INSERT INTO monitoring_run "
-        "(trigger_type, schedule_id, group_name, model_id, started_by, "
-        " status, started_at) "
-        "VALUES (?, ?, ?, ?, ?, 'running', ?)",
-        (trigger_type, schedule_id, group_name, model_id, started_by, _now()),
-    )
-    c.commit()
+    with c:
+        cur = c.execute(
+            "INSERT INTO monitoring_run "
+            "(trigger_type, schedule_id, group_name, model_id, started_by, "
+            " status, started_at) "
+            "VALUES (?, ?, ?, ?, ?, 'running', ?)",
+            (trigger_type, schedule_id, group_name, model_id, started_by, _now()),
+        )
     return cur.lastrowid
 
 
@@ -30,22 +30,22 @@ def set_run_model(run_id: int, model_id: Optional[int]) -> None:
     the run row is created before that resolution happens.
     """
     c = _conn()
-    c.execute(
-        "UPDATE monitoring_run SET model_id = ? WHERE id = ?",
-        (model_id, run_id),
-    )
-    c.commit()
+    with c:
+        c.execute(
+            "UPDATE monitoring_run SET model_id = ? WHERE id = ?",
+            (model_id, run_id),
+        )
 
 
 def finish_run(run_id: int, status: str = "finished") -> None:
     """Mark the run ended now. No-op if the run is already finished."""
     c = _conn()
-    c.execute(
-        "UPDATE monitoring_run SET status = ?, ended_at = ? "
-        "WHERE id = ? AND status = 'running'",
-        (status, _now(), run_id),
-    )
-    c.commit()
+    with c:
+        c.execute(
+            "UPDATE monitoring_run SET status = ?, ended_at = ? "
+            "WHERE id = ? AND status = 'running'",
+            (status, _now(), run_id),
+        )
 
 
 def finish_stale_runs() -> int:

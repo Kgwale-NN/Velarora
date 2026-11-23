@@ -37,6 +37,18 @@ def test_two_classrooms_run_independently_and_one_teacher_cannot_stop_another(se
     assert replacement.owner_id==b and not replacement.latest_frames
 
 
+def test_audit_failure_does_not_launch_an_exam_behind_an_error(setup,monkeypatch):
+    import sqlite3
+    a,_,ga,_,_,_,factory=setup
+    controller=MagicMock()
+    factory.side_effect=lambda *args,**kwargs:controller
+    def fail(*args,**kwargs):raise sqlite3.OperationalError('database is locked')
+    monkeypatch.setattr(manager,'log_action',fail)
+    with pytest.raises(sqlite3.OperationalError):manager.start_classroom(ga,a,controller_factory=factory)
+    assert ga not in rooms
+    controller.start.assert_not_called()
+
+
 def test_same_pc_cannot_be_claimed_by_two_rooms(setup):
     a,b,ga,gb,pa,_,factory=setup
     db.add_computer_to_group(pa,gb)

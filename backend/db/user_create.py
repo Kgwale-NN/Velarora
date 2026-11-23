@@ -31,16 +31,17 @@ def create_user(
     email = normalize_email(email) if email is not None else None
     validate_password(password)
     c = _conn()
-    cur = c.execute(
-        "INSERT INTO user (username, hashed_password, role_id, is_active, created_by, created_at, email) "
-        "VALUES (?, ?, ?, ?, ?, ?, ?)",
-        (username, _hash_pw(password), role_id, 1 if is_active else 0,
-         created_by_id, _now(), email),
-    )
-    new_id = cur.lastrowid
-    _insert_audit(c, "user.create", entity="user", entity_id=new_id,
-                  detail=f"role={role}, active={is_active}, created_by={created_by_id}")
-    c.commit()
+    hashed_password = _hash_pw(password)
+    with c:
+        cur = c.execute(
+            "INSERT INTO user (username, hashed_password, role_id, is_active, created_by, created_at, email) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (username, hashed_password, role_id, 1 if is_active else 0,
+             created_by_id, _now(), email),
+        )
+        new_id = cur.lastrowid
+        _insert_audit(c, "user.create", entity="user", entity_id=new_id,
+                      detail=f"role={role}, active={is_active}, created_by={created_by_id}")
     return new_id
 
 

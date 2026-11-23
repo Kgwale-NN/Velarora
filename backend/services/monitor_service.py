@@ -587,7 +587,8 @@ class MonitorController:
                         try:
                             _conn().commit()
                         except Exception as _ce:
-                            self._log(f"⚠ DB commit failed: {_ce}")
+                            _conn().rollback()
+                            raise RuntimeError(f'DB commit failed: {_ce}') from _ce
 
                     # Stamp "last frame seen" for every computer in this batch.
                     # self.state.is_computer_online() reads these to decide whether
@@ -626,6 +627,9 @@ class MonitorController:
                         self._log(line)
 
                 except Exception as e:
+                    # A failed insert/alert must never hold SQLite's write lock
+                    # while this long-lived worker waits for its next frame.
+                    _conn().rollback()
                     self._log(f"❌ Detection error: {e}")
 
         finally:
