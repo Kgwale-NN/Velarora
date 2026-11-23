@@ -16,6 +16,7 @@ type Props = {
   open: boolean;
   onClose: () => void;
   onLogout: () => void;
+  unreadNotifications: number;
 };
 export function Sidebar({
   name,
@@ -27,6 +28,7 @@ export function Sidebar({
   open,
   onClose,
   onLogout,
+  unreadNotifications,
 }: Props) {
   const element = useRef<HTMLElement>(null);
   useEffect(() => {
@@ -99,20 +101,26 @@ export function Sidebar({
         </p>
         <ScrollShadow size={40} hideScrollBar className={styles.scrollArea}>
           <nav className={styles.navigation} aria-label="Main menu">
-            {links.map(([label, url, Icon]) => (
+            {links.map(([label, url, Icon]) => {
+              const badge = url === "/notifications" && unreadNotifications > 0
+                ? unreadNotifications > 99 ? "99+" : String(unreadNotifications)
+                : null;
+              return (
               <Tooltip key={url} label={label} enabled={collapsed}>
                 <NavLink
                   to={url}
-                  aria-label={label}
+                  aria-label={badge ? `${label}, ${unreadNotifications} unread` : label}
                   className={({ isActive }) =>
                     `${styles.link} ${isActive ? styles.active : ""}`
                   }
                 >
                   <Icon size={18} aria-hidden="true" />
                   <span className={styles.label}>{label}</span>
+                  {badge && <span className={styles.notificationCount} aria-hidden="true">{badge}</span>}
                 </NavLink>
               </Tooltip>
-            ))}
+              );
+            })}
           </nav>
         </ScrollShadow>
         <div className={styles.bottom}>

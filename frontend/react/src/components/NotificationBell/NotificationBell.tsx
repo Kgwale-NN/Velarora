@@ -1,18 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Bell, X } from "lucide-react";
-import { useResource, type Row, text } from "../../lib/useResource";
-import { useExamAlarms } from "../ExamAlarms/ExamAlarmsProvider";
+import { type Row, text } from "../../lib/useResource";
 import { AlarmList } from "../ExamAlarms/AlarmList";
 import { AlarmNotice } from "./AlarmNotice";
 import type { Notify } from "../../lib/types";
 import styles from "./NotificationBell.module.css";
-export function NotificationBell({ notify }: { notify: Notify }) {
-  const r = useResource<{
-    rows: Row[];
-    status: { unread: number; latest: number };
-  }>("/teacher/notifications", 5000);
-  const alarms = useExamAlarms();
+type Data = { rows: Row[]; status: { unread: number; latest: number } };
+export function NotificationBell({ notify, data }: { notify: Notify; data: Data | null }) {
   const [open, setOpen] = useState(false);
   const host = useRef<HTMLDivElement>(null),
     button = useRef<HTMLButtonElement>(null);
@@ -38,15 +33,15 @@ export function NotificationBell({ notify }: { notify: Notify }) {
     };
   }, [open]);
   useEffect(() => {
-    if (!r.data) return;
-    const { status, rows } = r.data;
+    if (!data) return;
+    const { status, rows } = data;
     if (cursor.current !== null && status.latest > cursor.current) {
       const row = rows.find((n) => Number(n.id) > cursor.current!);
       if (row) notify(`${row.computer} opened ${row.class_name}`);
     }
     cursor.current = status.latest;
-  }, [r.data, notify]);
-  const count = Math.max(r.data?.status.unread || 0, alarms.rows.length);
+  }, [data, notify]);
+  const count = data?.status.unread || 0;
   return (
     <div ref={host} className={styles.root}>
       <button
@@ -60,7 +55,7 @@ export function NotificationBell({ notify }: { notify: Notify }) {
         onClick={() => setOpen((value) => !value)}
       >
         <Bell size={19} />
-        {count > 0 && <span>{Math.min(99, count)}</span>}
+        {count > 0 && <span>{count > 99 ? "99+" : count}</span>}
       </button>
       {open && (
         <section
@@ -85,10 +80,10 @@ export function NotificationBell({ notify }: { notify: Notify }) {
           <div className={styles.body}>
             <h3>Exam alarms</h3>
             <AlarmList />
-            {!!r.data?.rows.length && (
+            {!!data?.rows.length && (
               <>
                 <h3>Recent alerts</h3>
-                {r.data.rows.slice(0, 3).map((row) => (
+                {data.rows.slice(0, 3).map((row) => (
                   <Link
                     className={styles.alert}
                     key={Number(row.id)}

@@ -10,7 +10,13 @@ import { Panel } from "../../components/Panel/Panel";
 import { Snapshot } from "../../components/Snapshot/Snapshot";
 import { ResourceState } from "../../components/ResourceState/ResourceState";
 import styles from "./Notifications.module.css";
-export function Notifications({ notify }: { notify: Notify }) {
+export function Notifications({
+  notify,
+  onRead,
+}: {
+  notify: Notify;
+  onRead: (id?: number) => void;
+}) {
   const r = useResource<{ rows: Row[]; status: { unread: number } }>(
     "/teacher/notifications",
     5000,
@@ -19,7 +25,26 @@ export function Notifications({ notify }: { notify: Notify }) {
   async function read(id?: number) {
     try {
       await api("/teacher/notifications/read", json("POST", { id }));
-      r.reload();
+      r.setData((current) => {
+        if (!current) return current;
+        if (id === undefined) {
+          return {
+            ...current,
+            rows: current.rows.map((notification) => ({ ...notification, is_read: 1 })),
+            status: { ...current.status, unread: 0 },
+          };
+        }
+        const target = current.rows.find((notification) => Number(notification.id) === id);
+        if (!target || target.is_read) return current;
+        return {
+          ...current,
+          rows: current.rows.map((notification) =>
+            Number(notification.id) === id ? { ...notification, is_read: 1 } : notification,
+          ),
+          status: { ...current.status, unread: Math.max(0, current.status.unread - 1) },
+        };
+      });
+      onRead(id);
     } catch (e) {
       notify(errorText(e), "error");
     }

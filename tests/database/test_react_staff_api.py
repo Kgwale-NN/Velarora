@@ -109,6 +109,29 @@ def test_schedule_mutation_requires_csrf_and_owner(api):
     assert c.delete(f"/api/teacher/schedules/{sid}", headers=api.headers).status_code == 400
 
 
+def test_notification_read_requires_csrf_and_strict_owned_ids(api):
+    from backend.db.notifications import insert_notification, list_notifications
+
+    notification_id = insert_notification(api.event, None)
+    c = api.client
+    url = "/api/teacher/notifications/read"
+    assert c.post(url, json={"id": notification_id}).status_code == 403
+    for payload in (
+        {"id": 0},
+        {"id": "1"},
+        {"id": True},
+        {"id": 9223372036854775808},
+        {"id": notification_id, "extra": 1},
+    ):
+        assert c.post(url, json=payload, headers=api.headers).status_code == 422
+    api.state["auth"] = {"id": api.second, "role": "teacher"}
+    assert c.post(url, json={"id": notification_id}, headers=api.headers).status_code == 200
+    assert list_notifications()[0]["is_read"] == 0
+    api.state["auth"] = {"id": api.first, "role": "teacher"}
+    assert c.post(url, json={"id": notification_id}, headers=api.headers).status_code == 200
+    assert list_notifications()[0]["is_read"] == 1
+
+
 def test_student_and_teacher_cannot_use_management_routes(api):
     c = api.client
     for path in ("models", "settings", "audit", "workstations", "model-alert-rules", "training"):

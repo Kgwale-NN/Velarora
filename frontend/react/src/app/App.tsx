@@ -1,5 +1,5 @@
 import { PageSkeleton } from "../components/PageSkeleton/PageSkeleton";
-import { lazy, Suspense, useCallback, useEffect, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import {
   UsersRound,
@@ -84,7 +84,9 @@ import { WorkspaceScroll } from "../components/WorkspaceScroll/WorkspaceScroll";
 import { WorkspaceNavbar } from "../components/WorkspaceNavbar/WorkspaceNavbar";
 import { SidebarToggle } from "../components/SidebarToggle/SidebarToggle";
 import { Sidebar } from "../components/Sidebar/Sidebar";
+import { BrandSplash } from "../components/BrandSplash/BrandSplash";
 import { useSmallScreen } from "../lib/useSmallScreen";
+import { useResource, type Row } from "../lib/useResource";
 import styles from "./App.module.css";
 const adminLinks = [
   ["Users", "/users", UsersRound],
@@ -107,6 +109,9 @@ const teacherLinks = [
 ] as const;
 export function App() {
   const [session, setSession] = useState<Session | null>(null),
+    [booting, setBooting] = useState(true),
+    [splash, setSplash] = useState(true),
+    [splashExiting, setSplashExiting] = useState(false),
     [error, setError] = useState(""),
     [drawer, setDrawer] = useState(false),
     [collapsed, setCollapsed] = useState(
@@ -117,6 +122,32 @@ export function App() {
     [message, setMessage] = useState<ToastMessage | null>(null);
   const mobile = useSmallScreen();
   const location = useLocation();
+  const splashStarted = useRef(performance.now());
+  const notifications = useResource<{
+    rows: Row[];
+    status: { unread: number; latest: number };
+  }>(session?.user?.role === "teacher" ? "/teacher/notifications" : null, 5000);
+  const updateNotificationRead = useCallback((id?: number) => {
+    notifications.setData((current) => {
+      if (!current) return current;
+      if (id === undefined) {
+        return {
+          ...current,
+          rows: current.rows.map((notification) => ({ ...notification, is_read: 1 })),
+          status: { ...current.status, unread: 0 },
+        };
+      }
+      const target = current.rows.find((notification) => Number(notification.id) === id);
+      if (!target || target.is_read) return current;
+      return {
+        ...current,
+        rows: current.rows.map((notification) =>
+          Number(notification.id) === id ? { ...notification, is_read: 1 } : notification,
+        ),
+        status: { ...current.status, unread: Math.max(0, current.status.unread - 1) },
+      };
+    });
+  }, [notifications.setData]);
   useEffect(() => {
     if (!mobile) setDrawer(false);
   }, [mobile]);
@@ -128,16 +159,40 @@ export function App() {
   const load = useCallback(() => {
     setError("");
     api<Session>("/session")
-      .then(setSession)
-      .catch((e) => setError(errorText(e)));
+      .then((value) => {
+        setSession(value);
+        setBooting(false);
+      })
+      .catch((e) => {
+        setError(errorText(e));
+        setBooting(false);
+      });
   }, []);
   useEffect(load, [load]);
+  useEffect(() => {
+    if (!session) return;
+    if (!session.user) {
+      setSplash(false);
+      return;
+    }
+    const remaining = Math.max(0, 1280 - (performance.now() - splashStarted.current));
+    let exitTimer = 0;
+    const timer = window.setTimeout(() => {
+      setSplashExiting(true);
+      exitTimer = window.setTimeout(() => setSplash(false), 260);
+    }, remaining);
+    return () => {
+      window.clearTimeout(timer);
+      window.clearTimeout(exitTimer);
+    };
+  }, [session]);
   useEffect(() => {
     setDrawer(false);
     const room = new URLSearchParams(location.search).get("classroom");
     if (room && /^\d+$/.test(room))
       localStorage.setItem("velarora.classroom", room);
   }, [location.pathname, location.search]);
+  if (splash && (booting || session?.user)) return <BrandSplash exiting={splashExiting} />;
   if (!session)
     return (
       <div className={`${styles.app} ${styles.light}`}>
@@ -154,7 +209,15 @@ export function App() {
         {location.pathname !== "/login" ? (
           <Navigate to={"/login" + location.search} replace />
         ) : (
-          <Login session={session} onLogin={setSession} />
+          <Login
+            session={session}
+            onLogin={(value) => {
+              splashStarted.current = performance.now();
+              setSplashExiting(false);
+              setSplash(true);
+              setSession(value);
+            }}
+          />
         )}
         <Toast message={message} onDismiss={dismiss} />
       </>
@@ -199,6 +262,7 @@ export function App() {
               setDrawer(false);
               setLogout(true);
             }}
+            unreadNotifications={notifications.data?.status.unread || 0}
           />
           <div className={styles.workspace}>
             <WorkspaceNavbar>
@@ -220,7 +284,7 @@ export function App() {
                 {admin ? "Administration" : "Teacher"}{" "}
                 <span className={styles.slash}>/</span> {title}
               </span>
-              {!admin && <NotificationBell notify={notify} />}
+              {!admin && <NotificationBell notify={notify} data={notifications.data} />}
             </WorkspaceNavbar>
             <WorkspaceScroll>
               <main key={location.pathname} className={styles.main}>
@@ -282,7 +346,7 @@ export function App() {
                         />
                         <Route
                           path="/notifications"
-                          element={<Notifications notify={notify} />}
+                          element={<Notifications notify={notify} onRead={updateNotificationRead} />}
                         />
                       </>
                     )}

@@ -2,7 +2,7 @@
 
 from typing import Annotated
 from fastapi import APIRouter, Depends, Query, Response
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field, StrictInt
 from backend.api.staff_security import teacher, write_teacher
 from backend.api.admin_routes import perform
 from backend.api import teacher_data as data
@@ -20,6 +20,12 @@ W = Annotated[dict, Depends(write_teacher)]
 class Policy(BaseModel):
     mode: str
     processes: list[str] = Field(max_length=1000)
+
+
+class NotificationRead(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    id: StrictInt | None = Field(default=None, gt=0, le=9223372036854775807)
 
 
 @router.get("/options")
@@ -143,9 +149,9 @@ async def notifications(actor: T):
 
 
 @router.post("/notifications/read")
-async def read_notifications(payload: dict, actor: W):
-    if payload.get("id") is None:
+async def read_notifications(payload: NotificationRead, actor: W):
+    if payload.id is None:
         await perform(data.owned, actor, db.mark_all_read)
     else:
-        await perform(data.owned, actor, db.mark_read, int(payload["id"]))
+        await perform(data.owned, actor, db.mark_read, payload.id)
     return {"ok": True}
