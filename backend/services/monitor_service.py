@@ -522,6 +522,12 @@ class MonitorController:
                     for comp_name, raw_bytes, res, img_bgr, app_name in zip(
                         valid_names, raw_batch, results, imgs, apps
                     ):
+                        from backend.core.app_presence import refine
+                        captured_id=self.state.computer_ids.get(comp_name)
+                        captured_host=next((pc['host'] for pc in (self._computers or []) if pc['name']==comp_name),'')
+                        res=refine(res,captured_id,captured_host,model,img_bgr,
+                            imgsz=detect_imgsz,conf=det_conf,iou=det_iou,
+                            verbose=False,device=device,rect=True,half=use_half)
                         annotated, dets = postprocess(res, img_bgr, keep_top1)
 
                         # Veyon already returned JPEG bytes (`raw_bytes`); reuse

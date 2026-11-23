@@ -22,11 +22,13 @@ def main():
     args=parser.parse_args()
     if args.self_test:
         import psutil
+        from workstation.app_presence import snapshot
         check=tk.Tk()
         check.withdraw()
         check.update_idletasks()
         args.self_test.write_text(json.dumps({'tk':tk.TkVersion,'pillow':bool(screens.capture),
-                                             'psutil':psutil.__version__}),encoding='utf-8')
+                                             'psutil':psutil.__version__,
+                                             'native_verification':snapshot() is not None}),encoding='utf-8')
         check.destroy()
         return
     home=Path(sys.executable).parent if getattr(sys,'frozen',False) else Path(__file__).parent

@@ -38,6 +38,12 @@ Windows Task Manager can terminate it. If a connection fails during an alarm,
 the alarm stays on until the teacher's stop command reaches the app. Reconnect
 to receive that command. Logs contain error types, not connection keys.
 
+The current agent also confirms whether Notepad is running. The server uses
+that evidence alongside its visual model, so an image of Notepad or a similar
+white dashboard cannot by itself confirm that Notepad is open. Update the agent
+folder on the campus PC when upgrading this verification feature. Other model
+classes continue using their existing detection rules.
+
 Screens are resized to fit 1920×1080 for upload, so small windows across multiple
 monitors may be harder for the visual model to recognise. An app rule checks the
 foreground executable; it does not list every background process. AI confidence

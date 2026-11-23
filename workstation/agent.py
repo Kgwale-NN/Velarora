@@ -97,7 +97,9 @@ def run_agent(config, stop_event=None, status=None):
         try:
             process=foreground_process()
             capable=bool(config.get('screen_capture'))
-            body=json.dumps({'process':process,'alarm_active':alarm.active,'capture_capable':capable}).encode()
+            from workstation.app_presence import snapshot, window_boxes
+            body=json.dumps({'process':process,'alarm_active':alarm.active,'capture_capable':capable,
+                             'native_apps':snapshot(),'native_windows':window_boxes(all_screens=True)}).encode()
             desired=send('heartbeat',body)
             alarm.set(bool(desired['alarm']))
             if capable and desired.get('capture_allowed'):
