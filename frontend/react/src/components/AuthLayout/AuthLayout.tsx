@@ -36,17 +36,9 @@ export function AuthLayout({
           src="/design-assets/computer-lab2.jpg"
           alt=""
           aria-hidden="true"
+          draggable={false}
           fetchPriority="high"
         />
-        <div className={styles.caption}>
-          <span>CLASSROOM CONFIDENCE</span>
-          <h2>
-            Every screen in view.
-            <br />
-            Every exam protected.
-          </h2>
-          <p>Live screens. Clear alerts. Confident supervision.</p>
-        </div>
       </div>
       {aside}
     </main>

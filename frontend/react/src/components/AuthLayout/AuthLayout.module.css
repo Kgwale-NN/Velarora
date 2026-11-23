@@ -76,6 +76,8 @@
   object-fit: cover;
   object-position: center 58%;
   filter: grayscale(1);
+  user-select: none;
+  -webkit-user-drag: none;
 }
 .card {
   width: min(100%, 360px);
@@ -160,60 +162,5 @@
 @media (prefers-reduced-motion: reduce) {
   .card {
     animation: none;
-  }
-}
-
-.visual::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, transparent 40%, #000000b8 100%);
-  pointer-events: none;
-}
-.caption {
-  position: absolute;
-  left: 40px;
-  right: 40px;
-  bottom: 48px;
-  z-index: 1;
-  color: #fff;
-}
-.caption > span {
-  display: block;
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 1.8px;
-  color: #ffffffc9;
-  margin-bottom: 14px;
-}
-.caption h2 {
-  font-size: clamp(26px, 3vw, 42px);
-  line-height: 1.15;
-  letter-spacing: -1px;
-  font-weight: 600;
-  margin: 0;
-}
-.caption p {
-  font-size: 13px;
-  line-height: 1.5;
-  color: #ffffffd9;
-  margin: 16px 0 0;
-}
-@media (max-width: 800px) {
-  .caption {
-    left: 24px;
-    right: 24px;
-    bottom: 24px;
-  }
-  .caption h2 {
-    font-size: 26px;
-    letter-spacing: -0.6px;
-  }
-  .caption > span {
-    margin-bottom: 10px;
-  }
-  .caption p {
-    font-size: 12px;
-    margin-top: 10px;
   }
 }

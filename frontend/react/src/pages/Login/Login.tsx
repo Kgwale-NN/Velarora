@@ -56,8 +56,10 @@ export function Login({
           {forgot && (
             <Modal title="Reset your password" onClose={() => setForgot(false)}>
               <p>
-                Ask your school administrator to reset your account password.
-                Give them the email address you use to sign in.
+                Password resets are handled by your school administrator.
+                Share the email address you use to sign in; they can reset it
+                from the Users page. Your current password will not be changed
+                until they complete the reset.
               </p>
               <Button onClick={() => setForgot(false)}>Got it</Button>
             </Modal>
