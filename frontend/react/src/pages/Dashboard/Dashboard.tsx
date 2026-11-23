@@ -6,6 +6,7 @@ import { useExamAlarms } from "../../components/ExamAlarms/ExamAlarmsProvider";
 import { useResource, text, type Row } from "../../lib/useResource";
 import { api, json, errorText } from "../../lib/api";
 import type { Notify, LiveFrame } from "../../lib/types";
+import { computerLabel } from "../../lib/computerLabel";
 import { Button } from "../../components/Button/Button";
 import { Select } from "../../components/Select/Select";
 import { Check } from "../../components/Check/Check";
@@ -49,6 +50,9 @@ export function Dashboard({
   const live = useResource<Live>(
     selected ? `/classrooms/${selected}/live` : null,
     2000,
+  );
+  const computerOptions = useResource<{ computers: Row[] }>(
+    overview ? null : "/teacher/options",
   );
   const alarms = useExamAlarms();
   const frames = live.data?.frames || [],
@@ -254,7 +258,15 @@ export function Dashboard({
               {names.map((name) => (
                 <ComputerScreen
                   key={name}
-                  name={name}
+                  name={computerLabel(
+                    frames.find((frame) => frame.name === name)?.computer_id ??
+                      live.data?.computers.find((computer) => computer.name === name)?.computer_id ??
+                      computerOptions.data?.computers.find((computer) => computer.name === name)?.id ??
+                      alarmRows.find((alarm) =>
+                        String(alarm.computer || alarm.computer_name || "").toLowerCase() === name.toLowerCase(),
+                      )?.computer_id,
+                    name,
+                  )}
                   frame={frames.find((f) => f.name === name)}
                   annotations={annotations}
                   onOpen={() => setOpened(name)}

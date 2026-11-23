@@ -1,6 +1,7 @@
 import { VolumeX } from "lucide-react";
 import { useExamAlarms } from "./ExamAlarmsProvider";
 import { text } from "../../lib/useResource";
+import { computerLabel } from "../../lib/computerLabel";
 import { Button } from "../Button/Button";
 import { ResourceState } from "../ResourceState/ResourceState";
 import styles from "./AlarmList.module.css";
@@ -17,7 +18,7 @@ export function AlarmList() {
       {alarms.rows.map((alarm) => (
         <article key={Number(alarm.id)} className={styles.item}>
           <div className={styles.heading}>
-            <strong>{text(alarm.computer || alarm.computer_name)}</strong>
+            <strong>{computerLabel(alarm.computer_id, alarm.computer || alarm.computer_name)}</strong>
             <span>{alarm.stopped_at ? "Stopping" : "Alarm active"}</span>
           </div>
           <p>{text(alarm.app_name || alarm.process_name || alarm.app)}</p>

@@ -1,10 +1,32 @@
 import { useEffect, useState, useCallback } from "react";
+import type { Dispatch, SetStateAction } from "react";
 import { api, errorText } from "./api";
-export function useResource<T>(path: string | null, interval = 0) {
-  const [data, setData] = useState<T | null>(null),
+export function useResource<T>(
+  path: string | null,
+  interval = 0,
+  scopeKey?: string | number | null,
+) {
+  const resourceKey = `${path ?? ""}\u0000${scopeKey ?? ""}`;
+  const [resource, setResource] = useState<{ key: string; data: T | null }>(
+      () => ({ key: resourceKey, data: null }),
+    ),
     [error, setError] = useState(""),
     [loading, setLoading] = useState(true),
     [revision, setRevision] = useState(0);
+  const data = resource.key === resourceKey ? resource.data : null;
+  const setData = useCallback<Dispatch<SetStateAction<T | null>>>(
+    (next) =>
+      setResource((current) => {
+        const currentData = current.key === resourceKey ? current.data : null;
+        return {
+          key: resourceKey,
+          data: typeof next === "function"
+            ? (next as (current: T | null) => T | null)(currentData)
+            : next,
+        };
+      }),
+    [resourceKey],
+  );
   const reload = useCallback(() => setRevision((v) => v + 1), []);
   useEffect(() => {
     if (!path) {
@@ -46,7 +68,7 @@ export function useResource<T>(path: string | null, interval = 0) {
       clearInterval(timer);
       document.removeEventListener("visibilitychange", refreshVisible);
     };
-  }, [path, revision, interval]);
+  }, [path, revision, interval, scopeKey, setData]);
   return { data, error, loading, reload, setData };
 }
 export type Row = Record<string, unknown>;

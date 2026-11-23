@@ -4,6 +4,7 @@ import { AlarmList } from "../../components/ExamAlarms/AlarmList";
 import { useState } from "react";
 import { useResource, type Row, text } from "../../lib/useResource";
 import { api, json, errorText } from "../../lib/api";
+import { computerLabel } from "../../lib/computerLabel";
 import type { Notify } from "../../lib/types";
 import { Button } from "../../components/Button/Button";
 import { Panel } from "../../components/Panel/Panel";
@@ -66,7 +67,7 @@ export function Notifications({
           <div className={styles.item} key={Number(n.id)}>
             <div className={styles.heading}>
               <strong>
-                {text(n.computer)} opened {text(n.class_name)}
+                {computerLabel(n.computer_id, n.computer)} opened {text(n.class_name)}
               </strong>
               <span className={styles.muted}>{text(n.created_at)}</span>
             </div>

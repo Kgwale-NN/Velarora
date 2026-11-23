@@ -25,7 +25,7 @@ def list_notifications(limit: int = 60, after_id: int = 0) -> list[dict]:
     scope, params = event_scope("e")
     rows = c.execute(f"""
         SELECT
-            n.id, n.event_id, n.class_id,
+            n.id, n.event_id, n.class_id, e.computer_id AS computer_id,
             COALESCE(dc.name,      '(unknown)') AS class_name,
             COALESCE(dc.color_hex, '#888888')   AS class_color,
             COALESCE(comp.name,    '(unknown)')  AS computer,

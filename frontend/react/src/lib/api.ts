@@ -10,8 +10,9 @@ export class ApiError extends Error {
 export async function api<T>(
   path: string,
   options: RequestInit = {},
+  retryAfterSessionCheck = true,
 ): Promise<T> {
-  const response = await fetch("/api" + path, {
+  const request = () => fetch("/api" + path, {
     ...options,
     credentials: "same-origin",
     headers: {
@@ -24,6 +25,21 @@ export async function api<T>(
       ...options.headers,
     },
   });
+  let response = await request();
+  const authEndpoint = path === "/session" || path === "/login";
+  if (response.status === 401 && !authEndpoint && retryAfterSessionCheck) {
+    const sessionResponse = await fetch("/api/session", {
+      credentials: "same-origin",
+      cache: "no-store",
+    });
+    const session = await sessionResponse.json().catch(() => null);
+    if (sessionResponse.ok && session?.user) {
+      if (session.csrf) csrf = session.csrf;
+      response = await request();
+    }
+  }
+  if (response.status === 401 && !authEndpoint && typeof window !== "undefined")
+    window.dispatchEvent(new Event("velarora:auth-expired"));
   const data = await response
     .json()
     .catch(() => ({ detail: "The server returned an unexpected response." }));
@@ -37,6 +53,7 @@ export async function api<T>(
   if (data.csrf) csrf = data.csrf;
   return data;
 }
+
 export const errorText = (error: unknown) =>
   error instanceof Error
     ? error.message

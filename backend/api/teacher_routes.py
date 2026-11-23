@@ -11,6 +11,8 @@ from backend.db.schedule_editor_data import editor_choices
 from backend.db.schedule_editor_save import save_editor_schedule
 from backend.db.notifications import notification_status
 from backend.db.application_policy import get_policy, save_policy
+from backend.services.classroom_state import rooms, registry_lock
+from backend.services.schedule_service import resume_schedule
 
 router = APIRouter(prefix="/api/teacher")
 T = Annotated[dict, Depends(teacher)]
@@ -104,7 +106,22 @@ async def export(rid: int, kind: str, actor: T):
 
 @router.get("/schedules")
 async def schedules(actor: T):
-    return await perform(data.owned, actor, db.list_schedules)
+    rows = await perform(data.owned, actor, db.list_schedules)
+    with registry_lock:
+        for row in rows:
+            if not row.get("group_id"):
+                row["runtime_status"] = "needs_classroom"
+                continue
+            room = rooms.get(row.get("group_id"))
+            if room and room.owner_id == actor["id"] and room.schedule_id == row["id"] and room.monitor:
+                row["runtime_status"] = "running"
+            elif room and room.owner_id == actor["id"] and room.suppressed_schedule == row["id"]:
+                row["runtime_status"] = "paused"
+            elif room and (room.monitor or room.stopping):
+                row["runtime_status"] = "classroom_in_use"
+            else:
+                row["runtime_status"] = "scheduled" if row["is_active"] else "disabled"
+    return rows
 
 
 @router.get("/schedule-options")
@@ -126,6 +143,12 @@ async def edit_schedule(sid: int, payload: dict, actor: W):
 async def delete_schedule(sid: int, actor: W):
     await perform(data.owned, actor, db.delete_schedule, sid)
     db.log_action("schedule.delete", user_id=actor["id"], entity="schedule", entity_id=sid)
+    return {"ok": True}
+
+
+@router.post("/schedules/{sid}/resume")
+async def resume_scheduled_exam(sid: int, actor: W):
+    await perform(data.owned, actor, resume_schedule, sid, actor["id"])
     return {"ok": True}
 
 

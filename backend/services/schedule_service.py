@@ -41,3 +41,25 @@ def _loop():
 def start_scheduler():
     worker=threading.Thread(target=_loop,daemon=True,name='classroom-scheduler')
     worker.start();return worker
+
+
+def resume_schedule(schedule_id, owner_id):
+    """Resume a teacher-stopped schedule during its current active window."""
+    from backend.db._core import _conn
+    from backend.db.schedule_timing import get_active_schedules_now
+
+    schedule = _conn().execute(
+        'SELECT id,group_id,created_by FROM schedule WHERE id=? AND created_by=?',
+        (schedule_id, owner_id),
+    ).fetchone()
+    if not schedule:
+        raise PermissionError('This schedule is not yours.')
+    if not any(row['id'] == schedule_id for row in get_active_schedules_now()):
+        raise ValueError('This schedule is outside its active time window.')
+    with registry_lock:
+        room = rooms.get(schedule['group_id'])
+        if room and (room.monitor or room.stopping):
+            raise ValueError('End the current classroom exam before resuming this schedule.')
+        if not room or room.suppressed_schedule != schedule_id:
+            raise ValueError('This schedule is not paused. It will start automatically at its scheduled time.')
+        room.suppressed_schedule = None

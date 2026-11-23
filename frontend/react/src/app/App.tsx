@@ -1,6 +1,6 @@
 import { PageSkeleton } from "../components/PageSkeleton/PageSkeleton";
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
-import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import {
   UsersRound,
   School,
@@ -92,7 +92,6 @@ const adminLinks = [
   ["Users", "/users", UsersRound],
   ["Classrooms", "/classrooms", School],
   ["Workstations", "/workstations", Monitor],
-  ["Classroom overview", "/classroom-overview", Monitor],
   ["Models", "/models", Box],
   ["Model alert rules", "/model-alert-rules", Shield],
   ["Audit log", "/audit", HistoryIcon],
@@ -122,11 +121,16 @@ export function App() {
     [message, setMessage] = useState<ToastMessage | null>(null);
   const mobile = useSmallScreen();
   const location = useLocation();
+  const navigate = useNavigate();
   const splashStarted = useRef(performance.now());
   const notifications = useResource<{
     rows: Row[];
     status: { unread: number; latest: number };
-  }>(session?.user?.role === "teacher" ? "/teacher/notifications" : null, 5000);
+  }>(
+    session?.user?.role === "teacher" ? "/teacher/notifications" : null,
+    5000,
+    session?.user?.id,
+  );
   const updateNotificationRead = useCallback((id?: number) => {
     notifications.setData((current) => {
       if (!current) return current;
@@ -169,6 +173,15 @@ export function App() {
       });
   }, []);
   useEffect(load, [load]);
+  useEffect(() => {
+    const expired = () => {
+      setError("");
+      setSession((current) => current ? { ...current, user: null } : current);
+      navigate("/login", { replace: true });
+    };
+    window.addEventListener("velarora:auth-expired", expired);
+    return () => window.removeEventListener("velarora:auth-expired", expired);
+  }, [navigate]);
   useEffect(() => {
     if (!session) return;
     if (!session.user) {
@@ -287,7 +300,7 @@ export function App() {
               {!admin && <NotificationBell notify={notify} data={notifications.data} />}
             </WorkspaceNavbar>
             <WorkspaceScroll>
-              <main key={location.pathname} className={styles.main}>
+              <main key={`${user.id}:${location.pathname}`} className={styles.main}>
                 <Suspense fallback={<PageSkeleton />}>
                   <Routes>
                     {admin ? (
@@ -305,10 +318,6 @@ export function App() {
                         <Route
                           path="/workstations"
                           element={<Workstations notify={notify} />}
-                        />
-                        <Route
-                          path="/classroom-overview"
-                          element={<Dashboard notify={notify} overview />}
                         />
                         <Route
                           path="/models"

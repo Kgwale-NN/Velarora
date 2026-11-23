@@ -1,0 +1,1 @@
+Install the included Cormorant Garamond .ttf files in Windows before opening the PowerPoint if its text appears in a substitute font. Right-click each .ttf and choose Install for me. Restart PowerPoint after installation. The deck uses Cormorant Garamond for display headings and Arial for supporting text.

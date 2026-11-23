@@ -5,6 +5,7 @@ import { Bell, X, VolumeX } from "lucide-react";
 import { useExamAlarms } from "../ExamAlarms/ExamAlarmsProvider";
 import { Button } from "../Button/Button";
 import { text } from "../../lib/useResource";
+import { computerLabel } from "../../lib/computerLabel";
 import styles from "./AlarmNotice.module.css";
 export function AlarmNotice({ hidden = false }: { hidden?: boolean }) {
   const alarms = useExamAlarms();
@@ -38,7 +39,7 @@ export function AlarmNotice({ hidden = false }: { hidden?: boolean }) {
         </button>
       </header>
       <p>
-        <strong>{text(alarm.computer || alarm.computer_name)}</strong> opened{" "}
+        <strong>{computerLabel(alarm.computer_id, alarm.computer || alarm.computer_name)}</strong> opened{" "}
         {text(alarm.app_name || alarm.process_name || alarm.app)}
       </p>
       <small>{text(alarm.classroom || "Your exam")}</small>

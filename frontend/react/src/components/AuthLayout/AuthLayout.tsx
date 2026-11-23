@@ -30,7 +30,10 @@ export function AuthLayout({
           {children}
         </form>
       </section>
-      <div className={styles.visual}>
+      <div
+        className={styles.visual}
+        onContextMenu={(event) => event.preventDefault()}
+      >
         <img
           className={styles.background}
           src="/design-assets/computer-lab2.jpg"
@@ -39,6 +42,15 @@ export function AuthLayout({
           draggable={false}
           fetchPriority="high"
         />
+        <div className={styles.caption}>
+          <span>CLASSROOM CONFIDENCE</span>
+          <h2>
+            Every screen in view.
+            <br />
+            Every exam protected.
+          </h2>
+          <p>Live screens. Clear alerts. Confident supervision.</p>
+        </div>
       </div>
       {aside}
     </main>

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Bell, X } from "lucide-react";
 import { type Row, text } from "../../lib/useResource";
+import { computerLabel } from "../../lib/computerLabel";
 import { AlarmList } from "../ExamAlarms/AlarmList";
 import { AlarmNotice } from "./AlarmNotice";
 import type { Notify } from "../../lib/types";
@@ -37,7 +38,7 @@ export function NotificationBell({ notify, data }: { notify: Notify; data: Data 
     const { status, rows } = data;
     if (cursor.current !== null && status.latest > cursor.current) {
       const row = rows.find((n) => Number(n.id) > cursor.current!);
-      if (row) notify(`${row.computer} opened ${row.class_name}`);
+      if (row) notify(`${computerLabel(row.computer_id, row.computer)} opened ${row.class_name}`);
     }
     cursor.current = status.latest;
   }, [data, notify]);
@@ -89,7 +90,7 @@ export function NotificationBell({ notify, data }: { notify: Notify; data: Data 
                     key={Number(row.id)}
                     to="/notifications"
                   >
-                    <strong>{text(row.computer)}</strong> opened{" "}
+                    <strong>{computerLabel(row.computer_id, row.computer)}</strong> opened{" "}
                     {text(row.class_name)}
                   </Link>
                 ))}

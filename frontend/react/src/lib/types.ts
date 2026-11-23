@@ -29,6 +29,7 @@ export type Notify = (message: string, kind?: "success" | "error") => void;
 export interface LiveFrame {
   id: number;
   name: string;
+  computer_id?: number;
   raw: string;
   annotated: string;
   online: boolean;

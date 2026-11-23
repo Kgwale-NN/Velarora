@@ -39,6 +39,7 @@ def live_data(gid, actor):
                 {
                     "id": i,
                     "name": name,
+                    "computer_id": visible.computer_ids.get(name),
                     "raw": frame[1],
                     "annotated": frame[0],
                     "detections": frame[2],
@@ -48,7 +49,12 @@ def live_data(gid, actor):
             ]
             if visible and visible.monitor
             else [],
-            "computers": visible.computers if visible and visible.monitor else [],
+            "computers": [
+                {"name": pc["name"], "computer_id": visible.computer_ids.get(pc["name"])}
+                for pc in visible.computers
+            ]
+            if visible and visible.monitor
+            else [],
             "logs": list(visible.log_buffer[-100:]) if visible else [],
         }
 

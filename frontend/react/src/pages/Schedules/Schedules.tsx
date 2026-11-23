@@ -1,7 +1,7 @@
 import { PageSkeleton } from "../../components/PageSkeleton/PageSkeleton";
 import { PageHeading } from "../../components/PageHeading/PageHeading";
 import { useState } from "react";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Play, Trash2 } from "lucide-react";
 import { useResource, type Row, text } from "../../lib/useResource";
 import { api, json, errorText } from "../../lib/api";
 import type { Notify } from "../../lib/types";
@@ -29,6 +29,15 @@ export function Schedules({ notify }: { notify: Notify }) {
       setBusy(false);
     }
   }
+  async function resume(id: number) {
+    try {
+      await api(`/teacher/schedules/${id}/resume`, json("POST"));
+      notify("Schedule resumed. The exam will start shortly.");
+      r.reload();
+    } catch (e) {
+      notify(errorText(e), "error");
+    }
+  }
   if (r.loading && !r.data) return <PageSkeleton />;
   return (
     <div className={styles.page}>
@@ -53,6 +62,22 @@ export function Schedules({ notify }: { notify: Notify }) {
             { key: "start_time", label: "Start" },
             { key: "end_time", label: "End" },
             {
+              key: "runtime_status",
+              label: "Status",
+              render: (s) =>
+                s.runtime_status === "needs_classroom"
+                  ? "Needs a classroom"
+                  : s.runtime_status === "paused"
+                  ? "Paused for this time window"
+                  : s.runtime_status === "running"
+                    ? "Running"
+                    : s.runtime_status === "classroom_in_use"
+                      ? "Classroom in use"
+                      : s.runtime_status === "disabled"
+                        ? "Disabled"
+                        : "Scheduled",
+            },
+            {
               key: "is_active",
               label: "Enabled",
               render: (s) => (s.is_active ? "Yes" : "No"),
@@ -62,6 +87,14 @@ export function Schedules({ notify }: { notify: Notify }) {
               label: "Actions",
               render: (s) => (
                 <div className={styles.actions}>
+                  {s.runtime_status === "paused" && (
+                    <Button
+                      aria-label="Resume this schedule"
+                      onClick={() => void resume(Number(s.id))}
+                    >
+                      <Play size={17} />
+                    </Button>
+                  )}
                   <Button
                     aria-label="Edit schedule"
                     onClick={() => setEdit(Number(s.id))}
