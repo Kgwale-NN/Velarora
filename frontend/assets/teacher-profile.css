@@ -1,27 +1,127 @@
-.teacher-profile-page { gap: 24px; min-width: 0; }
-.teacher-profile-heading { gap: 6px; padding: 4px 0; }
-.teacher-profile-title { font-size: clamp(30px,3vw,42px); line-height: 1.15; }
-.teacher-profile-subtitle, .profile-help { color: #b1b1b1; font-size: 18px; line-height: 1.45; }
-.teacher-profile-grid { display: grid; grid-template-columns: minmax(0,1.4fr) minmax(0,.8fr); gap: 24px; align-items: start; }
-.teacher-profile-details, .teacher-profile-security { min-width: 0; gap: 24px; }
-.profile-section-title { font-size: 24px; color: #eee; }
-.profile-section-icon { font-size: 26px; color: #c9c9c9; }
-.teacher-profile-details .q-btn, .teacher-profile-security .q-btn { padding: 0 24px; }
-.account-form-error { font-size: 17px; color: #eabbbb; }
-.account-form-error:empty { display: none; }
-.admin-glass-page .account-password-dialog { width: min(560px,94vw); max-width: 94vw; max-height: 90dvh; overflow-y: auto; padding: 28px; gap: 22px; border-radius: 28px; border: 1px solid #ffffff3b; background: linear-gradient(145deg,#242424ed,#0c0c0ce8); backdrop-filter: blur(28px); }
-.account-dialog-heading { gap: 16px; flex-wrap: nowrap; }
-.account-dialog-title { flex: 1; font-size: 28px; line-height: 1.2; }
-.account-dialog-footer { border-top: 1px solid #ffffff19; padding-top: 18px; }
-.account-dialog-footer .q-btn { padding: 0 22px; }
-.account-dialog-footer .q-btn__content { white-space: nowrap; flex-wrap: nowrap; }
-@media (max-width: 800px) {
-    .teacher-profile-grid { grid-template-columns: minmax(0,1fr); }
+.teacher-profile-page {
+    gap: 24px;
+    min-width: 0;
 }
+
+.teacher-profile-heading {
+    gap: 6px;
+    padding: 4px 0;
+}
+
+.teacher-profile-title {
+    font-size: clamp(30px, 3vw, 42px);
+    line-height: 1.15;
+}
+
+.teacher-profile-subtitle,
+.profile-help {
+    color: #b1b1b1;
+    font-size: 18px;
+    line-height: 1.45;
+}
+
+.teacher-profile-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, .8fr);
+    gap: 24px;
+    align-items: start;
+}
+
+.teacher-profile-details,
+.teacher-profile-security {
+    min-width: 0;
+    gap: 24px;
+}
+
+.profile-section-title {
+    font-size: 24px;
+    color: #eee;
+}
+
+.profile-section-icon {
+    font-size: 26px;
+    color: #c9c9c9;
+}
+
+.teacher-profile-details .q-btn,
+.teacher-profile-security .q-btn {
+    padding: 0 24px;
+}
+
+.account-form-error {
+    font-size: 17px;
+    color: #eabbbb;
+}
+
+.account-form-error:empty {
+    display: none;
+}
+
+.admin-glass-page .account-password-dialog {
+    width: min(560px, 94vw);
+    max-width: 94vw;
+    max-height: 90dvh;
+    overflow-y: auto;
+    padding: 28px;
+    gap: 22px;
+    border-radius: 28px;
+    border: 1px solid #ffffff3b;
+    background: linear-gradient(145deg, #242424ed, #0c0c0ce8);
+    backdrop-filter: blur(28px);
+}
+
+.account-dialog-heading {
+    gap: 16px;
+    flex-wrap: nowrap;
+}
+
+.account-dialog-title {
+    flex: 1;
+    font-size: 28px;
+    line-height: 1.2;
+}
+
+.account-dialog-footer {
+    border-top: 1px solid #ffffff19;
+    padding-top: 18px;
+}
+
+.account-dialog-footer .q-btn {
+    padding: 0 22px;
+}
+
+.account-dialog-footer .q-btn__content {
+    white-space: nowrap;
+    flex-wrap: nowrap;
+}
+
+@media (max-width: 800px) {
+    .teacher-profile-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
 @media (max-width: 540px) {
-    .teacher-profile-page { gap: 18px; }
-    .teacher-profile-details .q-btn, .teacher-profile-security .q-btn { width: 100%; }
-    .admin-glass-page .account-password-dialog { padding: 22px 18px; gap: 18px; }
-    .account-dialog-title { font-size: 25px; }
-    .account-dialog-footer .q-btn { flex: 1; padding: 0 14px; }
+    .teacher-profile-page {
+        gap: 18px;
+    }
+
+    .teacher-profile-details .q-btn,
+    .teacher-profile-security .q-btn {
+        width: 100%;
+    }
+
+    .admin-glass-page .account-password-dialog {
+        padding: 22px 18px;
+        gap: 18px;
+    }
+
+    .account-dialog-title {
+        font-size: 25px;
+    }
+
+    .account-dialog-footer .q-btn {
+        flex: 1;
+        padding: 0 14px;
+    }
 }

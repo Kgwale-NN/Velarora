@@ -1,100 +1,247 @@
 /* Slow glass entrance, responsive hover depth and drawer movement. */
 .velarora-ready .nicegui-content {
-    animation: glass-page-arrive 850ms cubic-bezier(.2,.75,.25,1) both;
+    animation: glass-page-arrive 850ms cubic-bezier(.2, .75, .25, 1) both;
     transform-origin: 50% 28%;
 }
+
 @keyframes glass-page-arrive {
-    0% { opacity: 0; transform: perspective(1400px) translateY(16px) translateZ(-24px); }
-    70% { opacity: 1; transform: perspective(1400px) translateY(-2px) translateZ(3px); }
-    100% { opacity: 1; transform: perspective(1400px) translateY(0) translateZ(0); }
+    0% {
+        opacity: 0;
+        transform: perspective(1400px) translateY(16px) translateZ(-24px);
+    }
+
+    70% {
+        opacity: 1;
+        transform: perspective(1400px) translateY(-2px) translateZ(3px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: perspective(1400px) translateY(0) translateZ(0);
+    }
 }
-.velarora-ready .login-glass { animation: glass-panel-arrive 2400ms cubic-bezier(.16,.7,.24,1) backwards; }
+
+.velarora-ready .login-glass {
+    animation: glass-panel-arrive 2400ms cubic-bezier(.16, .7, .24, 1) backwards;
+}
+
 @keyframes glass-panel-arrive {
-    0% { opacity: 0; transform: perspective(1200px) translateY(18px) scale(.93); }
-    72% { opacity: 1; transform: perspective(1200px) translateY(-2px) scale(1.014); }
-    100% { opacity: 1; transform: perspective(1200px) translateY(0) scale(1); }
+    0% {
+        opacity: 0;
+        transform: perspective(1200px) translateY(18px) scale(.93);
+    }
+
+    72% {
+        opacity: 1;
+        transform: perspective(1200px) translateY(-2px) scale(1.014);
+    }
+
+    100% {
+        opacity: 1;
+        transform: perspective(1200px) translateY(0) scale(1);
+    }
 }
-.velarora-ready .login-glass > *, .velarora-ready .users-dashboard-heading {
-    animation: glass-text-arrive 700ms cubic-bezier(.2,.7,.3,1) 140ms backwards;
+
+.velarora-ready .login-glass>*,
+.velarora-ready .users-dashboard-heading {
+    animation: glass-text-arrive 700ms cubic-bezier(.2, .7, .3, 1) 140ms backwards;
 }
-.velarora-ready .login-heading { animation-delay: 240ms; }
-.velarora-ready .login-fields { animation-delay: 340ms; }
-.velarora-ready .login-options { animation-delay: 410ms; }
-.velarora-ready .login-submit { animation-delay: 460ms; }
-.velarora-ready .login-divider { animation-delay: 510ms; }
-.velarora-ready .login-google { animation-delay: 560ms; }
+
+.velarora-ready .login-heading {
+    animation-delay: 240ms;
+}
+
+.velarora-ready .login-fields {
+    animation-delay: 340ms;
+}
+
+.velarora-ready .login-options {
+    animation-delay: 410ms;
+}
+
+.velarora-ready .login-submit {
+    animation-delay: 460ms;
+}
+
+.velarora-ready .login-divider {
+    animation-delay: 510ms;
+}
+
+.velarora-ready .login-google {
+    animation-delay: 560ms;
+}
+
 @keyframes glass-text-arrive {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
+
 .velarora-ready .user-stat-card {
-    animation: glass-text-arrive 760ms cubic-bezier(.2,.7,.3,1) 140ms backwards;
+    animation: glass-text-arrive 760ms cubic-bezier(.2, .7, .3, 1) 140ms backwards;
 }
-.velarora-ready .user-stat-card:nth-child(2) { animation-delay: 210ms; }
-.velarora-ready .user-stat-card:nth-child(3) { animation-delay: 280ms; }
-.velarora-ready .user-stat-card:nth-child(4) { animation-delay: 350ms; }
-.admin-glass-page .user-stat-card, .login-glass {
+
+.velarora-ready .user-stat-card:nth-child(2) {
+    animation-delay: 210ms;
+}
+
+.velarora-ready .user-stat-card:nth-child(3) {
+    animation-delay: 280ms;
+}
+
+.velarora-ready .user-stat-card:nth-child(4) {
+    animation-delay: 350ms;
+}
+
+.admin-glass-page .user-stat-card,
+.login-glass {
     position: relative;
-    transition: transform 460ms cubic-bezier(.2,.75,.25,1), border-color 400ms ease,
-                box-shadow 460ms ease, background-color 400ms ease;
+    transition: transform 460ms cubic-bezier(.2, .75, .25, 1), border-color 400ms ease,
+        box-shadow 460ms ease, background-color 400ms ease;
 }
-.admin-glass-page .user-stat-card::after, .login-glass::after {
-    content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+
+.admin-glass-page .user-stat-card::after,
+.login-glass::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
     background: linear-gradient(125deg, #ffffff15, transparent 45%, #ffffff03);
-    opacity: 0; transition: opacity 440ms ease;
+    opacity: 0;
+    transition: opacity 440ms ease;
 }
-.admin-glass-page .admin-nav-link, .admin-glass-page .admin-account {
-    transition: transform 350ms cubic-bezier(.2,.75,.25,1), background-color 350ms ease,
-                box-shadow 350ms ease, border-color 350ms ease;
+
+.admin-glass-page .admin-nav-link,
+.admin-glass-page .admin-account {
+    transition: transform 350ms cubic-bezier(.2, .75, .25, 1), background-color 350ms ease,
+        box-shadow 350ms ease, border-color 350ms ease;
 }
-.admin-glass-page .admin-nav-link .q-icon, .admin-menu-button .q-icon {
-    transition: transform 400ms cubic-bezier(.2,.75,.25,1);
+
+.admin-glass-page .admin-nav-link .q-icon,
+.admin-menu-button .q-icon {
+    transition: transform 400ms cubic-bezier(.2, .75, .25, 1);
 }
-.admin-glass-page .admin-drawer { transition: transform 440ms cubic-bezier(.2,.75,.25,1) !important; }
-.admin-glass-page .q-btn, .velarora-login-page .q-btn {
+
+.admin-glass-page .admin-drawer {
+    transition: transform 440ms cubic-bezier(.2, .75, .25, 1) !important;
+}
+
+.admin-glass-page .q-btn,
+.velarora-login-page .q-btn {
     transition: transform 220ms ease, background-color 280ms ease, border-color 280ms ease, box-shadow 350ms ease;
 }
-.admin-glass-page .q-btn:active, .velarora-login-page .q-btn:active { transform: scale(.97); }
-.admin-glass-page .admin-menu-button.menu-turn .q-icon { animation: menu-turn-return 650ms ease-in-out; }
-@keyframes menu-turn-return {
-    0%, 100% { transform: rotate(0); }
-    45% { transform: rotate(90deg); }
+
+.admin-glass-page .q-btn:active,
+.velarora-login-page .q-btn:active {
+    transform: scale(.97);
 }
-.admin-glass-page .q-field__control, .login-input .q-field__control {
+
+.admin-glass-page .admin-menu-button.menu-turn .q-icon {
+    animation: menu-turn-return 650ms ease-in-out;
+}
+
+@keyframes menu-turn-return {
+
+    0%,
+    100% {
+        transform: rotate(0);
+    }
+
+    45% {
+        transform: rotate(90deg);
+    }
+}
+
+.admin-glass-page .q-field__control,
+.login-input .q-field__control {
     transition: background-color 320ms ease, box-shadow 350ms ease;
 }
+
 @media (hover: hover) and (pointer: fine) {
     .admin-glass-page .user-stat-card:hover {
         transform: perspective(1000px) translateY(-7px) translateZ(10px);
-        border-color: #ffffff66; background-color: #ffffff05;
+        border-color: #ffffff66;
+        background-color: #ffffff05;
         box-shadow: inset 0 1px #ffffff4a, 0 20px 45px #0008, 0 0 24px #ffffff08;
     }
-    .login-glass:hover { border-color: #ffffff68; box-shadow: inset 0 1px #ffffff59, 0 28px 85px #0008; }
-    .admin-glass-page .user-stat-card:hover::after, .login-glass:hover::after { opacity: 1; }
+
+    .login-glass:hover {
+        border-color: #ffffff68;
+        box-shadow: inset 0 1px #ffffff59, 0 28px 85px #0008;
+    }
+
+    .admin-glass-page .user-stat-card:hover::after,
+    .login-glass:hover::after {
+        opacity: 1;
+    }
+
     .admin-glass-page .admin-nav-link:hover {
-        transform: translateX(5px); border-color: #ffffff38;
+        transform: translateX(5px);
+        border-color: #ffffff38;
         background: linear-gradient(120deg, #ffffff1c, #ffffff07);
         box-shadow: inset 0 1px #ffffff21, 0 5px 20px #0003;
     }
-    .admin-glass-page .admin-nav-link:hover .q-icon { transform: scale(1.12); }
-    .admin-glass-page .admin-account:hover { transform: translateY(-1px); }
-    .admin-glass-page .q-btn:hover, .velarora-login-page .q-btn:hover {
+
+    .admin-glass-page .admin-nav-link:hover .q-icon {
+        transform: scale(1.12);
+    }
+
+    .admin-glass-page .admin-account:hover {
+        transform: translateY(-1px);
+    }
+
+    .admin-glass-page .q-btn:hover,
+    .velarora-login-page .q-btn:hover {
         box-shadow: inset 0 1px #ffffff4d, 0 7px 25px #ffffff09;
     }
-    .admin-glass-page .q-field__control:hover, .login-input .q-field__control:hover {
-        background-color: #ffffff08; box-shadow: inset 0 1px #ffffff20, 0 0 18px #ffffff05;
+
+    .admin-glass-page .q-field__control:hover,
+    .login-input .q-field__control:hover {
+        background-color: #ffffff08;
+        box-shadow: inset 0 1px #ffffff20, 0 0 18px #ffffff05;
     }
 }
+
 @media (prefers-reduced-motion: reduce) {
-    .velarora-ready .nicegui-content, .velarora-ready .login-glass,
-    .velarora-ready .login-glass > *, .velarora-ready .users-dashboard-heading,
-    .velarora-ready .user-stat-card { animation: none !important; }
-    .admin-glass-page .user-stat-card, .login-glass, .admin-glass-page .q-btn,
-    .velarora-login-page .q-btn, .admin-glass-page .admin-drawer,
-    .admin-nav-link, .admin-account, .admin-nav-link .q-icon, .admin-menu-button .q-icon,
-    .user-stat-card::after, .login-glass::after, .q-field__control { transition: none !important; }
-    .admin-glass-page .user-stat-card:hover, .admin-glass-page .admin-nav-link:hover,
-    .admin-glass-page .admin-nav-link:hover .q-icon, .admin-glass-page .admin-account:hover,
-    .admin-glass-page .q-btn:active, .velarora-login-page .q-btn:active,
-    .admin-glass-page .admin-menu-button .q-icon { transform: none !important; animation: none !important; }
+
+    .velarora-ready .nicegui-content,
+    .velarora-ready .login-glass,
+    .velarora-ready .login-glass>*,
+    .velarora-ready .users-dashboard-heading,
+    .velarora-ready .user-stat-card {
+        animation: none !important;
+    }
+
+    .admin-glass-page .user-stat-card,
+    .login-glass,
+    .admin-glass-page .q-btn,
+    .velarora-login-page .q-btn,
+    .admin-glass-page .admin-drawer,
+    .admin-nav-link,
+    .admin-account,
+    .admin-nav-link .q-icon,
+    .admin-menu-button .q-icon,
+    .user-stat-card::after,
+    .login-glass::after,
+    .q-field__control {
+        transition: none !important;
+    }
+
+    .admin-glass-page .user-stat-card:hover,
+    .admin-glass-page .admin-nav-link:hover,
+    .admin-glass-page .admin-nav-link:hover .q-icon,
+    .admin-glass-page .admin-account:hover,
+    .admin-glass-page .q-btn:active,
+    .velarora-login-page .q-btn:active,
+    .admin-glass-page .admin-menu-button .q-icon {
+        transform: none !important;
+        animation: none !important;
+    }
 }
