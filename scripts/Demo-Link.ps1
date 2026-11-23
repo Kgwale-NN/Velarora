@@ -57,7 +57,8 @@ try {
     for ($attempt = 0; $attempt -lt 80; $attempt++) {
         if ($demoProcess.HasExited) { throw 'Tunnel exited; check data\demo\tunnel.stderr.log.' }
         if (Test-Path -LiteralPath $stderr) {
-            $demoMatch = [regex]::Match((Get-Content -Raw -LiteralPath $stderr), 'https://[a-z0-9-]+\.trycloudflare\.com')
+            $logText = [string](Get-Content -Raw -LiteralPath $stderr)
+            $demoMatch = [regex]::Match($logText, 'https://[a-z0-9-]+\.trycloudflare\.com')
             if ($demoMatch.Success) { $publicUrl = $demoMatch.Value; break }
         }
         Start-Sleep -Milliseconds 500
