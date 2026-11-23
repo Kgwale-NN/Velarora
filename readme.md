@@ -34,3 +34,4 @@ Both frontend and backend run together in one Python process.
 
 Based on [Veyon AI Monitor by Marius Vainauskis](https://github.com/vainmari/Veyon-detection).
 Original credits are retained. See [LICENSE](LICENSE) for the AGPL-3.0 licence.
+
