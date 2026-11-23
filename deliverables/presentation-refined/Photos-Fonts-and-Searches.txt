@@ -1,0 +1,101 @@
+VELARORA — REFINED PRESENTATION
+
+WHAT CHANGED
+
+14 slides with shorter, more natural wording. Black and white slide backgrounds, an elegant serif font and nine Pexels photographs. The architecture, workflow and use-case slides use editable diagrams. The schedule-test slide uses the actual saved test times rather than a decorative stock image. The separate speaking guide contains the fuller explanation.
+
+FONT
+
+The reference website, Passalacqua, declares Canela Thin and Canela Light in its public stylesheet. The screenshot is consistent with that style. A desktop Canela font file was not available in this project. This deck uses Cormorant Garamond as a close alternative, not an exact font match.
+
+Source checked: https://www.passalacqua.it/en/homepage
+
+The included font ZIP contains Cormorant Garamond Regular, Medium, SemiBold and Italic plus its Open Font License. On the presentation laptop:
+
+1. Extract Velarora-Fonts.zip.
+2. Select the four .ttf files.
+3. Right-click and choose Install. On Windows 11 you may need Show more options first.
+4. Close and reopen PowerPoint.
+5. Open Velarora-Refined-v2.pptx and press F5.
+
+The intended look depends on installing the font. The deck does not embed font binaries. It uses native PowerPoint fades and title entrances. Rehearse in the laptop's PowerPoint because some web viewers handle fonts and animation differently.
+
+PHOTO SOURCES AND EXACT PEXELS SEARCH PHRASES
+
+All photos below are stock illustrations. They do not show a Velarora deployment or prove an exam incident. Original colour photographs are retained inside the black-and-white slide design. The cover and quality-requirements photos are already monochrome. Photo links are also attached to the images and recorded in slide notes.
+
+Slide 1 — Cover
+Search: black and white computer lab empty chairs
+Photo: Grayscale Photo of Computer Lab
+Photographer: K S
+https://www.pexels.com/photo/grayscale-photo-of-computer-lab-7457920/
+
+Slide 2 — Problem and affected people
+Search: teacher supervising students laptops classroom
+Photo: Students Busy Using Laptops in the Classroom
+Photographer: Alena Darmel
+https://www.pexels.com/photo/students-busy-using-laptops-in-the-classroom-7742816/
+
+Slide 3 — The previous approach and observation
+Search: teacher helping student computer lab
+Photo: Teacher Assisting Student in Computer Lab Classroom
+Photographer: Haidar Azmi
+https://www.pexels.com/photo/teacher-assisting-student-in-computer-lab-classroom-32394664/
+
+Slide 4 — Project aim
+Search: teacher using laptop at desk classroom
+Photo: A Teacher Using a Laptop on Her Desk
+Photographer: Pavel Danilyuk
+https://www.pexels.com/photo/a-teacher-using-a-laptop-on-her-desk-8423123/
+
+Slide 5 — Functional requirements
+Search: hand using computer mouse keyboard
+Photo: Crop person with computer mouse
+Photographer: Ryutaro Tsukata
+https://www.pexels.com/photo/crop-person-with-computer-mouse-5745010/
+
+Slide 6 — Non-functional requirements
+Search: black and white hands typing laptop keyboard
+Photo: Hand Typing on Laptop Keyboard
+Photographer: Ivan Mudruk
+https://www.pexels.com/photo/hand-typing-on-laptop-keyboard-11114651/
+
+Slide 10 — App technologies
+Search: programmer laptop external monitor code
+Photo: A Person Doing Computer Programming
+Photographer: Mikhail Nilov
+https://www.pexels.com/photo/a-person-doing-computer-programming-7988086/
+
+Slide 12 — Development tools
+Search: laptop code desk notebook mug
+Photo: Modern Workspace with Laptop and Code Display
+Photographer: Daniil Komov
+https://www.pexels.com/photo/modern-workspace-with-laptop-and-code-display-34804003/
+
+Slide 14 — Demonstration
+Search: hand wireless computer mouse keyboard desk
+Photo: Close-up of Man Holding His Hand on a Wireless Computer Mouse and Keyboard
+Photographer: Diva Plavalaguna
+https://www.pexels.com/photo/close-up-of-man-holding-his-hand-on-a-wireless-computer-mouse-and-keyboard-6937936/
+
+HOW TO FIND A REPLACEMENT PHOTO
+
+1. Open https://www.pexels.com/.
+2. Copy the search phrase for the slide you want to change.
+3. Choose a photo with a clear subject and space for cropping.
+4. Download it from its original Pexels page.
+5. In PowerPoint, right-click the existing picture and choose Change Picture > From a File.
+6. Use Picture Format > Crop to position the subject clearly.
+
+Pexels licence: https://www.pexels.com/license/
+Check the current licence and the individual photo page when downloading or reusing a photo. Keep these credits with your project. A stock photo of a child or teacher is an illustration of classroom activity, not an accusation or evidence about that person.
+
+SLIDES WITHOUT PHOTOS
+
+7: System architecture diagram.
+8: Monitoring and response workflow.
+9: Use-case diagram.
+11: Detection technologies, given their own readable space.
+13: Actual schedule-test evidence.
+
+These slides use typography and diagrams so the technical information stays clear. Adding an unrelated photo would take space away from that explanation.
